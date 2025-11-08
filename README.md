@@ -120,69 +120,253 @@ Each stage includes:
 
 ### Prerequisites
 
-- **Backend**: Python 3.8+, PostgreSQL 12+
-- **Frontend**: Node.js 16+, npm/yarn
+Before starting, make sure you have the following installed:
 
-### Backend Setup (5 minutes)
+| Requirement | Version | Download Link |
+|------------|---------|---------------|
+| **Python** | 3.8 or higher | [python.org](https://www.python.org/downloads/) |
+| **PostgreSQL** | 12 or higher | [postgresql.org](https://www.postgresql.org/download/) |
+| **Node.js** | 16 or higher | [nodejs.org](https://nodejs.org/) |
+| **npm** | Comes with Node.js | - |
+| **Git** | Latest | [git-scm.com](https://git-scm.com/) |
+
+### 🔧 Complete Setup Guide
+
+## Step 1: Clone the Repository
 
 ```bash
+# Clone the repository
+git clone https://github.com/YOUR-USERNAME/research-scholars-portal.git
+cd research-scholars-portal
+```
+
+## Step 2: Backend Setup (Detailed)
+
+### 2.1 Create PostgreSQL Database
+
+```bash
+# Start PostgreSQL service (if not running)
+# Linux:
+sudo service postgresql start
+
+# macOS:
+brew services start postgresql
+
+# Windows: PostgreSQL should start automatically
+
+# Create database
+psql -U postgres
+# In psql shell:
+CREATE DATABASE research_portal;
+\q
+```
+
+### 2.2 Set Up Python Virtual Environment
+
+```bash
+# Navigate to backend directory
 cd backend
 
-# Create & activate virtual environment
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-venv\Scripts\activate     # Windows
 
-# Install dependencies
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+
+# On Linux/Mac:
+source venv/bin/activate
+
+# You should see (venv) in your terminal prompt
+```
+
+### 2.3 Install Python Dependencies
+
+```bash
+# Make sure virtual environment is activated
 pip install -r requirements.txt
+```
 
-# Setup database
-createdb research_portal
+### 2.4 Configure Environment Variables
 
-# Configure environment
+```bash
+# Copy the example environment file
+# On Windows:
+copy .env.example .env
+
+# On Linux/Mac:
 cp .env.example .env
-# Edit .env with your database credentials
 
-# Initialize database
+# Edit .env file with your settings
+# Use notepad, vim, or any text editor
+notepad .env  # Windows
+nano .env     # Linux/Mac
+```
+
+**Important**: Update these values in `.env`:
+
+```env
+# Database Configuration
+DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/research_portal
+
+# JWT Secret (generate a random string)
+JWT_SECRET_KEY=your-super-secret-key-here
+
+# Email Configuration (for notifications)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=True
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_DEFAULT_SENDER=your-email@gmail.com
+```
+
+**Note**: For Gmail, you need to create an [App Password](https://support.google.com/accounts/answer/185833).
+
+### 2.5 Initialize Database
+
+```bash
+# Create database tables
 flask db upgrade
-flask seed-db
 
-# Start server
+# Optional: Seed database with test data
+python run.py
+# The run.py file will automatically create test users on first run
+```
+
+### 2.6 Start Backend Server
+
+```bash
+# Make sure you're in the backend directory with venv activated
 python run.py
 ```
 
-Backend runs on: **http://localhost:5000**
+✅ **Backend is now running on: http://localhost:5000**
 
-### Frontend Setup (3 minutes)
+You should see output like:
+```
+ * Running on http://0.0.0.0:5000
+ * Debugger is active!
+```
+
+---
+
+## Step 3: Frontend Setup (Detailed)
+
+### 3.1 Navigate to Frontend Directory
 
 ```bash
+# Open a NEW terminal window/tab
 cd frontend
+```
 
-# Install dependencies
+### 3.2 Install Node Dependencies
+
+```bash
+# This may take 2-3 minutes
 npm install
+```
 
-# Configure environment (optional)
+### 3.3 Configure Frontend Environment (Optional)
+
+```bash
+# Copy the example environment file
+# On Windows:
+copy .env.example .env
+
+# On Linux/Mac:
 cp .env.example .env
+```
 
-# Start development server
+The default `.env` file contains:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+This should work as-is. Only change if your backend runs on a different port.
+
+### 3.4 Start Frontend Development Server
+
+```bash
 npm run dev
 ```
 
-Frontend runs on: **http://localhost:3000**
+✅ **Frontend is now running on: http://localhost:3000**
+
+You should see output like:
+```
+  VITE v5.x.x  ready in xxx ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+```
+
+---
+
+## Step 4: Access the Application
+
+1. **Open your browser** and go to: **http://localhost:3000**
+2. **Login** with any of the test credentials below
+3. **Explore** different roles and features!
+
+---
 
 ## 🔑 Test Credentials
 
-After running `flask seed-db`, use these credentials to test different roles:
+After starting the backend, use these credentials to test different roles:
 
+| Role | Email | Password |
+|------|-------|----------|
+| **Scholar (PhD)** | scholar1@university.edu | scholar123 |
+| **Scholar (MSc)** | scholar2@university.edu | scholar123 |
+| **Supervisor** | supervisor1@university.edu | supervisor123 |
+| **School Chair** | chair.cs@university.edu | chair123 |
+| **AD Research** | ad.research@university.edu | adresearch123 |
+| **Dean Academics** | dean@university.edu | dean123 |
+
+### First-Time Login
+
+1. Go to http://localhost:3000
+2. Select your role from the dropdown
+3. Enter email and password
+4. Click "Sign In"
+
+---
+
+## 🎯 Quick Verification Checklist
+
+After setup, verify everything is working:
+
+- [ ] Backend server is running on port 5000
+- [ ] Frontend server is running on port 3000
+- [ ] Can access http://localhost:3000 in browser
+- [ ] Can login with test credentials
+- [ ] No errors in browser console (F12)
+- [ ] No errors in backend terminal
+- [ ] PostgreSQL database exists and has tables
+
+---
+
+## 🔄 Daily Development Workflow
+
+Every time you work on the project:
+
+### Terminal 1 - Backend:
+```bash
+cd backend
+venv\Scripts\activate  # Windows
+# or
+source venv/bin/activate  # Linux/Mac
+python run.py
 ```
-Dean Academics: dean@university.edu / password123
-AD Research: ad.research@university.edu / password123
-School Chair: chair.cs@university.edu / password123
-Supervisor: supervisor1@university.edu / password123
-Scholar (PhD): scholar1@university.edu / password123
-Scholar (MSc): scholar2@university.edu / password123
+
+### Terminal 2 - Frontend:
+```bash
+cd frontend
+npm run dev
 ```
+
+Keep both terminals running while developing!
 
 ## 📚 Documentation
 
