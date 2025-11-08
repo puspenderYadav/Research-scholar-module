@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Research Portal{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+    <p class="text-gray-600 mt-2">Welcome back! Here's an overview of your activities.</p>
+</div>
+
+<!-- Stats Grid -->
+<div id="stats-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Stats will be loaded dynamically -->
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Activity -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-clock mr-2 text-blue-600"></i>Recent Activity
+        </h2>
+        <div id="recent-activity" class="space-y-4">
+            <!-- Activity items will be loaded dynamically -->
+            <p class="text-gray-500 text-center py-8">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-bolt mr-2 text-yellow-600"></i>Quick Actions
+        </h2>
+        <div id="quick-actions" class="space-y-3">
+            <!-- Quick action buttons will be loaded based on role -->
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Events -->
+<div class="mt-6 bg-white rounded-lg shadow p-6">
+    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+        <i class="fas fa-calendar-alt mr-2 text-green-600"></i>Upcoming Events
+    </h2>
+    <div id="upcoming-events" class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody id="events-body" class="bg-white divide-y divide-gray-200">
+                <!-- Events will be loaded dynamically -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/api';
+    const token = localStorage.getItem('access_token');
+
+    async function fetchWithAuth(url, options = {}) {
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            ...options.headers
+        };
+
+        return fetch(url, { ...options, headers });
+    }
+
+    async function loadDashboard() {
+        try {
+            // Get user info to determine role
+            const userResponse = await fetchWithAuth(`${API_BASE}/auth/me`);
+            const userData = await userResponse.json();
+            const role = userData.user.role;
+
+            // Load dashboard based on role
+            if (role === 'scholar') {
+                await loadScholarDashboard();
+            } else if (role === 'supervisor') {
+                await loadSupervisorDashboard();
+            } else if (['dean_academics', 'ad_research'].includes(role)) {
+                await loadAdminDashboard();
+            }
+
+            // Load calendar events
+            await loadUpcomingEvents();
+
+            // Set up quick actions
+            setupQuickActions(role);
+
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+        }
+    }
+
+    async function loadScholarDashboard() {
+        const response = await fetchWithAuth(`${API_BASE}/dashboard/scholar`);
+        const data = await response.json();
+
+        // Display stats
+        displayStats([
+            { icon: 'fa-graduation-cap', label: 'Program', value: data.scholar.program, color: 'blue' },
+            { icon: 'fa-clipboard-check', label: 'Exams', value: data.stats.exams_count, color: 'green' },
+            { icon: 'fa-presentation', label: 'Seminars', value: data.stats.seminars_count, color: 'purple' },
+            { icon: 'fa-plane', label: 'Travel Grants', value: data.stats.travel_grants_count, color: 'yellow' }
+        ]);
+    }
+
+    async function loadSupervisorDashboard() {
+        const response = await fetchWithAuth(`${API_BASE}/dashboard/supervisor`);
+        const data = await response.json();
+
+        displayStats([
+            { icon: 'fa-users', label: 'Scholars', value: data.stats.total_scholars, color: 'blue' },
+            { icon: 'fa-file-alt', label: 'Pending Synopsis', value: data.stats.pending_synopsis_reviews, color: 'yellow' },
+            { icon: 'fa-tasks', label: 'Pending Progress', value: data.stats.pending_progress_reviews, color: 'red' },
+            { icon: 'fa-check-circle', label: 'Status', value: 'Active', color: 'green' }
+        ]);
+    }
+
+    async function loadAdminDashboard() {
+        const response = await fetchWithAuth(`${API_BASE}/dashboard/dean`);
+        const data = await response.json();
+
+        displayStats([
+            { icon: 'fa-user-graduate', label: 'Total Scholars', value: data.stats.total_scholars, color: 'blue' },
+            { icon: 'fa-chalkboard-teacher', label: 'Supervisors', value: data.stats.total_supervisors, color: 'green' },
+            { icon: 'fa-chart-line', label: 'PhD Students', value: data.stats.scholars_by_program.PhD || 0, color: 'purple' },
+            { icon: 'fa-graduation-cap', label: 'MSc Students', value: data.stats.scholars_by_program.MSc || 0, color: 'yellow' }
+        ]);
+    }
+
+    function displayStats(stats) {
+        const grid = document.getElementById('stats-grid');
+        grid.innerHTML = stats.map(stat => `
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-${stat.color}-100 rounded-md p-3">
+                        <i class="fas ${stat.icon} text-2xl text-${stat.color}-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">${stat.label}</p>
+                        <p class="text-2xl font-semibold text-gray-900">${stat.value}</p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function loadUpcomingEvents() {
+        const response = await fetchWithAuth(`${API_BASE}/calendar/events`);
+        const events = await response.json();
+
+        const tbody = document.getElementById('events-body');
+
+        if (events.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">No upcoming events</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = events.slice(0, 5).map(event => `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${event.title}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${new Date(event.start).toLocaleDateString()}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        ${event.type}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        ${event.status}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function setupQuickActions(role) {
+        const actionsDiv = document.getElementById('quick-actions');
+        let actions = [];
+
+        if (role === 'scholar') {
+            actions = [
+                { icon: 'fa-file-upload', label: 'Submit Synopsis', href: '/synopsis/submit', color: 'blue' },
+                { icon: 'fa-file-alt', label: 'Submit Progress Report', href: '/progress/submit', color: 'green' },
+                { icon: 'fa-plane', label: 'Apply for Travel Grant', href: '/travel-grants/apply', color: 'yellow' },
+                { icon: 'fa-calendar-plus', label: 'View Calendar', href: '/calendar', color: 'purple' }
+            ];
+        } else if (role === 'supervisor') {
+            actions = [
+                { icon: 'fa-users', label: 'View Scholars', href: '/scholars', color: 'blue' },
+                { icon: 'fa-tasks', label: 'Pending Reviews', href: '/reviews', color: 'yellow' },
+                { icon: 'fa-calendar-alt', label: 'Schedule Event', href: '/events/schedule', color: 'green' }
+            ];
+        }
+
+        actionsDiv.innerHTML = actions.map(action => `
+            <a href="${action.href}" class="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-${action.color}-50 hover:border-${action.color}-300 transition duration-200">
+                <i class="fas ${action.icon} text-${action.color}-600 mr-3"></i>
+                <span class="text-gray-700 font-medium">${action.label}</span>
+            </a>
+        `).join('');
+    }
+
+    // Load dashboard on page load
+    loadDashboard();
+</script>
+{% endblock %}
