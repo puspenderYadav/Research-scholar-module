@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
-import { dashboardAPI, calendarAPI } from '../services/api';
-import { format } from 'date-fns';
+import { dashboardAPI, calendarAPI, meetingAPI } from '../services/api';
+import { format, isFuture } from 'date-fns';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -36,10 +36,36 @@ const Dashboard = () => {
 
   const loadUpcomingEvents = async () => {
     try {
-      const response = await calendarAPI.getEvents({
+      const calendarResponse = await calendarAPI.getEvents({
         start_date: new Date().toISOString(),
       });
-      setUpcomingEvents(response.data.slice(0, 5));
+
+      let allEvents = [...calendarResponse.data];
+
+      // Load meetings if user is supervisor or scholar
+      if (user?.role === 'supervisor' || user?.role === 'scholar') {
+        try {
+          const meetingsResponse = await meetingAPI.getAll();
+          const upcomingMeetings = meetingsResponse.data
+            .filter(m => isFuture(new Date(m.meeting_date)) && m.status === 'scheduled')
+            .map(m => ({
+              title: user?.role === 'supervisor'
+                ? `Meeting with ${m.scholar?.name || 'Scholar'}`
+                : `Meeting with ${m.faculty?.name || 'Faculty'}`,
+              start: m.meeting_date,
+              type: 'meeting',
+              status: m.status,
+              showTime: true
+            }));
+          allEvents = [...allEvents, ...upcomingMeetings];
+        } catch (error) {
+          console.error('Error loading meetings:', error);
+        }
+      }
+
+      // Sort by date and take first 5
+      allEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+      setUpcomingEvents(allEvents.slice(0, 5));
     } catch (error) {
       console.error('Error loading events:', error);
     }
@@ -121,6 +147,10 @@ const Dashboard = () => {
           <div className="space-y-3">
             {user.role === 'scholar' && (
               <>
+                <a href="/meetings" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
+                  <span className="text-iit-blue mr-3">🤝</span>
+                  <span className="text-gray-700 font-medium">View Meetings</span>
+                </a>
                 <a href="/synopsis" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
                   <span className="text-iit-blue mr-3">📄</span>
                   <span className="text-gray-700 font-medium">Submit Synopsis</span>
@@ -133,14 +163,14 @@ const Dashboard = () => {
                   <span className="text-iit-blue mr-3">✈️</span>
                   <span className="text-gray-700 font-medium">Apply for Travel Grant</span>
                 </a>
-                <a href="/calendar" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📅</span>
-                  <span className="text-gray-700 font-medium">View Calendar</span>
-                </a>
               </>
             )}
             {user.role === 'supervisor' && (
               <>
+                <a href="/meetings" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
+                  <span className="text-iit-blue mr-3">🤝</span>
+                  <span className="text-gray-700 font-medium">Organize Meeting</span>
+                </a>
                 <a href="/synopsis" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
                   <span className="text-iit-blue mr-3">✅</span>
                   <span className="text-gray-700 font-medium">Review Submissions</span>
@@ -196,7 +226,9 @@ const Dashboard = () => {
                     <tr key={index} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{event.title}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {format(new Date(event.start), 'MMM dd, yyyy')}
+                        {event.showTime
+                          ? format(new Date(event.start), 'MMM dd, yyyy hh:mm a')
+                          : format(new Date(event.start), 'MMM dd, yyyy')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-iit-lightblue text-iit-blue">{event.type}</span>

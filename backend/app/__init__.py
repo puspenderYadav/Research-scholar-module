@@ -41,10 +41,11 @@ def create_app(config_name='default'):
     os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'progress_reports'), exist_ok=True)
     os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'thesis'), exist_ok=True)
     os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'travel_grants'), exist_ok=True)
+    os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'leaves'), exist_ok=True)
 
     # Register blueprints
     from app.routes import auth, scholars, supervisors, committees, exams, seminars, \
-        synopsis, progress, thesis, travel_grants, notifications, calendar, dashboard, supervisor_change, schools, research_office, dean, comprehensive_exams
+        synopsis, progress, thesis, travel_grants, notifications, calendar, dashboard, supervisor_change, schools, research_office, dean, comprehensive_exams, leaves, meetings
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(scholars.bp)
@@ -64,5 +65,7 @@ def create_app(config_name='default'):
     app.register_blueprint(research_office.bp)
     app.register_blueprint(dean.bp)
     app.register_blueprint(comprehensive_exams.bp)
+    app.register_blueprint(leaves.bp)
+    app.register_blueprint(meetings.bp)
 
     return app

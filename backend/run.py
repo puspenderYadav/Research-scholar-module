@@ -16,7 +16,8 @@ from app import create_app, db
 from app.models import (
     User, Scholar, Supervisor, School, Committee, CommitteeMember,
     Exam, Seminar, Synopsis, ProgressReport, Thesis,
-    TravelGrant, TravelGrantApproval, Notification, SupervisorChangeRequest
+    TravelGrant, TravelGrantApproval, Notification, SupervisorChangeRequest,
+    Leave, LeaveApproval, LeaveBalance, Meeting
 )
 
 # Create Flask application
@@ -42,7 +43,11 @@ def make_shell_context():
         'TravelGrant': TravelGrant,
         'TravelGrantApproval': TravelGrantApproval,
         'Notification': Notification,
-        'SupervisorChangeRequest': SupervisorChangeRequest
+        'SupervisorChangeRequest': SupervisorChangeRequest,
+        'Leave': Leave,
+        'LeaveApproval': LeaveApproval,
+        'LeaveBalance': LeaveBalance,
+        'Meeting': Meeting
     }
 
 
