@@ -47,6 +47,9 @@ const Layout = ({ children }) => {
     { name: 'Synopsis', path: '/synopsis', icon: '📄', roles: ['scholar', 'supervisor'] },
     { name: 'Progress Reports', path: '/progress-reports', icon: '📊', roles: ['scholar', 'supervisor'] },
     { name: 'Thesis', path: '/thesis', icon: '📚', roles: ['scholar', 'supervisor'] },
+    { name: 'Leave Applications', path: '/leave-applications', icon: '🏖️', roles: ['scholar'] },
+    { name: 'Leave Approvals', path: '/leave-approvals', icon: '✅', roles: ['supervisor', 'school_chair'] },
+    { name: 'Meetings', path: '/meetings', icon: '🤝', roles: ['supervisor', 'scholar'] },
     { name: 'Travel Grants', path: '/travel-grants', icon: '✈️', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
     { name: 'Calendar', path: '/calendar', icon: '📅', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
   ];

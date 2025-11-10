@@ -223,3 +223,26 @@ export const deanAPI = {
   reactivateScholar: (scholarId) => api.post(`/dean/reactivate-scholar/${scholarId}`),
   exportScholars: () => api.get('/dean/export-scholars', { responseType: 'blob' }),
 };
+
+export const leaveAPI = {
+  getAll: () => api.get('/leaves'),
+  getById: (id) => api.get(`/leaves/${id}`),
+  getBalance: () => api.get('/leaves/balance'),
+  create: (formData) => api.post('/leaves', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  approve: (id, data) => api.post(`/leaves/${id}/approve`, data),
+  getPending: () => api.get('/leaves/pending'),
+};
+
+export const meetingAPI = {
+  getAll: () => api.get('/meetings'),
+  getById: (id) => api.get(`/meetings/${id}`),
+  getSupervisedScholars: () => api.get('/meetings/supervised-scholars'),
+  create: (data) => api.post('/meetings', data),
+  update: (id, data) => api.put(`/meetings/${id}`, data),
+  cancel: (id) => api.delete(`/meetings/${id}`),
+  addScholarComment: (id, comment) => api.post(`/meetings/${id}/scholar-comment`, { comment }),
+  cleanupOld: () => api.post('/meetings/cleanup-old'),
+  cleanupNotifications: () => api.post('/meetings/cleanup-notifications'),
+};

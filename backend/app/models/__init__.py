@@ -12,6 +12,8 @@ from app.models.notification import Notification
 from app.models.school import School
 from app.models.comprehensive_exam import ComprehensiveExam, ComprehensiveExamRegistration
 from app.models.announcement import Announcement
+from app.models.leave import Leave, LeaveApproval, LeaveBalance
+from app.models.meeting import Meeting
 
 __all__ = [
     'User',
@@ -30,6 +32,10 @@ __all__ = [
     'School',
     'ComprehensiveExam',
     'ComprehensiveExamRegistration',
-    'Announcement'
+    'Announcement',
+    'Leave',
+    'LeaveApproval',
+    'LeaveBalance',
+    'Meeting'
 ]
 from app.models.supervisor_change_request import SupervisorChangeRequest

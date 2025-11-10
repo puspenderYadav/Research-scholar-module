@@ -27,6 +27,9 @@ import SupervisorChangeRequest from './pages/SupervisorChangeRequest'
 import SupervisorChangeApprovals from './pages/SupervisorChangeApprovals'
 import BulkScholarUpload from './pages/BulkScholarUpload'
 import ComprehensiveExams from './pages/ComprehensiveExams'
+import LeaveApplications from './pages/LeaveApplications'
+import LeaveApprovals from './pages/LeaveApprovals'
+import Meetings from './pages/Meetings'
 
 function App() {
   return (
@@ -164,6 +167,24 @@ function App() {
           <Route path="/comprehensive-exams" element={
             <PrivateRoute>
               <ComprehensiveExams />
+            </PrivateRoute>
+          } />
+
+          <Route path="/leave-applications" element={
+            <PrivateRoute>
+              <LeaveApplications />
+            </PrivateRoute>
+          } />
+
+          <Route path="/leave-approvals" element={
+            <PrivateRoute>
+              <LeaveApprovals />
+            </PrivateRoute>
+          } />
+
+          <Route path="/meetings" element={
+            <PrivateRoute>
+              <Meetings />
             </PrivateRoute>
           } />
 
