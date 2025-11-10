@@ -1,6 +1,7 @@
 {
   "name": "research-portal-frontend",
   "version": "1.0.0",
+  "type": "module",
   "description": "Research Scholars Management Portal - Frontend",
   "private": true,
   "scripts": {
