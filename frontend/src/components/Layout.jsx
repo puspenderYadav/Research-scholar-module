@@ -41,6 +41,7 @@ const Layout = ({ children }) => {
     { name: 'Add School', path: '/add-school', icon: '🏛️', roles: ['dean_academics'] },
     { name: 'Announcements', path: '/announcements', icon: '📢', roles: ['dean_academics', 'ad_research'] },
     { name: 'Supervisors', path: '/supervisors', icon: '👨‍🏫', roles: ['ad_research'] },
+    { name: 'My Committee Scholars', path: '/my-committee-scholars', icon: '👥', roles: ['supervisor'] },
     { name: 'Comprehensive Exams', path: '/comprehensive-exams', icon: '📋', roles: ['scholar', 'ad_research'] },
     { name: 'Exams', path: '/exams', icon: '📝', roles: ['scholar', 'supervisor'] },
     { name: 'Seminars', path: '/seminars', icon: '🎤', roles: ['scholar', 'supervisor'] },

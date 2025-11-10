@@ -15,6 +15,7 @@ import RecruitFaculty from './pages/RecruitFaculty'
 import AddSchool from './pages/AddSchool'
 import Announcements from './pages/Announcements'
 import Supervisors from './pages/Supervisors'
+import MyCommitteeScholars from './pages/MyCommitteeScholars'
 import Exams from './pages/Exams'
 import Seminars from './pages/Seminars'
 import Synopsis from './pages/Synopsis'
@@ -92,6 +93,12 @@ function App() {
           <Route path="/supervisors" element={
             <PrivateRoute>
               <Supervisors />
+            </PrivateRoute>
+          } />
+
+          <Route path="/my-committee-scholars" element={
+            <PrivateRoute>
+              <MyCommitteeScholars />
             </PrivateRoute>
           } />
 

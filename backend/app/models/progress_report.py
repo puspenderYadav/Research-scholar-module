@@ -17,14 +17,15 @@ class ProgressReport(db.Model):
     file_name = db.Column(db.String(255), nullable=False)
 
     # Review details
-    # Status: submitted, under_review, changes_requested, accepted, rejected
-    status = db.Column(db.String(50), default='submitted')
+    # Status: pending_review, under_review, changes_requested, approved, rejected
+    status = db.Column(db.String(50), default='pending_review')
+    
+    # Overall review summary (added after all approvals)
+    final_reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    final_reviewed_at = db.Column(db.DateTime)
+    final_feedback = db.Column(db.Text)
 
-    reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'))
-    reviewed_at = db.Column(db.DateTime)
-    feedback = db.Column(db.Text)
-
-    # Rating (optional)
+    # Rating (optional - set after final approval)
     rating = db.Column(db.String(50))  # excellent, good, satisfactory, needs_improvement
 
     # Metadata
@@ -33,11 +34,11 @@ class ProgressReport(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    reviewer = db.relationship('User', foreign_keys=[reviewed_by])
+    final_reviewer = db.relationship('User', foreign_keys=[final_reviewed_by])
 
-    def to_dict(self):
+    def to_dict(self, include_relations=False):
         """Convert progress report to dictionary"""
-        return {
+        data = {
             'id': self.id,
             'scholar_id': self.scholar_id,
             'report_period_start': self.report_period_start.isoformat() if self.report_period_start else None,
@@ -45,13 +46,18 @@ class ProgressReport(db.Model):
             'file_path': self.file_path,
             'file_name': self.file_name,
             'status': self.status,
-            'reviewed_by': self.reviewed_by,
-            'reviewed_at': self.reviewed_at.isoformat() if self.reviewed_at else None,
-            'feedback': self.feedback,
+            'final_reviewed_by': self.final_reviewed_by,
+            'final_reviewed_at': self.final_reviewed_at.isoformat() if self.final_reviewed_at else None,
+            'final_feedback': self.final_feedback,
             'rating': self.rating,
             'submission_date': self.submission_date.isoformat() if self.submission_date else None,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+        if include_relations and hasattr(self, 'approvals'):
+            data['approvals'] = [approval.to_dict(include_relations=True) for approval in self.approvals]
+
+        return data
 
     def __repr__(self):
         return f'<ProgressReport {self.id} for Scholar {self.scholar_id}>'

@@ -6,12 +6,14 @@ from app.models.exam import Exam
 from app.models.seminar import Seminar
 from app.models.synopsis import Synopsis
 from app.models.progress_report import ProgressReport
+from app.models.progress_report_approval import ProgressReportApproval
 from app.models.thesis import Thesis
 from app.models.travel_grant import TravelGrant, TravelGrantApproval
 from app.models.notification import Notification
 from app.models.school import School
 from app.models.comprehensive_exam import ComprehensiveExam, ComprehensiveExamRegistration
 from app.models.announcement import Announcement
+from app.models.supervisor_change_request import SupervisorChangeRequest
 
 __all__ = [
     'User',
@@ -23,6 +25,7 @@ __all__ = [
     'Seminar',
     'Synopsis',
     'ProgressReport',
+    'ProgressReportApproval',
     'Thesis',
     'TravelGrant',
     'TravelGrantApproval',
@@ -30,6 +33,6 @@ __all__ = [
     'School',
     'ComprehensiveExam',
     'ComprehensiveExamRegistration',
-    'Announcement'
+    'Announcement',
+    'SupervisorChangeRequest'
 ]
-from app.models.supervisor_change_request import SupervisorChangeRequest

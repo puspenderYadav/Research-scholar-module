@@ -724,3 +724,287 @@ def get_announcement_attachment(filename):
         return jsonify({'error': 'File not found'}), 404
 
     return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+@bp.route('/bulk-admission', methods=['POST'])
+@jwt_required()
+@role_required('dean_academics')
+def bulk_admission():
+    """
+    Bulk admission of scholars via CSV upload (Dean Academics only)
+    CSV Format: name, email, phone, enrollment_number, program, school_code, admission_date, 
+                admission_mode, research_area, supervisor_email, co_supervisor_email,
+                dc_member1_email, dc_member2_email, dc_member3_email,
+                apc_member1_email, apc_member2_email, apc_member3_email
+    """
+    from app.models.committee import Committee, CommitteeMember
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    
+    if not file.filename.endswith('.csv'):
+        return jsonify({'error': 'File must be a CSV'}), 400
+
+    try:
+        # Read CSV file
+        stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.DictReader(stream)
+        
+        success_count = 0
+        error_count = 0
+        errors = []
+        
+        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 to account for header
+            try:
+                # Validate required fields
+                required_fields = ['name', 'email', 'enrollment_number', 'program', 'school_code', 
+                                 'supervisor_email', 'dc_member1_email', 'dc_member2_email', 'dc_member3_email',
+                                 'apc_member1_email', 'apc_member2_email', 'apc_member3_email']
+                
+                missing_fields = [field for field in required_fields if not row.get(field)]
+                if missing_fields:
+                    errors.append(f"Row {row_num}: Missing required fields: {', '.join(missing_fields)}")
+                    error_count += 1
+                    continue
+
+                # Check if user already exists
+                existing_user = User.query.filter_by(email=row['email'].strip()).first()
+                if existing_user:
+                    errors.append(f"Row {row_num}: User with email {row['email']} already exists")
+                    error_count += 1
+                    continue
+
+                # Check if enrollment number exists
+                existing_scholar = Scholar.query.filter_by(enrollment_number=row['enrollment_number'].strip()).first()
+                if existing_scholar:
+                    errors.append(f"Row {row_num}: Scholar with enrollment number {row['enrollment_number']} already exists")
+                    error_count += 1
+                    continue
+
+                # Find school
+                school = School.query.filter_by(code=row['school_code'].strip()).first()
+                if not school:
+                    errors.append(f"Row {row_num}: School with code {row['school_code']} not found")
+                    error_count += 1
+                    continue
+
+                # Find supervisor
+                supervisor_user = User.query.filter_by(email=row['supervisor_email'].strip()).first()
+                if not supervisor_user or not supervisor_user.supervisor_profile:
+                    errors.append(f"Row {row_num}: Supervisor with email {row['supervisor_email']} not found")
+                    error_count += 1
+                    continue
+                supervisor = supervisor_user.supervisor_profile
+
+                # Find co-supervisor (optional)
+                co_supervisor = None
+                if row.get('co_supervisor_email') and row['co_supervisor_email'].strip():
+                    co_supervisor_user = User.query.filter_by(email=row['co_supervisor_email'].strip()).first()
+                    if co_supervisor_user and co_supervisor_user.supervisor_profile:
+                        co_supervisor = co_supervisor_user.supervisor_profile
+
+                # Find doctoral committee members
+                dc_members = []
+                for i in range(1, 4):  # dc_member1, dc_member2, dc_member3
+                    dc_email_key = f'dc_member{i}_email'
+                    dc_email = row.get(dc_email_key, '').strip()
+                    
+                    if not dc_email:
+                        errors.append(f"Row {row_num}: Doctoral committee member {i} email is required")
+                        error_count += 1
+                        break
+                    
+                    dc_user = User.query.filter_by(email=dc_email).first()
+                    if not dc_user or not dc_user.supervisor_profile:
+                        errors.append(f"Row {row_num}: Doctoral committee member with email {dc_email} not found")
+                        error_count += 1
+                        break
+                    
+                    dc_members.append(dc_user.supervisor_profile)
+                
+                # Skip if any DC member not found
+                if len(dc_members) != 3:
+                    continue
+
+                # Find academic progress committee members
+                apc_members = []
+                for i in range(1, 4):  # apc_member1, apc_member2, apc_member3
+                    apc_email_key = f'apc_member{i}_email'
+                    apc_email = row.get(apc_email_key, '').strip()
+                    
+                    if not apc_email:
+                        errors.append(f"Row {row_num}: Academic Progress Committee member {i} email is required")
+                        error_count += 1
+                        break
+                    
+                    apc_user = User.query.filter_by(email=apc_email).first()
+                    if not apc_user or not apc_user.supervisor_profile:
+                        errors.append(f"Row {row_num}: Academic Progress Committee member with email {apc_email} not found")
+                        error_count += 1
+                        break
+                    
+                    apc_members.append(apc_user.supervisor_profile)
+                
+                # Skip if any APC member not found
+                if len(apc_members) != 3:
+                    continue
+
+                # Parse admission date
+                admission_date = None
+                if row.get('admission_date') and row['admission_date'].strip():
+                    try:
+                        admission_date = datetime.strptime(row['admission_date'].strip(), '%Y-%m-%d').date()
+                    except ValueError:
+                        try:
+                            admission_date = datetime.strptime(row['admission_date'].strip(), '%d/%m/%Y').date()
+                        except ValueError:
+                            errors.append(f"Row {row_num}: Invalid admission_date format. Use YYYY-MM-DD or DD/MM/YYYY")
+                            error_count += 1
+                            continue
+
+                # Create user
+                user = User(
+                    name=row['name'].strip(),
+                    email=row['email'].strip(),
+                    phone=row.get('phone', '').strip() or None,
+                    role='scholar',
+                    is_active=True
+                )
+                # Set default password (should be changed on first login)
+                default_password = row.get('password', 'Scholar@123')
+                user.set_password(default_password)
+                
+                db.session.add(user)
+                db.session.flush()
+
+                # Create scholar profile
+                scholar = Scholar(
+                    user_id=user.id,
+                    enrollment_number=row['enrollment_number'].strip(),
+                    program=row['program'].strip(),
+                    school_id=school.id,
+                    supervisor_id=supervisor.id,
+                    co_supervisor_id=co_supervisor.id if co_supervisor else None,
+                    admission_date=admission_date,
+                    admission_mode=row.get('admission_mode', '').strip() or None,
+                    research_area=row.get('research_area', '').strip() or None,
+                    status='active'
+                )
+                
+                db.session.add(scholar)
+                db.session.flush()
+
+                # Create doctoral committee
+                committee = Committee(scholar_id=scholar.id)
+                db.session.add(committee)
+                db.session.flush()
+
+                # Add doctoral committee members
+                for dc_member in dc_members:
+                    committee_member = CommitteeMember(
+                        committee_id=committee.id,
+                        supervisor_id=dc_member.id,
+                        member_type='DC',
+                        is_active=True
+                    )
+                    db.session.add(committee_member)
+
+                # Add academic progress committee members
+                for apc_member in apc_members:
+                    committee_member = CommitteeMember(
+                        committee_id=committee.id,
+                        supervisor_id=apc_member.id,
+                        member_type='APC',
+                        is_active=True
+                    )
+                    db.session.add(committee_member)
+
+                success_count += 1
+                
+            except Exception as e:
+                errors.append(f"Row {row_num}: {str(e)}")
+                error_count += 1
+                continue
+
+        # Commit all changes if there were any successes
+        if success_count > 0:
+            db.session.commit()
+        else:
+            db.session.rollback()
+
+        return jsonify({
+            'message': f'Bulk admission completed. {success_count} scholars added, {error_count} errors.',
+            'success_count': success_count,
+            'error_count': error_count,
+            'errors': errors if errors else None
+        }), 200 if error_count == 0 else 207  # 207 = Multi-Status
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error processing CSV: {str(e)}'}), 500
+
+
+@bp.route('/bulk-admission/template', methods=['GET'])
+@jwt_required()
+@role_required('dean_academics')
+def download_bulk_admission_template():
+    """Download CSV template for bulk admission"""
+    
+    # Create CSV template
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Header row with all required fields
+    writer.writerow([
+        'name',
+        'email', 
+        'phone',
+        'enrollment_number',
+        'program',
+        'school_code',
+        'admission_date',
+        'admission_mode',
+        'research_area',
+        'supervisor_email',
+        'co_supervisor_email',
+        'dc_member1_email',
+        'dc_member2_email',
+        'dc_member3_email',
+        'apc_member1_email',
+        'apc_member2_email',
+        'apc_member3_email',
+        'password'
+    ])
+    
+    # Add sample data row
+    writer.writerow([
+        'John Doe',
+        'john.doe@university.edu',
+        '1234567890',
+        'PHD2025001',
+        'PhD',
+        'CS',
+        '2025-01-15',
+        'Regular',
+        'Machine Learning',
+        'supervisor1@university.edu',
+        '',
+        'dc1@university.edu',
+        'dc2@university.edu',
+        'dc3@university.edu',
+        'apc1@university.edu',
+        'apc2@university.edu',
+        'apc3@university.edu',
+        'Scholar@123'
+    ])
+    
+    # Prepare response
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='bulk_admission_template.csv'
+    )

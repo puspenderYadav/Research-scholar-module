@@ -13,6 +13,8 @@ const ScholarProfile = () => {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [committee, setCommittee] = useState(null);
+  const [committeeLoading, setCommitteeLoading] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -27,6 +29,11 @@ const ScholarProfile = () => {
         research_area: response.data.research_area || '',
         thesis_title: response.data.thesis_title || ''
       });
+      
+      // Load committee information
+      if (response.data.id) {
+        loadCommittee(response.data.id);
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
       console.error('Error response:', error.response);
@@ -34,6 +41,27 @@ const ScholarProfile = () => {
       setError(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCommittee = async (scholarId) => {
+    try {
+      setCommitteeLoading(true);
+      const response = await fetch(`/api/committees/scholar/${scholarId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCommittee(data);
+      }
+    } catch (error) {
+      console.error('Error loading committee:', error);
+      // Don't show error to user - committee might not exist yet
+    } finally {
+      setCommitteeLoading(false);
     }
   };
 
@@ -246,6 +274,56 @@ const ScholarProfile = () => {
               <p className="text-sm text-gray-600 mt-2">📧 {profile.supervisor.user.email}</p>
             )}
           </div>
+        </div>
+
+        <hr className="my-6" />
+
+        {/* Doctoral Committee Information */}
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">👥 Doctoral Committee</h3>
+          
+          {committeeLoading ? (
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          ) : committee && committee.dc_members && committee.dc_members.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {committee.dc_members.map((member, index) => (
+                <div key={member.id} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 h-10 w-10 bg-purple-200 rounded-full flex items-center justify-center">
+                      <span className="text-purple-700 font-semibold">{index + 1}</span>
+                    </div>
+                    <div className="ml-3 flex-1">
+                      <p className="text-sm font-medium text-gray-900">
+                        {member.supervisor?.user?.name || 'N/A'}
+                      </p>
+                      {member.supervisor?.designation && (
+                        <p className="text-xs text-gray-600 mt-1">
+                          {member.supervisor.designation}
+                        </p>
+                      )}
+                      {member.supervisor?.specialization && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {member.supervisor.specialization}
+                        </p>
+                      )}
+                      {member.supervisor?.user?.email && (
+                        <p className="text-xs text-blue-600 mt-2">
+                          📧 {member.supervisor.user.email}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 bg-gray-50 rounded-lg text-center">
+              <p className="text-gray-500">No doctoral committee assigned yet</p>
+              <p className="text-sm text-gray-400 mt-1">Your committee will be assigned during the admission process</p>
+            </div>
+          )}
         </div>
 
         <hr className="my-6" />

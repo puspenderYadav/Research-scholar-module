@@ -23,8 +23,17 @@ def create_app(config_name='default'):
     jwt.init_app(app)
     mail.init_app(app)
 
-    # Configure CORS to allow all localhost ports
-    CORS(app, resources={r"/api/*": {"origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3002"]}}, supports_credentials=True)
+    # Configure CORS to allow all localhost ports with permissive settings for file uploads
+    CORS(app, 
+         resources={r"/api/*": {
+             "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", 
+                        "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3002"],
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization"],
+             "supports_credentials": True,
+             "max_age": 3600
+         }},
+         supports_credentials=True)
 
     # Create upload folder if it doesn't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

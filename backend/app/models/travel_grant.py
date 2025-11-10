@@ -8,20 +8,45 @@ class TravelGrant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     scholar_id = db.Column(db.Integer, db.ForeignKey('scholars.id'), nullable=False)
 
-    # Grant details
-    purpose = db.Column(db.String(500), nullable=False)
-    destination = db.Column(db.String(200), nullable=False)
-    conference_name = db.Column(db.String(300))
-    start_date = db.Column(db.Date, nullable=False)
-    end_date = db.Column(db.Date, nullable=False)
+    # Basic Grant details
+    grant_type = db.Column(db.String(100), nullable=False)  # International Conference, National Conference, Workshop, Field Trip, Research collaboration
+    event_name = db.Column(db.String(500), nullable=False)
+    organizers = db.Column(db.String(500), nullable=False)
+    venue_country = db.Column(db.String(300), nullable=False)
+    invitation_letter = db.Column(db.String(255))  # PDF file path
+    broad_area = db.Column(db.String(500), nullable=False)
+    reasons_for_visit = db.Column(db.Text, nullable=False)
+    
+    # Dates (optional for some grant types)
+    start_date = db.Column(db.Date)
+    end_date = db.Column(db.Date)
 
+    # Funds Required
+    funds_from_other_agencies = db.Column(db.Boolean, default=False)
+    
+    # Via Institute
+    institute_amount = db.Column(db.Numeric(10, 2))
+    institute_reasons = db.Column(db.Text)
+    
+    # Via Other Sources
+    funding_agency_name = db.Column(db.String(300))
+    sanctioned_amount = db.Column(db.Numeric(10, 2))
+    registration_waiver_requested = db.Column(db.Boolean, default=False)
+    registration_waiver_document = db.Column(db.String(255))  # PDF file path
+    funds_from_supervisor_grant = db.Column(db.Boolean, default=False)
+    supervisor_grant_amount = db.Column(db.Numeric(10, 2))
+    
     # Financial details
-    amount_requested = db.Column(db.Numeric(10, 2), nullable=False)
+    anticipated_expenses = db.Column(db.Numeric(10, 2), nullable=False)
+    other_financial_details = db.Column(db.Text)
     amount_approved = db.Column(db.Numeric(10, 2))
 
-    # Supporting documents
-    supporting_document = db.Column(db.String(255))
-    acceptance_letter = db.Column(db.String(255))
+    # Presenting Paper
+    presenting_paper = db.Column(db.Boolean, default=False)
+    paper_title = db.Column(db.String(500))
+    number_of_papers = db.Column(db.Integer)
+    paper_links = db.Column(db.Text)  # Store as JSON or comma-separated
+    paper_other_details = db.Column(db.Text)
 
     # Approval workflow
     # Status: submitted, under_review, approved, rejected, withdrawn
@@ -44,15 +69,32 @@ class TravelGrant(db.Model):
         data = {
             'id': self.id,
             'scholar_id': self.scholar_id,
-            'purpose': self.purpose,
-            'destination': self.destination,
-            'conference_name': self.conference_name,
+            'grant_type': self.grant_type,
+            'event_name': self.event_name,
+            'organizers': self.organizers,
+            'venue_country': self.venue_country,
+            'invitation_letter': self.invitation_letter,
+            'broad_area': self.broad_area,
+            'reasons_for_visit': self.reasons_for_visit,
             'start_date': self.start_date.isoformat() if self.start_date else None,
             'end_date': self.end_date.isoformat() if self.end_date else None,
-            'amount_requested': float(self.amount_requested) if self.amount_requested else None,
+            'funds_from_other_agencies': self.funds_from_other_agencies,
+            'institute_amount': float(self.institute_amount) if self.institute_amount else None,
+            'institute_reasons': self.institute_reasons,
+            'funding_agency_name': self.funding_agency_name,
+            'sanctioned_amount': float(self.sanctioned_amount) if self.sanctioned_amount else None,
+            'registration_waiver_requested': self.registration_waiver_requested,
+            'registration_waiver_document': self.registration_waiver_document,
+            'funds_from_supervisor_grant': self.funds_from_supervisor_grant,
+            'supervisor_grant_amount': float(self.supervisor_grant_amount) if self.supervisor_grant_amount else None,
+            'anticipated_expenses': float(self.anticipated_expenses) if self.anticipated_expenses else None,
+            'other_financial_details': self.other_financial_details,
             'amount_approved': float(self.amount_approved) if self.amount_approved else None,
-            'supporting_document': self.supporting_document,
-            'acceptance_letter': self.acceptance_letter,
+            'presenting_paper': self.presenting_paper,
+            'paper_title': self.paper_title,
+            'number_of_papers': self.number_of_papers,
+            'paper_links': self.paper_links,
+            'paper_other_details': self.paper_other_details,
             'status': self.status,
             'current_stage': self.current_stage,
             'submission_date': self.submission_date.isoformat() if self.submission_date else None,

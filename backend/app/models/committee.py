@@ -22,8 +22,16 @@ class Committee(db.Model):
             is_active=True
         ).all()
 
+    def get_apc_members(self):
+        """Get Academic Progress Committee members"""
+        return CommitteeMember.query.filter_by(
+            committee_id=self.id,
+            member_type='APC',
+            is_active=True
+        ).all()
+
     def get_adc_members(self):
-        """Get Additional Doctoral Committee members"""
+        """Get Additional Doctoral Committee members (deprecated)"""
         return CommitteeMember.query.filter_by(
             committee_id=self.id,
             member_type='ADC',
@@ -36,6 +44,7 @@ class Committee(db.Model):
             'id': self.id,
             'scholar_id': self.scholar_id,
             'dc_members': [m.to_dict() for m in self.get_dc_members()],
+            'apc_members': [m.to_dict() for m in self.get_apc_members()],
             'adc_members': [m.to_dict() for m in self.get_adc_members()],
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
@@ -52,7 +61,7 @@ class CommitteeMember(db.Model):
     committee_id = db.Column(db.Integer, db.ForeignKey('committees.id'), nullable=False)
     supervisor_id = db.Column(db.Integer, db.ForeignKey('supervisors.id'), nullable=False)
 
-    # Member type: DC (Doctoral Committee), ADC (Additional Doctoral Committee)
+    # Member type: DC (Doctoral Committee), APC (Academic Progress Committee), ADC (Additional Doctoral Committee - deprecated)
     member_type = db.Column(db.String(10), nullable=False)
 
     assigned_date = db.Column(db.Date, default=datetime.utcnow)

@@ -71,20 +71,66 @@ def create_request():
     db.session.add(change_request)
     db.session.commit()
 
-    # Send notification to current supervisor
+    # Send notification to BOTH current AND new supervisor
     NotificationService.create_notification(
         user_id=scholar.supervisor.user_id,
-        title='Supervisor Change Request',
-        message=f'Scholar {scholar.enrollment_number} ({scholar.user.name}) has requested to change supervisors. Please review the request.',
+        title='Supervisor Change Request - Your Approval Required',
+        message=f'Scholar {scholar.enrollment_number} ({scholar.user.name}) has requested to change supervisors. Please review and approve/decline the request.',
+        notification_type='supervisor_change',
+        priority='high',
+        send_email=True
+    )
+
+    NotificationService.create_notification(
+        user_id=new_supervisor.user_id,
+        title='Supervisor Change Request - Your Approval Required',
+        message=f'Scholar {scholar.enrollment_number} ({scholar.user.name}) has requested you as their new supervisor. Please review and approve/decline the request.',
         notification_type='supervisor_change',
         priority='high',
         send_email=True
     )
 
     return jsonify({
-        'message': 'Supervisor change request submitted successfully',
+        'message': 'Supervisor change request submitted successfully. Both supervisors have been notified.',
         'request': change_request.to_dict(include_relations=True)
     }), 201
+
+
+@bp.route('/available-supervisors', methods=['GET'])
+@jwt_required()
+@role_required('scholar')
+def get_available_supervisors():
+    """Get list of all supervisors available for supervisor change (excluding current supervisor)"""
+    current_user = get_current_user()
+    scholar = current_user.scholar_profile
+
+    if not scholar:
+        return jsonify({'error': 'Scholar profile not found'}), 404
+
+    # Get all active supervisors excluding current supervisor
+    query = Supervisor.query.join(User).filter(
+        User.is_active == True,
+        Supervisor.is_accepting_students == True
+    )
+
+    if scholar.supervisor_id:
+        query = query.filter(Supervisor.id != scholar.supervisor_id)
+
+    supervisors = query.all()
+
+    supervisors_data = []
+    for supervisor in supervisors:
+        supervisors_data.append({
+            'id': supervisor.id,
+            'name': supervisor.user.name,
+            'email': supervisor.user.email,
+            'designation': supervisor.designation,
+            'specialization': supervisor.specialization,
+            'school': supervisor.school.name if supervisor.school else None,
+            'current_student_count': Scholar.query.filter_by(supervisor_id=supervisor.id, status='active').count()
+        })
+
+    return jsonify(supervisors_data), 200
 
 
 @bp.route('/my-requests', methods=['GET'])
@@ -150,61 +196,78 @@ def get_pending_approvals():
 @jwt_required()
 @role_required('supervisor')
 def approve_by_current_supervisor(request_id):
-    """Current supervisor approves or rejects the request"""
+    """Current supervisor approves/rejects the request"""
     current_user = get_current_user()
-    supervisor = current_user.supervisor_profile
-
-    if not supervisor:
-        return jsonify({'error': 'Supervisor profile not found'}), 404
-
-    change_request = SupervisorChangeRequest.query.get_or_404(request_id)
-
-    # Verify this is the current supervisor
-    if change_request.current_supervisor_id != supervisor.id:
-        return jsonify({'error': 'You are not authorized to approve this request'}), 403
-
-    # Check if already reviewed
-    if change_request.current_supervisor_status != 'pending':
-        return jsonify({'error': 'Request has already been reviewed by current supervisor'}), 400
-
     data = request.get_json()
+    
+    change_request = SupervisorChangeRequest.query.get_or_404(request_id)
+    
+    # Verify the current user is the current supervisor
+    if change_request.current_supervisor.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized. You are not the current supervisor.'}), 403
+    
+    if change_request.current_supervisor_status != 'pending':
+        return jsonify({'error': 'Request already processed by current supervisor'}), 400
+    
+    # Check if new supervisor has already rejected
+    if change_request.new_supervisor_status == 'rejected':
+        return jsonify({'error': 'Cannot approve - new supervisor has already rejected this request'}), 400
+    
     action = data.get('action')  # 'approve' or 'reject'
     comment = data.get('comment', '')
-
-    if action not in ['approve', 'reject']:
-        return jsonify({'error': 'Invalid action. Must be "approve" or "reject"'}), 400
-
-    # Update request
-    change_request.current_supervisor_status = 'approved' if action == 'approve' else 'rejected'
-    change_request.current_supervisor_comment = comment
-    change_request.current_supervisor_reviewed_at = datetime.utcnow()
-
-    if action == 'reject':
-        change_request.status = 'rejected_by_current'
-        # Notify scholar
+    
+    if action == 'approve':
+        change_request.current_supervisor_status = 'approved'
+        change_request.current_supervisor_comment = comment
+        change_request.current_supervisor_date = datetime.utcnow()
+        
+        # Check if BOTH supervisors have now approved
+        if change_request.new_supervisor_status == 'approved':
+            # Both approved - send to dean
+            NotificationService.create_notification(
+                user_id=User.query.filter_by(role='dean_academics').first().id,
+                title='Supervisor Change Request - Final Approval Required',
+                message=f'Both supervisors have approved the supervisor change request for scholar {change_request.scholar.enrollment_number}. Please review for final approval.',
+                notification_type='supervisor_change',
+                priority='high',
+                send_email=True
+            )
+            message = 'Request approved. Both supervisors have approved - notification sent to Dean.'
+        else:
+            # Waiting for new supervisor
+            message = 'Request approved by current supervisor. Waiting for new supervisor approval.'
+        
+    else:
+        change_request.current_supervisor_status = 'rejected'
+        change_request.current_supervisor_comment = comment
+        change_request.current_supervisor_date = datetime.utcnow()
+        change_request.status = 'rejected'
+        
+        # Notify scholar and new supervisor
         NotificationService.create_notification(
             user_id=change_request.scholar.user_id,
             title='Supervisor Change Request Rejected',
-            message=f'Your supervisor change request has been rejected by your current supervisor.',
+            message=f'Your supervisor change request has been rejected by your current supervisor. Reason: {comment}',
             notification_type='supervisor_change',
             priority='high',
             send_email=True
         )
-    else:
-        # Approved by current supervisor, notify new supervisor
+        
         NotificationService.create_notification(
             user_id=change_request.new_supervisor.user_id,
-            title='New Supervisor Change Request',
-            message=f'Scholar {change_request.scholar.enrollment_number} has requested you as their new supervisor. The current supervisor has approved. Please review the request.',
+            title='Supervisor Change Request Cancelled',
+            message=f'Supervisor change request for scholar {change_request.scholar.enrollment_number} has been rejected by current supervisor.',
             notification_type='supervisor_change',
-            priority='high',
+            priority='medium',
             send_email=True
         )
-
+        
+        message = 'Request rejected by current supervisor. Scholar and new supervisor have been notified.'
+    
     db.session.commit()
-
+    
     return jsonify({
-        'message': f'Request {action}d successfully',
+        'message': message,
         'request': change_request.to_dict(include_relations=True)
     }), 200
 
@@ -213,156 +276,184 @@ def approve_by_current_supervisor(request_id):
 @jwt_required()
 @role_required('supervisor')
 def approve_by_new_supervisor(request_id):
-    """New supervisor approves or rejects the request"""
+    """New supervisor approves/rejects the request"""
     current_user = get_current_user()
-    supervisor = current_user.supervisor_profile
-
-    if not supervisor:
-        return jsonify({'error': 'Supervisor profile not found'}), 404
-
-    change_request = SupervisorChangeRequest.query.get_or_404(request_id)
-
-    # Verify this is the new supervisor
-    if change_request.new_supervisor_id != supervisor.id:
-        return jsonify({'error': 'You are not authorized to approve this request'}), 403
-
-    # Check if current supervisor approved first
-    if change_request.current_supervisor_status != 'approved':
-        return jsonify({'error': 'Current supervisor must approve first'}), 400
-
-    # Check if already reviewed
-    if change_request.new_supervisor_status != 'pending':
-        return jsonify({'error': 'Request has already been reviewed by new supervisor'}), 400
-
     data = request.get_json()
+    
+    change_request = SupervisorChangeRequest.query.get_or_404(request_id)
+    
+    # Verify the current user is the new supervisor
+    if change_request.new_supervisor.user_id != current_user.id:
+        return jsonify({'error': 'Unauthorized. You are not the requested new supervisor.'}), 403
+    
+    if change_request.new_supervisor_status != 'pending':
+        return jsonify({'error': 'Request already processed by new supervisor'}), 400
+    
+    # Check if current supervisor has already rejected
+    if change_request.current_supervisor_status == 'rejected':
+        return jsonify({'error': 'Cannot approve - current supervisor has already rejected this request'}), 400
+    
     action = data.get('action')  # 'approve' or 'reject'
     comment = data.get('comment', '')
-
-    if action not in ['approve', 'reject']:
-        return jsonify({'error': 'Invalid action. Must be "approve" or "reject"'}), 400
-
-    # Update request
-    change_request.new_supervisor_status = 'approved' if action == 'approve' else 'rejected'
-    change_request.new_supervisor_comment = comment
-    change_request.new_supervisor_reviewed_at = datetime.utcnow()
-
-    if action == 'reject':
-        change_request.status = 'rejected_by_new'
-        # Notify scholar
-        NotificationService.create_notification(
-            user_id=change_request.scholar.user_id,
-            title='Supervisor Change Request Rejected',
-            message=f'Your supervisor change request has been rejected by the requested new supervisor.',
-            notification_type='supervisor_change',
-            priority='high',
-            send_email=True
-        )
-    else:
-        # Approved by new supervisor, notify dean
-        dean = User.query.filter_by(role='dean_academics').first()
-        if dean:
+    
+    if action == 'approve':
+        change_request.new_supervisor_status = 'approved'
+        change_request.new_supervisor_comment = comment
+        change_request.new_supervisor_date = datetime.utcnow()
+        
+        # Check if BOTH supervisors have now approved
+        if change_request.current_supervisor_status == 'approved':
+            # Both approved - send to dean
             NotificationService.create_notification(
-                user_id=dean.id,
+                user_id=User.query.filter_by(role='dean_academics').first().id,
                 title='Supervisor Change Request - Final Approval Required',
-                message=f'Supervisor change request for scholar {change_request.scholar.enrollment_number} has been approved by both supervisors. Please provide final approval.',
+                message=f'Both supervisors have approved the supervisor change request for scholar {change_request.scholar.enrollment_number}. Please review for final approval.',
                 notification_type='supervisor_change',
                 priority='high',
                 send_email=True
             )
-
+            message = 'Request approved. Both supervisors have approved - notification sent to Dean.'
+        else:
+            # Waiting for current supervisor
+            message = 'Request approved by new supervisor. Waiting for current supervisor approval.'
+        
+    else:
+        change_request.new_supervisor_status = 'rejected'
+        change_request.new_supervisor_comment = comment
+        change_request.new_supervisor_date = datetime.utcnow()
+        change_request.status = 'rejected'
+        
+        # Notify scholar and current supervisor
+        NotificationService.create_notification(
+            user_id=change_request.scholar.user_id,
+            title='Supervisor Change Request Rejected',
+            message=f'Your supervisor change request has been rejected by the requested new supervisor. Reason: {comment}',
+            notification_type='supervisor_change',
+            priority='high',
+            send_email=True
+        )
+        
+        NotificationService.create_notification(
+            user_id=change_request.current_supervisor.user_id,
+            title='Supervisor Change Request Cancelled',
+            message=f'Supervisor change request for scholar {change_request.scholar.enrollment_number} has been rejected by new supervisor.',
+            notification_type='supervisor_change',
+            priority='medium',
+            send_email=True
+        )
+        
+        message = 'Request rejected by new supervisor. Scholar and current supervisor have been notified.'
+    
     db.session.commit()
-
+    
     return jsonify({
-        'message': f'Request {action}d successfully',
+        'message': message,
         'request': change_request.to_dict(include_relations=True)
     }), 200
 
 
 @bp.route('/<int:request_id>/approve-dean', methods=['POST'])
 @jwt_required()
-@role_required('dean_academics', 'ad_research')
+@role_required('dean_academics')
 def approve_by_dean(request_id):
-    """Dean provides final approval or rejection"""
+    """Dean approves/rejects the request (final approval)"""
     current_user = get_current_user()
+    data = request.get_json()
+    
     change_request = SupervisorChangeRequest.query.get_or_404(request_id)
-
-    # Check if both supervisors approved first
+    
+    if change_request.dean_status != 'pending':
+        return jsonify({'error': 'Request already processed by Dean'}), 400
+    
+    # Check if BOTH supervisors have approved
     if change_request.current_supervisor_status != 'approved':
         return jsonify({'error': 'Current supervisor must approve first'}), 400
-
+    
     if change_request.new_supervisor_status != 'approved':
         return jsonify({'error': 'New supervisor must approve first'}), 400
-
-    # Check if already reviewed
-    if change_request.dean_status != 'pending':
-        return jsonify({'error': 'Request has already been reviewed by dean'}), 400
-
-    data = request.get_json()
+    
     action = data.get('action')  # 'approve' or 'reject'
     comment = data.get('comment', '')
-
-    if action not in ['approve', 'reject']:
-        return jsonify({'error': 'Invalid action. Must be "approve" or "reject"'}), 400
-
-    # Update request
-    change_request.dean_status = 'approved' if action == 'approve' else 'rejected'
-    change_request.dean_comment = comment
-    change_request.dean_reviewed_at = datetime.utcnow()
-    change_request.dean_reviewed_by = current_user.id
-
-    if action == 'reject':
-        change_request.status = 'rejected_by_dean'
-        # Notify scholar
+    
+    if action == 'approve':
+        change_request.dean_status = 'approved'
+        change_request.dean_comment = comment
+        change_request.dean_date = datetime.utcnow()
+        change_request.status = 'approved'
+        
+        # Update the scholar's supervisor
+        old_supervisor_id = change_request.scholar.supervisor_id
+        change_request.scholar.supervisor_id = change_request.new_supervisor_id
+        
+        # Notify all parties
         NotificationService.create_notification(
             user_id=change_request.scholar.user_id,
-            title='Supervisor Change Request Rejected',
-            message=f'Your supervisor change request has been rejected by the Dean.',
+            title='Supervisor Change Approved',
+            message=f'Your supervisor change request has been approved by Dean. Your new supervisor is {change_request.new_supervisor.user.name}.',
             notification_type='supervisor_change',
             priority='high',
             send_email=True
         )
-    else:
-        # Final approval - change the supervisor
-        scholar = change_request.scholar
-        old_supervisor_id = scholar.supervisor_id
-
-        scholar.supervisor_id = change_request.new_supervisor_id
-        change_request.status = 'completed'
-        change_request.completed_at = datetime.utcnow()
-
-        # Notify scholar
-        NotificationService.create_notification(
-            user_id=scholar.user_id,
-            title='Supervisor Changed Successfully',
-            message=f'Your supervisor change request has been approved. Your new supervisor is {change_request.new_supervisor.user.name}.',
-            notification_type='supervisor_change',
-            priority='high',
-            send_email=True
-        )
-
-        # Notify both supervisors
+        
         NotificationService.create_notification(
             user_id=change_request.current_supervisor.user_id,
             title='Supervisor Change Completed',
-            message=f'Scholar {scholar.enrollment_number} has been transferred to a new supervisor.',
+            message=f'Scholar {change_request.scholar.enrollment_number} is no longer under your supervision.',
             notification_type='supervisor_change',
             priority='medium',
             send_email=True
         )
-
+        
         NotificationService.create_notification(
             user_id=change_request.new_supervisor.user_id,
             title='New Scholar Assigned',
-            message=f'Scholar {scholar.enrollment_number} ({scholar.user.name}) has been assigned to you as their new supervisor.',
+            message=f'Scholar {change_request.scholar.enrollment_number} ({change_request.scholar.user.name}) has been assigned to you.',
             notification_type='supervisor_change',
             priority='high',
             send_email=True
         )
-
+        
+        message = 'Supervisor change approved and completed. All parties have been notified.'
+    else:
+        change_request.dean_status = 'rejected'
+        change_request.dean_comment = comment
+        change_request.dean_date = datetime.utcnow()
+        change_request.status = 'rejected'
+        
+        # Notify all parties
+        NotificationService.create_notification(
+            user_id=change_request.scholar.user_id,
+            title='Supervisor Change Request Rejected',
+            message=f'Your supervisor change request has been rejected by Dean. Reason: {comment}',
+            notification_type='supervisor_change',
+            priority='high',
+            send_email=True
+        )
+        
+        NotificationService.create_notification(
+            user_id=change_request.current_supervisor.user_id,
+            title='Supervisor Change Request Rejected by Dean',
+            message=f'Supervisor change request for scholar {change_request.scholar.enrollment_number} has been rejected by Dean.',
+            notification_type='supervisor_change',
+            priority='medium',
+            send_email=True
+        )
+        
+        NotificationService.create_notification(
+            user_id=change_request.new_supervisor.user_id,
+            title='Supervisor Change Request Rejected by Dean',
+            message=f'Supervisor change request for scholar {change_request.scholar.enrollment_number} has been rejected by Dean.',
+            notification_type='supervisor_change',
+            priority='medium',
+            send_email=True
+        )
+        
+        message = 'Request rejected by Dean. All parties have been notified.'
+    
     db.session.commit()
-
+    
     return jsonify({
-        'message': f'Request {action}d successfully' + (' and supervisor changed' if action == 'approve' else ''),
+        'message': message,
         'request': change_request.to_dict(include_relations=True)
     }), 200
 
