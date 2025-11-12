@@ -309,6 +309,10 @@ const DeanAcademicsProfile = () => {
   const [filterProgram, setFilterProgram] = useState('all');
   const [filterYear, setFilterYear] = useState('all');
   const [filterSchool, setFilterSchool] = useState('all');
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [approvalAction, setApprovalAction] = useState(null); // { type, id, action: 'approve'/'reject' }
+  const [approvalComments, setApprovalComments] = useState('');
+  const [approvalLoading, setApprovalLoading] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -352,6 +356,63 @@ const DeanAcademicsProfile = () => {
       setError(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApprovalClick = (type, id, action) => {
+    setApprovalAction({ type, id, action });
+    setApprovalComments('');
+    setShowApprovalModal(true);
+  };
+
+  const handleApprovalSubmit = async () => {
+    if (!approvalAction) return;
+
+    const { type, id, action } = approvalAction;
+
+    // For rejection, comments are required
+    if (action === 'reject' && !approvalComments.trim()) {
+      alert('Please provide a reason for rejection');
+      return;
+    }
+
+    setApprovalLoading(true);
+    try {
+      const endpoints = {
+        'synopsis': `/api/synopsis/${id}/approve`,
+        'progress_report': `/api/progress-reports/${id}/approve`,
+        'thesis': `/api/thesis/${id}/approve`,
+        'travel_grant': `/api/travel-grants/${id}/approve`,
+        'supervisor_change': `/api/supervisor-change/${id}/dean-decision`
+      };
+
+      const endpoint = endpoints[type];
+      if (!endpoint) {
+        throw new Error('Unknown approval type');
+      }
+
+      await fetch(`http://localhost:5000${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          decision: action === 'approve' ? 'approved' : 'rejected',
+          comments: approvalComments || undefined
+        })
+      });
+
+      alert(`Successfully ${action}d the ${type.replace('_', ' ')}`);
+      setShowApprovalModal(false);
+      setApprovalAction(null);
+      setApprovalComments('');
+      await fetchDashboardData(); // Refresh data
+    } catch (error) {
+      console.error('Error processing approval:', error);
+      alert(`Failed to ${action} the item. Please try again.`);
+    } finally {
+      setApprovalLoading(false);
     }
   };
 
@@ -868,7 +929,12 @@ const DeanAcademicsProfile = () => {
             {/* Pending Approvals Tab */}
             {activeTab === 'pending' && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Items Requiring Dean's Approval</h3>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-gray-900">Items Requiring Dean's Approval</h3>
+                  <div className="text-sm text-gray-600">
+                    Total: <span className="font-semibold text-gray-900">{pendingApprovals?.total_count || 0}</span> items
+                  </div>
+                </div>
 
                 {/* Supervisor Change Requests */}
                 {pendingApprovals?.supervisor_changes?.length > 0 && (
@@ -880,7 +946,7 @@ const DeanAcademicsProfile = () => {
                       {pendingApprovals.supervisor_changes.map((request) => (
                         <div key={request.id} className="border rounded-lg p-4 bg-yellow-50">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                               <p className="font-medium text-gray-900">
                                 {request.scholar?.name} ({request.scholar?.enrollment_number})
                               </p>
@@ -899,10 +965,24 @@ const DeanAcademicsProfile = () => {
                                 </p>
                               )}
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-2">
                               <p className="text-xs text-gray-500">
                                 {request.created_at ? new Date(request.created_at).toLocaleDateString() : 'N/A'}
                               </p>
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => handleApprovalClick('supervisor_change', request.id, 'approve')}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleApprovalClick('supervisor_change', request.id, 'reject')}
+                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                >
+                                  Reject
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -921,17 +1001,31 @@ const DeanAcademicsProfile = () => {
                       {pendingApprovals.synopsis.map((synopsis) => (
                         <div key={synopsis.id} className="border rounded-lg p-4 bg-blue-50">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                               <p className="font-medium text-gray-900">{synopsis.title}</p>
                               <p className="text-sm text-gray-600 mt-1">
                                 {synopsis.scholar?.name} ({synopsis.scholar?.enrollment_number})
                               </p>
                               <p className="text-xs text-gray-500 mt-1">{synopsis.scholar?.program}</p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-2">
                               <p className="text-xs text-gray-500">
                                 {synopsis.submitted_date ? new Date(synopsis.submitted_date).toLocaleDateString() : 'N/A'}
                               </p>
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => handleApprovalClick('synopsis', synopsis.id, 'approve')}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleApprovalClick('synopsis', synopsis.id, 'reject')}
+                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                >
+                                  Reject
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -950,16 +1044,30 @@ const DeanAcademicsProfile = () => {
                       {pendingApprovals.progress_reports.map((report) => (
                         <div key={report.id} className="border rounded-lg p-4 bg-purple-50">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                               <p className="font-medium text-gray-900">{report.report_period}</p>
                               <p className="text-sm text-gray-600 mt-1">
                                 {report.scholar?.name} ({report.scholar?.enrollment_number})
                               </p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-2">
                               <p className="text-xs text-gray-500">
                                 {report.submitted_date ? new Date(report.submitted_date).toLocaleDateString() : 'N/A'}
                               </p>
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => handleApprovalClick('progress_report', report.id, 'approve')}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleApprovalClick('progress_report', report.id, 'reject')}
+                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                >
+                                  Reject
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -978,7 +1086,7 @@ const DeanAcademicsProfile = () => {
                       {pendingApprovals.thesis.map((thesis) => (
                         <div key={thesis.id} className="border rounded-lg p-4 bg-green-50">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                               <p className="font-medium text-gray-900">{thesis.title}</p>
                               <p className="text-sm text-gray-600 mt-1">
                                 {thesis.scholar?.name} ({thesis.scholar?.enrollment_number})
@@ -989,10 +1097,24 @@ const DeanAcademicsProfile = () => {
                                 </p>
                               )}
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-2">
                               <p className="text-xs text-gray-500">
                                 {thesis.submitted_date ? new Date(thesis.submitted_date).toLocaleDateString() : 'N/A'}
                               </p>
+                              <div className="flex gap-2 mt-2">
+                                <button
+                                  onClick={() => handleApprovalClick('thesis', thesis.id, 'approve')}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleApprovalClick('thesis', thesis.id, 'reject')}
+                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                >
+                                  Reject
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1011,7 +1133,7 @@ const DeanAcademicsProfile = () => {
                       {pendingApprovals.travel_grants.map((grant) => (
                         <div key={grant.id} className="border rounded-lg p-4 bg-orange-50">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                               <p className="font-medium text-gray-900">{grant.conference_name}</p>
                               <p className="text-sm text-gray-600 mt-1">
                                 {grant.scholar?.name} ({grant.scholar?.enrollment_number})
@@ -1023,6 +1145,22 @@ const DeanAcademicsProfile = () => {
                                 {grant.start_date ? new Date(grant.start_date).toLocaleDateString() : 'N/A'} -
                                 {grant.end_date ? new Date(grant.end_date).toLocaleDateString() : 'N/A'}
                               </p>
+                            </div>
+                            <div className="flex flex-col items-end gap-2">
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleApprovalClick('travel_grant', grant.id, 'approve')}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  onClick={() => handleApprovalClick('travel_grant', grant.id, 'reject')}
+                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                                >
+                                  Reject
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1302,6 +1440,59 @@ const DeanAcademicsProfile = () => {
             )}
           </div>
         </div>
+
+        {/* Approval Modal */}
+        {showApprovalModal && approvalAction && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-bold mb-4 text-gray-900">
+                {approvalAction.action === 'approve' ? 'Approve' : 'Reject'} {approvalAction.type.replace('_', ' ').toUpperCase()}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {approvalAction.action === 'approve'
+                  ? 'Are you sure you want to approve this item?'
+                  : 'Please provide a reason for rejection:'}
+              </p>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Comments {approvalAction.action === 'reject' ? '*' : '(Optional)'}
+                </label>
+                <textarea
+                  value={approvalComments}
+                  onChange={(e) => setApprovalComments(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="4"
+                  required={approvalAction.action === 'reject'}
+                  placeholder={approvalAction.action === 'approve' ? 'Optional comments...' : 'Reason for rejection (required)'}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => {
+                    setShowApprovalModal(false);
+                    setApprovalAction(null);
+                    setApprovalComments('');
+                  }}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  disabled={approvalLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleApprovalSubmit}
+                  className={`px-4 py-2 text-white rounded ${
+                    approvalAction.action === 'approve'
+                      ? 'bg-green-600 hover:bg-green-700'
+                      : 'bg-red-600 hover:bg-red-700'
+                  } disabled:opacity-50`}
+                  disabled={approvalLoading}
+                >
+                  {approvalLoading ? 'Processing...' : approvalAction.action === 'approve' ? 'Approve' : 'Reject'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );
