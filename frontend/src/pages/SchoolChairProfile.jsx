@@ -13,9 +13,27 @@ const SchoolChairProfile = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterProgram, setFilterProgram] = useState('all');
 
+  // Approvals state
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [approvalsLoading, setApprovalsLoading] = useState(false);
+  const [approvalTypeFilter, setApprovalTypeFilter] = useState('all');
+
+  // Analytics state
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsTimeRange, setAnalyticsTimeRange] = useState('month');
+
   useEffect(() => {
     loadSchoolData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'approvals') {
+      loadPendingApprovals();
+    } else if (activeTab === 'analytics') {
+      loadAnalytics();
+    }
+  }, [activeTab, analyticsTimeRange]);
 
   const loadSchoolData = async () => {
     try {
@@ -30,30 +48,41 @@ const SchoolChairProfile = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
-    const statusColors = {
-      'active': 'bg-green-100 text-green-800',
-      'on_leave': 'bg-yellow-100 text-yellow-800',
-      'graduated': 'bg-blue-100 text-blue-800',
-      'withdrawn': 'bg-red-100 text-red-800'
-    };
-    return statusColors[status] || 'bg-gray-100 text-gray-800';
+  const loadPendingApprovals = async () => {
+    try {
+      setApprovalsLoading(true);
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('http://localhost:5000/api/school-chair/pending-approvals', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setPendingApprovals(data);
+      }
+    } catch (error) {
+      console.error('Error loading approvals:', error);
+    } finally {
+      setApprovalsLoading(false);
+    }
   };
 
-  const filteredStudents = schoolData?.students?.filter(student => {
-    const matchesSearch = !searchQuery ||
-      student.user?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.enrollment_number.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus = filterStatus === 'all' || student.status === filterStatus;
-    const matchesProgram = filterProgram === 'all' || student.program === filterProgram;
-
-    return matchesSearch && matchesStatus && matchesProgram;
-  }) || [];
-
-  const filteredFaculty = schoolData?.faculty?.filter(fac => {
-    return !searchQuery || fac.user?.name.toLowerCase().includes(searchQuery.toLowerCase());
-  }) || [];
+  const loadAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true);
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`http://localhost:5000/api/school-chair/analytics?range=${analyticsTimeRange}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAnalyticsData(data);
+      }
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -85,14 +114,31 @@ const SchoolChairProfile = () => {
     );
   }
 
+  const filteredStudents = schoolData?.students?.filter(student => {
+    const matchesSearch = !searchQuery ||
+      student.user?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.enrollment_number.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || student.status === filterStatus;
+    const matchesProgram = filterProgram === 'all' || student.program === filterProgram;
+    return matchesSearch && matchesStatus && matchesProgram;
+  }) || [];
+
+  const filteredFaculty = schoolData?.faculty?.filter(fac => {
+    return !searchQuery || fac.user?.name.toLowerCase().includes(searchQuery.toLowerCase());
+  }) || [];
+
+  const filteredApprovals = pendingApprovals.filter(approval => {
+    return approvalTypeFilter === 'all' || approval.type === approvalTypeFilter;
+  });
+
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">School Chair Profile</h1>
+        <h1 className="text-3xl font-bold text-gray-800">School Chair Dashboard</h1>
         <p className="text-gray-600 mt-2">Manage and oversee your school</p>
       </div>
 
-      {/* School Header Card */}
+      {/* School Header */}
       <div className="card mb-6 bg-gradient-to-r from-indigo-50 to-blue-50">
         <div className="flex items-start space-x-6">
           <div className="flex-shrink-0">
@@ -107,12 +153,6 @@ const SchoolChairProfile = () => {
 
             <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-white rounded-lg p-3 shadow-sm">
-                <p className="text-sm text-gray-500">Total Faculty</p>
-                <p className="text-2xl font-bold text-indigo-600">
-                  {schoolData.statistics?.total_faculty || 0}
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-3 shadow-sm">
                 <p className="text-sm text-gray-500">Total Students</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {schoolData.statistics?.total_students || 0}
@@ -125,9 +165,15 @@ const SchoolChairProfile = () => {
                 </p>
               </div>
               <div className="bg-white rounded-lg p-3 shadow-sm">
-                <p className="text-sm text-gray-500">M.Sc. Students</p>
+                <p className="text-sm text-gray-500">MSc Students</p>
                 <p className="text-2xl font-bold text-green-600">
                   {schoolData.statistics?.msc_students || 0}
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-3 shadow-sm">
+                <p className="text-sm text-yellow-600 font-medium">Pending Approvals</p>
+                <p className="text-2xl font-bold text-yellow-700">
+                  {pendingApprovals.length}
                 </p>
               </div>
             </div>
@@ -135,331 +181,313 @@ const SchoolChairProfile = () => {
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="card bg-green-50 border-l-4 border-green-500">
-          <p className="text-sm text-green-600 font-medium">Active Students</p>
-          <p className="text-3xl font-bold text-green-900 mt-2">
-            {schoolData.statistics?.active_students || 0}
-          </p>
-        </div>
-        <div className="card bg-yellow-50 border-l-4 border-yellow-500">
-          <p className="text-sm text-yellow-600 font-medium">On Leave</p>
-          <p className="text-3xl font-bold text-yellow-900 mt-2">
-            {schoolData.statistics?.on_leave || 0}
-          </p>
-        </div>
-        <div className="card bg-blue-50 border-l-4 border-blue-500">
-          <p className="text-sm text-blue-600 font-medium">Graduated</p>
-          <p className="text-3xl font-bold text-blue-900 mt-2">
-            {schoolData.statistics?.graduated || 0}
-          </p>
-        </div>
-        <div className="card bg-indigo-50 border-l-4 border-indigo-500">
-          <p className="text-sm text-indigo-600 font-medium">Faculty Accepting</p>
-          <p className="text-3xl font-bold text-indigo-900 mt-2">
-            {schoolData.statistics?.faculty_accepting_students || 0}
-          </p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="card">
+      {/* Tabs Navigation */}
+      <div className="card mb-6">
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'overview'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Overview
+              📊 Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'analytics'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📈 Analytics
+            </button>
+            <button
+              onClick={() => setActiveTab('approvals')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'approvals'
+                  ? 'border-primary-500 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              ✅ Approvals ({pendingApprovals.length})
             </button>
             <button
               onClick={() => setActiveTab('faculty')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'faculty'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Faculty ({schoolData.faculty?.length || 0})
+              👨‍🏫 Faculty ({schoolData.faculty?.length || 0})
             </button>
             <button
               onClick={() => setActiveTab('students')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'students'
                   ? 'border-primary-500 text-primary-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Students ({schoolData.students?.length || 0})
+              🎓 Students ({schoolData.students?.length || 0})
             </button>
           </nav>
         </div>
 
-        {/* Tab Content */}
-        <div className="mt-6">
+        <div className="p-6">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">School Overview</h3>
+              <p className="text-gray-600">Welcome to {schoolData.name}!</p>
+              <p className="text-gray-600 mt-2">Total Faculty: {schoolData.statistics?.total_faculty || 0}</p>
+              <p className="text-gray-600 mt-2">Total Students: {schoolData.statistics?.total_students || 0}</p>
+            </div>
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">School Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded p-4">
-                    <p className="text-sm text-gray-500 mb-1">School Name</p>
-                    <p className="text-gray-800 font-medium">{schoolData.name}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded p-4">
-                    <p className="text-sm text-gray-500 mb-1">School Code</p>
-                    <p className="text-gray-800 font-medium">{schoolData.code}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded p-4">
-                    <p className="text-sm text-gray-500 mb-1">Chair</p>
-                    <p className="text-gray-800 font-medium">{user?.name}</p>
-                  </div>
-                  <div className="bg-gray-50 rounded p-4">
-                    <p className="text-sm text-gray-500 mb-1">Contact</p>
-                    <p className="text-gray-800 font-medium">{user?.email}</p>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-800">School Analytics</h3>
+                <select
+                  value={analyticsTimeRange}
+                  onChange={(e) => setAnalyticsTimeRange(e.target.value)}
+                  className="input-field w-48"
+                >
+                  <option value="week">Last Week</option>
+                  <option value="month">Last Month</option>
+                  <option value="quarter">Last Quarter</option>
+                  <option value="year">Last Year</option>
+                  <option value="all">All Time</option>
+                </select>
               </div>
 
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Distribution</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6">
-                    <h4 className="font-semibold text-gray-700 mb-4">Student Programs</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">PhD</span>
-                        <span className="font-bold text-purple-600">
-                          {schoolData.statistics?.phd_students || 0}
-                        </span>
+              {analyticsLoading ? (
+                <div className="text-center py-12">
+                  <div className="spinner mx-auto"></div>
+                  <p className="text-gray-500 mt-4">Loading analytics...</p>
+                </div>
+              ) : analyticsData ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5">
+                      <p className="text-sm text-blue-700 font-medium mb-2">Total Submissions</p>
+                      <p className="text-3xl font-bold text-blue-900">{analyticsData.total_submissions || 0}</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5">
+                      <p className="text-sm text-green-700 font-medium mb-2">Approvals Given</p>
+                      <p className="text-3xl font-bold text-green-900">{analyticsData.total_approvals || 0}</p>
+                      <p className="text-xs text-green-600 mt-1">{analyticsData.approval_rate || 0}% approval rate</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5">
+                      <p className="text-sm text-yellow-700 font-medium mb-2">Pending Reviews</p>
+                      <p className="text-3xl font-bold text-yellow-900">{analyticsData.pending_count || 0}</p>
+                      <p className="text-xs text-yellow-600 mt-1">Avg. {analyticsData.avg_review_time || 0} days review time</p>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5">
+                      <p className="text-sm text-purple-700 font-medium mb-2">Active Projects</p>
+                      <p className="text-3xl font-bold text-purple-900">{analyticsData.active_projects || 0}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-gray-800 mb-4">Submission Breakdown</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Synopsis</span>
+                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.synopsis || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Progress Reports</span>
+                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.progress_reports || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Thesis</span>
+                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.thesis || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Leave Applications</span>
+                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.leave || 0}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">M.Sc. (Research)</span>
-                        <span className="font-bold text-green-600">
-                          {schoolData.statistics?.msc_students || 0}
-                        </span>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-gray-800 mb-4">Faculty Load</h4>
+                      <div className="space-y-3">
+                        {analyticsData.faculty_load && analyticsData.faculty_load.length > 0 ? (
+                          analyticsData.faculty_load.map((faculty, idx) => (
+                            <div key={idx} className="flex justify-between items-center">
+                              <span className="text-gray-600 text-sm">{faculty.name}</span>
+                              <span className="font-semibold text-gray-800">{faculty.students}/{faculty.max_capacity}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500 text-sm">No faculty data available</p>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-lg p-6">
-                    <h4 className="font-semibold text-gray-700 mb-4">Student Status</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Active</span>
-                        <span className="font-bold text-green-600">
-                          {schoolData.statistics?.active_students || 0}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">On Leave</span>
-                        <span className="font-bold text-yellow-600">
-                          {schoolData.statistics?.on_leave || 0}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Graduated</span>
-                        <span className="font-bold text-blue-600">
-                          {schoolData.statistics?.graduated || 0}
-                        </span>
+                  {analyticsData.recent_activities && analyticsData.recent_activities.length > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-gray-800 mb-4">Recent Activities</h4>
+                      <div className="space-y-2">
+                        {analyticsData.recent_activities.map((activity, idx) => (
+                          <div key={idx} className="flex items-center space-x-3 text-sm">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              activity.action === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {activity.action}
+                            </span>
+                            <span className="text-gray-600">{activity.scholar_name}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-gray-500">{activity.type}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  No analytics data available
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Approvals Tab */}
+          {activeTab === 'approvals' && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-800">Pending Approvals</h3>
+                <select
+                  value={approvalTypeFilter}
+                  onChange={(e) => setApprovalTypeFilter(e.target.value)}
+                  className="input-field w-64"
+                >
+                  <option value="all">All Types</option>
+                  <option value="synopsis">Synopsis</option>
+                  <option value="progress-reports">Progress Reports</option>
+                  <option value="thesis">Thesis</option>
+                  <option value="leave-applications">Leave Applications</option>
+                  <option value="supervisor-change">Supervisor Change</option>
+                  <option value="comprehensive-exams">Comprehensive Exams</option>
+                </select>
               </div>
+
+              {approvalsLoading ? (
+                <div className="text-center py-12">
+                  <div className="spinner mx-auto"></div>
+                  <p className="text-gray-500 mt-4">Loading approvals...</p>
+                </div>
+              ) : filteredApprovals.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">✅</div>
+                  <p className="text-xl text-gray-500">No pending approvals</p>
+                  <p className="text-gray-400 mt-2">All caught up!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredApprovals.map((approval, index) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <span className="text-2xl">{approval.type === 'synopsis' ? '📄' : approval.type === 'progress-reports' ? '📊' : approval.type === 'thesis' ? '📚' : approval.type === 'leave-applications' ? '🏖️' : '📝'}</span>
+                            <div>
+                              <h4 className="font-semibold text-gray-800 capitalize">{approval.type.replace('-', ' ')}</h4>
+                              <p className="text-sm text-gray-500">Scholar: {approval.scholar.name} ({approval.scholar.enrollment_number})</p>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-600 space-y-1 mt-3">
+                            <p>Program: {approval.scholar.program}</p>
+                            <p>Supervisor: {approval.supervisor}</p>
+                            <p>Submitted: {new Date(approval.submitted_at).toLocaleDateString()}</p>
+                            {approval.file_name && (
+                              <p>File: <a href={`http://localhost:5000/api/uploads/${approval.type}/${approval.file_name}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{approval.file_name}</a></p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex space-x-2 ml-4">
+                          <button className="btn btn-primary btn-sm">View Details</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {/* Faculty Tab */}
           {activeTab === 'faculty' && (
-            <div>
-              {/* Search Bar */}
-              <div className="mb-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-800">Faculty Members</h3>
                 <input
                   type="text"
-                  placeholder="Search faculty by name..."
+                  placeholder="Search faculty..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field w-full md:w-96"
+                  className="input-field w-64"
                 />
               </div>
-
-              {filteredFaculty.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-xl text-gray-500 mb-2">No faculty members found</p>
-                  <p className="text-sm text-gray-400">
-                    {searchQuery ? 'Try adjusting your search criteria' : 'No faculty assigned to this school'}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredFaculty.map((faculty) => (
-                    <div key={faculty.id} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-800">{faculty.user?.name}</h4>
-                          <p className="text-sm text-gray-500">{faculty.employee_id}</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          faculty.is_accepting_students
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {faculty.is_accepting_students ? 'Accepting Students' : 'Not Accepting'}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Designation</p>
-                          <p className="text-sm font-medium text-gray-800">{faculty.designation}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Specialization</p>
-                          <p className="text-sm font-medium text-gray-800">
-                            {faculty.specialization || 'Not specified'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Current Students</p>
-                          <p className="text-sm font-medium text-gray-800">{faculty.current_student_count}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Capacity</p>
-                          <p className="text-sm font-medium text-gray-800">
-                            PhD: {faculty.max_phd_scholars} | MSc: {faculty.max_msc_scholars}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1">Contact</p>
-                        <div className="flex space-x-4">
-                          <p className="text-sm text-gray-700">{faculty.user?.email}</p>
-                          {faculty.user?.phone && (
-                            <p className="text-sm text-gray-700">{faculty.user.phone}</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredFaculty.map((faculty) => (
+                  <div key={faculty.id} className="card p-4">
+                    <h4 className="font-semibold text-gray-800">{faculty.user?.name || 'N/A'}</h4>
+                    <p className="text-sm text-gray-600">{faculty.designation || 'Faculty Member'}</p>
+                    <p className="text-sm text-gray-500 mt-2">{faculty.user?.email}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {/* Students Tab */}
           {activeTab === 'students' && (
-            <div>
-              {/* Filters */}
-              <div className="mb-6 flex flex-col md:flex-row gap-4">
-                <input
-                  type="text"
-                  placeholder="Search students by name or enrollment number..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field flex-1"
-                />
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="input-field w-full md:w-48"
-                >
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="on_leave">On Leave</option>
-                  <option value="graduated">Graduated</option>
-                  <option value="withdrawn">Withdrawn</option>
-                </select>
-                <select
-                  value={filterProgram}
-                  onChange={(e) => setFilterProgram(e.target.value)}
-                  className="input-field w-full md:w-48"
-                >
-                  <option value="all">All Programs</option>
-                  <option value="PhD">PhD</option>
-                  <option value="M.Sc. (Research)">M.Sc. (Research)</option>
-                </select>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <h3 className="text-lg font-semibold text-gray-800">Students</h3>
+                <div className="flex space-x-4">
+                  <input
+                    type="text"
+                    placeholder="Search students..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="input-field w-64"
+                  />
+                  <select value={filterProgram} onChange={(e) => setFilterProgram(e.target.value)} className="input-field">
+                    <option value="all">All Programs</option>
+                    <option value="PhD">PhD</option>
+                    <option value="MSc">MSc</option>
+                  </select>
+                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-field">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="on_leave">On Leave</option>
+                    <option value="graduated">Graduated</option>
+                  </select>
+                </div>
               </div>
-
-              {filteredStudents.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-xl text-gray-500 mb-2">No students found</p>
-                  <p className="text-sm text-gray-400">
-                    {searchQuery || filterStatus !== 'all' || filterProgram !== 'all'
-                      ? 'Try adjusting your filters'
-                      : 'No students enrolled in this school'}
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {filteredStudents.map((student) => (
-                    <div key={student.id} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h4 className="text-lg font-semibold text-gray-800">{student.user?.name}</h4>
-                          <p className="text-sm text-gray-500">{student.enrollment_number}</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(student.status)}`}>
-                          {student.status?.replace('_', ' ').toUpperCase()}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Program</p>
-                          <p className="text-sm font-medium text-gray-800">{student.program}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Research Area</p>
-                          <p className="text-sm font-medium text-gray-800">
-                            {student.research_area || 'Not specified'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Admission Date</p>
-                          <p className="text-sm font-medium text-gray-800">
-                            {student.date_of_admission
-                              ? new Date(student.date_of_admission).toLocaleDateString()
-                              : 'N/A'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">Admission Mode</p>
-                          <p className="text-sm font-medium text-gray-800">
-                            {student.admission_mode || 'Regular'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {student.supervisor && (
-                        <div className="mt-4 pt-4 border-t border-gray-100">
-                          <p className="text-xs text-gray-500 mb-1">Supervisor</p>
-                          <p className="text-sm font-medium text-gray-800">
-                            {student.supervisor.name} - {student.supervisor.designation}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="mt-4 pt-4 border-t border-gray-100">
-                        <p className="text-xs text-gray-500 mb-1">Contact</p>
-                        <div className="flex space-x-4">
-                          <p className="text-sm text-gray-700">{student.user?.email}</p>
-                          {student.user?.phone && (
-                            <p className="text-sm text-gray-700">{student.user.phone}</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredStudents.map((student) => (
+                  <div key={student.id} className="card p-4">
+                    <h4 className="font-semibold text-gray-800">{student.user?.name || 'N/A'}</h4>
+                    <p className="text-sm text-gray-600">{student.enrollment_number}</p>
+                    <p className="text-sm text-gray-500">{student.program}</p>
+                    <p className="text-xs text-gray-400 mt-2">Status: {student.status}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

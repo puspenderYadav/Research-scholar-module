@@ -23,17 +23,30 @@ def create_app(config_name='default'):
     jwt.init_app(app)
     mail.init_app(app)
 
-    # Configure CORS to allow all localhost ports with permissive settings for file uploads
-    CORS(app, 
+    # Configure CORS - MUST be before blueprints are registered
+    # Flask-CORS will automatically handle OPTIONS requests
+    CORS(app,
          resources={r"/api/*": {
-             "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002", 
+             "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002",
                         "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3002"],
-             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-             "allow_headers": ["Content-Type", "Authorization"],
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+             "expose_headers": ["Content-Disposition"],
              "supports_credentials": True,
-             "max_age": 3600
+             "max_age": 3600,
+             "send_wildcard": False,
+             "always_send": True,
+             "automatic_options": True
          }},
          supports_credentials=True)
+
+    # Handle OPTIONS requests before JWT validation (CORS preflight)
+    @app.before_request
+    def handle_preflight():
+        from flask import request
+        if request.method == "OPTIONS":
+            response = app.make_default_options_response()
+            return response
 
     # Create upload folder if it doesn't exist
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -45,7 +58,7 @@ def create_app(config_name='default'):
 
     # Register blueprints
     from app.routes import auth, scholars, supervisors, committees, exams, seminars, \
-        synopsis, progress, thesis, travel_grants, notifications, calendar, dashboard, supervisor_change, schools, research_office, dean, comprehensive_exams, leaves, meetings
+        synopsis, progress, thesis, travel_grants, notifications, calendar, dashboard, supervisor_change, schools, research_office, dean, comprehensive_exams, leaves, meetings, school_chair
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(scholars.bp)
@@ -67,5 +80,6 @@ def create_app(config_name='default'):
     app.register_blueprint(comprehensive_exams.bp)
     app.register_blueprint(leaves.bp)
     app.register_blueprint(meetings.bp)
+    app.register_blueprint(school_chair.bp)
 
     return app
