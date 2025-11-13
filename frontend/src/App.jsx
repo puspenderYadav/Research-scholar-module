@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 
 // Pages
+import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ScholarProfile from './pages/ScholarProfile'
@@ -37,6 +38,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
 
           <Route path="/dashboard" element={
@@ -195,8 +197,7 @@ function App() {
             </PrivateRoute>
           } />
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
