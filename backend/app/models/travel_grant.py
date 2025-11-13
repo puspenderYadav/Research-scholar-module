@@ -61,6 +61,7 @@ class TravelGrant(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    scholar = db.relationship('Scholar', back_populates='travel_grants')
     approvals = db.relationship('TravelGrantApproval', backref='travel_grant', lazy='dynamic',
                                cascade='all, delete-orphan', order_by='TravelGrantApproval.approval_date')
 
@@ -70,6 +71,7 @@ class TravelGrant(db.Model):
             'id': self.id,
             'scholar_id': self.scholar_id,
             'grant_type': self.grant_type,
+            'scholar_name': self.scholar.user.name if self.scholar and self.scholar.user else None,
             'event_name': self.event_name,
             'organizers': self.organizers,
             'venue_country': self.venue_country,

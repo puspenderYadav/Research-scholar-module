@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import CommitteeApprovals from '../components/CommitteeApprovals';
 
 const MyCommitteeScholars = () => {
   const [scholars, setScholars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('scholars'); // 'scholars' or 'approvals'
   const [filterType, setFilterType] = useState('all'); // 'all', 'DC', 'APC'
   const navigate = useNavigate();
 
@@ -95,10 +97,45 @@ const MyCommitteeScholars = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">My Committee Scholars</h1>
-        <p className="text-gray-600 mt-2">Scholars where you serve as a committee member</p>
+        <h1 className="text-3xl font-bold text-gray-800">My Committee</h1>
+        <p className="text-gray-600 mt-2">Manage your committee responsibilities</p>
       </div>
 
+
+      {/* Main Tabs: Scholars and Approvals */}
+      <div className="mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('scholars')}
+              className={`${
+                activeTab === 'scholars'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              My Scholars
+              <span className="ml-2 py-0.5 px-2 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
+                {scholars.length}
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('approvals')}
+              className={`${
+                activeTab === 'approvals'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Pending Approvals
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      {/* Scholars Tab Content */}
+      {activeTab === 'scholars' && (
+        <>
       {/* Filter Tabs */}
       <div className="mb-6">
         <div className="border-b border-gray-200">
@@ -276,6 +313,13 @@ const MyCommitteeScholars = () => {
           </div>
         </div>
       </div>
+        </>
+      )}
+
+      {/* Approvals Tab Content */}
+      {activeTab === 'approvals' && (
+        <CommitteeApprovals />
+      )}
     </Layout>
   );
 };

@@ -4,6 +4,7 @@ from app import db
 from app.models.travel_grant import TravelGrant, TravelGrantApproval
 from app.models.scholar import Scholar
 from app.models.user import User
+from app.models.committee import Committee, CommitteeMember
 from app.utils.decorators import role_required, get_current_user
 from app.utils.file_handler import save_uploaded_file
 from app.utils.notification_service import NotificationService
@@ -103,6 +104,10 @@ def create_travel_grant():
             except ValueError:
                 end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
 
+        # Helper function to convert empty strings to None for numeric/text fields
+        def to_value_or_none(value):
+            return None if value == '' or value is None else value
+
         # Create travel grant
         grant = TravelGrant(
             scholar_id=scholar.id,
@@ -116,21 +121,21 @@ def create_travel_grant():
             start_date=start_date,
             end_date=end_date,
             funds_from_other_agencies=data.get('funds_from_other_agencies', 'false').lower() == 'true',
-            institute_amount=data.get('institute_amount'),
-            institute_reasons=data.get('institute_reasons'),
-            funding_agency_name=data.get('funding_agency_name'),
-            sanctioned_amount=data.get('sanctioned_amount'),
+            institute_amount=to_value_or_none(data.get('institute_amount')),
+            institute_reasons=to_value_or_none(data.get('institute_reasons')),
+            funding_agency_name=to_value_or_none(data.get('funding_agency_name')),
+            sanctioned_amount=to_value_or_none(data.get('sanctioned_amount')),
             registration_waiver_requested=data.get('registration_waiver_requested', 'false').lower() == 'true',
             registration_waiver_document=registration_waiver_path,
             funds_from_supervisor_grant=data.get('funds_from_supervisor_grant', 'false').lower() == 'true',
-            supervisor_grant_amount=data.get('supervisor_grant_amount'),
+            supervisor_grant_amount=to_value_or_none(data.get('supervisor_grant_amount')),
             anticipated_expenses=data['anticipated_expenses'],
-            other_financial_details=data.get('other_financial_details'),
+            other_financial_details=to_value_or_none(data.get('other_financial_details')),
             presenting_paper=data.get('presenting_paper', 'false').lower() == 'true',
-            paper_title=data.get('paper_title'),
-            number_of_papers=data.get('number_of_papers'),
-            paper_links=data.get('paper_links'),
-            paper_other_details=data.get('paper_other_details'),
+            paper_title=to_value_or_none(data.get('paper_title')),
+            number_of_papers=to_value_or_none(data.get('number_of_papers')),
+            paper_links=to_value_or_none(data.get('paper_links')),
+            paper_other_details=to_value_or_none(data.get('paper_other_details')),
             status='submitted',
             current_stage='supervisor'
         )
@@ -148,7 +153,8 @@ def create_travel_grant():
                 priority='high',
                 related_entity_type='travel_grant',
                 related_entity_id=grant.id,
-                action_link=f'/travel-grants/{grant.id}'
+                action_link='/travel-grants',
+                send_email=True
             )
 
         db.session.commit()
@@ -226,7 +232,8 @@ def approve_travel_grant(grant_id):
             priority='high',
             related_entity_type='travel_grant',
             related_entity_id=grant.id,
-            action_link=f'/travel-grants/{grant.id}'
+            action_link='/travel-grants',
+            send_email=True
         )
 
     elif decision == 'approved':
@@ -246,7 +253,8 @@ def approve_travel_grant(grant_id):
                 priority='high',
                 related_entity_type='travel_grant',
                 related_entity_id=grant.id,
-                action_link=f'/travel-grants/{grant.id}'
+                action_link='/travel-grants',
+                send_email=True
             )
         else:
             # Move to next stage
@@ -263,7 +271,8 @@ def approve_travel_grant(grant_id):
                 priority='medium',
                 related_entity_type='travel_grant',
                 related_entity_id=grant.id,
-                action_link=f'/travel-grants/{grant.id}'
+                action_link='/travel-grants',
+                send_email=False
             )
 
             # Notify next approver(s)
@@ -282,7 +291,8 @@ def approve_travel_grant(grant_id):
                                 priority='high',
                                 related_entity_type='travel_grant',
                                 related_entity_id=grant.id,
-                                action_link=f'/travel-grants/{grant.id}'
+                                action_link='/travel-grants',
+                                send_email=True
                             )
             else:
                 next_approvers = User.query.filter_by(role=next_role, is_active=True).all()
@@ -295,7 +305,8 @@ def approve_travel_grant(grant_id):
                         priority='high',
                         related_entity_type='travel_grant',
                         related_entity_id=grant.id,
-                        action_link=f'/travel-grants/{grant.id}'
+                        action_link='/travel-grants',
+                        send_email=True
                     )
 
     db.session.commit()
@@ -312,22 +323,87 @@ def get_pending_approvals():
     """Get travel grants pending approval for current user"""
     current_user = get_current_user()
 
-    stage_map = {
-        'supervisor': 'supervisor',
-        'dc_member': 'dc',
-        'school_chair': 'school_chair',
-        'ad_research': 'ad_research',
-        'dean_academics': 'dean_academics'
-    }
+    print(f"\n=== DEBUG: Get Pending Travel Grants ===")
+    print(f"User: {current_user.name} (ID: {current_user.id})")
+    print(f"Role: {current_user.role}")
 
-    current_stage = stage_map.get(current_user.role)
+    # For supervisors, show grants from BOTH:
+    # 1. Their supervised scholars (if at supervisor stage)
+    # 2. Scholars whose DC they're on (if at dc stage)
+    if current_user.role == 'supervisor':
+        if not current_user.supervisor_profile:
+            print("No supervisor profile found")
+            return jsonify([]), 200
 
-    if not current_stage:
-        return jsonify([]), 200
+        print(f"Supervisor Profile ID: {current_user.supervisor_profile.id}")
+        all_grants = []
 
-    grants = TravelGrant.query.filter_by(
-        current_stage=current_stage,
-        status='under_review'
-    ).all()
+        # 1. Get grants from supervised scholars at supervisor stage
+        supervised_scholar_ids = [s.id for s in current_user.supervisor_profile.supervised_scholars]
+        print(f"Supervised scholar IDs: {supervised_scholar_ids}")
 
-    return jsonify([g.to_dict() for g in grants]), 200
+        if supervised_scholar_ids:
+            supervisor_grants = TravelGrant.query.filter(
+                TravelGrant.current_stage == 'supervisor',
+                TravelGrant.status.in_(['submitted', 'under_review']),
+                TravelGrant.scholar_id.in_(supervised_scholar_ids)
+            ).all()
+            print(f"Found {len(supervisor_grants)} grants at supervisor stage")
+            all_grants.extend(supervisor_grants)
+
+        # 2. Get grants from DC committee scholars at dc stage
+        dc_memberships = CommitteeMember.query.filter_by(
+            supervisor_id=current_user.supervisor_profile.id,
+            member_type='DC',
+            is_active=True
+        ).all()
+
+        print(f"Found {len(dc_memberships)} DC memberships")
+        for m in dc_memberships:
+            print(f"  - Committee ID: {m.committee_id}, Supervisor ID: {m.supervisor_id}")
+
+        if dc_memberships:
+            # Get scholar IDs from these committees
+            committee_ids = [m.committee_id for m in dc_memberships]
+            committees = Committee.query.filter(Committee.id.in_(committee_ids)).all()
+            dc_scholar_ids = [c.scholar_id for c in committees]
+            print(f"DC scholar IDs from committees: {dc_scholar_ids}")
+
+            if dc_scholar_ids:
+                dc_grants = TravelGrant.query.filter(
+                    TravelGrant.current_stage == 'dc',
+                    TravelGrant.status.in_(['submitted', 'under_review']),
+                    TravelGrant.scholar_id.in_(dc_scholar_ids)
+                ).all()
+                print(f"Found {len(dc_grants)} grants at DC stage")
+                all_grants.extend(dc_grants)
+
+        grants = all_grants
+        print(f"Total grants for supervisor: {len(grants)}")
+        for g in grants:
+            print(f"  - Grant ID: {g.id}, Event: {g.event_name}, Stage: {g.current_stage}, Status: {g.status}, Scholar ID: {g.scholar_id}")
+
+    # For other roles (school_chair, ad_research, dean_academics)
+    else:
+        stage_map = {
+            'school_chair': 'school_chair',
+            'ad_research': 'ad_research',
+            'dean_academics': 'dean_academics'
+        }
+
+        current_stage = stage_map.get(current_user.role)
+
+        if not current_stage:
+            print(f"No stage mapping for role {current_user.role}, returning empty list")
+            return jsonify([]), 200
+
+        grants = TravelGrant.query.filter(
+            TravelGrant.current_stage == current_stage,
+            TravelGrant.status.in_(['submitted', 'under_review'])
+        ).all()
+        print(f"Found {len(grants)} grants for role {current_user.role} at stage {current_stage}")
+
+    result = [g.to_dict() for g in grants]
+    print(f"Returning {len(result)} grants")
+    print("=== END DEBUG ===\n")
+    return jsonify(result), 200

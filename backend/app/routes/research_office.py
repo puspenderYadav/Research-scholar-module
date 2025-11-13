@@ -61,7 +61,6 @@ def get_dashboard():
             'research_area': scholar.research_area,
             'admission_date': scholar.admission_date.isoformat() if scholar.admission_date else None,
             'status': scholar.status,
-            'admission_mode': scholar.admission_mode,
             'thesis_title': scholar.thesis_title,
             'school': {
                 'id': scholar.school.id,
@@ -141,12 +140,7 @@ def get_dashboard():
             'graduated': len([s for s in scholars if s.status == 'graduated']),
             'withdrawn': len([s for s in scholars if s.status == 'withdrawn']),
             'phd': phd_students,
-            'msc': msc_students,
-            'by_admission_mode': {
-                'regular': len([s for s in scholars if s.admission_mode == 'Regular']),
-                'sponsored': len([s for s in scholars if s.admission_mode == 'Sponsored']),
-                'external': len([s for s in scholars if s.admission_mode == 'External'])
-            }
+            'msc': msc_students
         },
         'faculty': {
             'total': len(faculty),
@@ -463,13 +457,13 @@ def export_scholars():
 
 @bp.route('/announcements', methods=['GET'])
 @jwt_required()
-@role_required('ad_research')
 def get_announcements():
-    """Get all announcements (published and drafts for ad_research)"""
+    """Get all announcements (published and drafts for authorized roles)"""
     current_user = get_current_user()
 
-    # AD Research can see all announcements, research_office only sees published
-    if current_user.role == 'ad_research':
+    # Admin roles (ad_research, dean_academics, school_chair) can see all announcements
+    # Others only see published announcements
+    if current_user.role in ['ad_research', 'dean_academics', 'school_chair']:
         announcements = Announcement.query.order_by(Announcement.created_at.desc()).all()
     else:
         announcements = Announcement.query.filter_by(is_published=True).order_by(Announcement.created_at.desc()).all()
@@ -525,11 +519,14 @@ def publish_announcement(announcement_id):
 
 @bp.route('/announcements', methods=['POST'])
 @jwt_required()
-@role_required('ad_research')
 def create_announcement():
-    """Create a new announcement (AD Research only)"""
+    """Create a new announcement (AD Research, Dean Academics, or School Chair)"""
     from flask import current_app
     current_user = get_current_user()
+
+    # Check if user has permission to create announcements
+    if current_user.role not in ['ad_research', 'dean_academics', 'school_chair']:
+        return jsonify({'error': 'Not authorized to create announcements'}), 403
 
     # Handle multipart/form-data
     data = request.form.to_dict()
@@ -608,9 +605,14 @@ def create_announcement():
 
 @bp.route('/announcements/<int:id>', methods=['GET'])
 @jwt_required()
-@role_required('ad_research')
 def get_announcement(id):
-    """Get a specific announcement (AD Research only)"""
+    """Get a specific announcement (authorized roles only)"""
+    current_user = get_current_user()
+
+    # Check if user has permission to view announcement details
+    if current_user.role not in ['ad_research', 'dean_academics', 'school_chair']:
+        return jsonify({'error': 'Not authorized to view announcement details'}), 403
+
     announcement = Announcement.query.get(id)
 
     if not announcement:
@@ -621,13 +623,22 @@ def get_announcement(id):
 
 @bp.route('/announcements/<int:id>', methods=['PUT'])
 @jwt_required()
-@role_required('ad_research')
 def update_announcement(id):
-    """Update an announcement (AD Research only)"""
+    """Update an announcement (AD Research, Dean Academics, or School Chair)"""
+    current_user = get_current_user()
+
+    # Check if user has permission to update announcements
+    if current_user.role not in ['ad_research', 'dean_academics', 'school_chair']:
+        return jsonify({'error': 'Not authorized to update announcements'}), 403
+
     announcement = Announcement.query.get(id)
 
     if not announcement:
         return jsonify({'error': 'Announcement not found'}), 404
+
+    # Check ownership - users can only edit their own announcements
+    if announcement.created_by_id != current_user.id:
+        return jsonify({'error': 'You can only edit announcements you created'}), 403
 
     # Don't allow editing published announcements
     if announcement.is_published:
@@ -732,8 +743,8 @@ def get_announcement_attachment(filename):
 def bulk_admission():
     """
     Bulk admission of scholars via CSV upload (Dean Academics only)
-    CSV Format: name, email, phone, enrollment_number, program, school_code, admission_date, 
-                admission_mode, research_area, supervisor_email, co_supervisor_email,
+    CSV Format: name, email, phone, enrollment_number, program, school_code, admission_date,
+                research_area, supervisor_email, co_supervisor_email,
                 dc_member1_email, dc_member2_email, dc_member3_email,
                 apc_member1_email, apc_member2_email, apc_member3_email
     """
@@ -888,7 +899,6 @@ def bulk_admission():
                     supervisor_id=supervisor.id,
                     co_supervisor_id=co_supervisor.id if co_supervisor else None,
                     admission_date=admission_date,
-                    admission_mode=row.get('admission_mode', '').strip() or None,
                     research_area=row.get('research_area', '').strip() or None,
                     status='active'
                 )
@@ -959,13 +969,12 @@ def download_bulk_admission_template():
     # Header row with all required fields
     writer.writerow([
         'name',
-        'email', 
+        'email',
         'phone',
         'enrollment_number',
         'program',
         'school_code',
         'admission_date',
-        'admission_mode',
         'research_area',
         'supervisor_email',
         'co_supervisor_email',
@@ -977,7 +986,7 @@ def download_bulk_admission_template():
         'apc_member3_email',
         'password'
     ])
-    
+
     # Add sample data row
     writer.writerow([
         'John Doe',
@@ -987,7 +996,6 @@ def download_bulk_admission_template():
         'PhD',
         'CS',
         '2025-01-15',
-        'Regular',
         'Machine Learning',
         'supervisor1@university.edu',
         '',
