@@ -177,15 +177,52 @@ const ScholarProfile = () => {
         </div>
       )}
 
+      {/* Program Completion Banner */}
+      {profile.status === 'completed' && profile.degree_awarded_date && (
+        <div className="mb-6 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-400 rounded-lg p-6 shadow-lg">
+          <div className="flex items-center">
+            <div className="text-6xl mr-6">🎓</div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-green-800 mb-2">
+                🎉 Congratulations! Program Completed 🎉
+              </h2>
+              <p className="text-lg text-gray-700 mb-2">
+                Your {profile.program === 'PhD' ? 'Ph.D.' : 'M.Sc. (Research)'} degree has been officially awarded!
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div className="bg-white rounded-lg p-3 border border-green-200">
+                  <p className="text-sm text-gray-600">Degree Awarded On</p>
+                  <p className="text-lg font-bold text-green-700">{formatDate(profile.degree_awarded_date)}</p>
+                </div>
+                {profile.defense_completion_date && (
+                  <div className="bg-white rounded-lg p-3 border border-blue-200">
+                    <p className="text-sm text-gray-600">Defense Completed On</p>
+                    <p className="text-lg font-bold text-blue-700">{formatDate(profile.defense_completion_date)}</p>
+                  </div>
+                )}
+                {profile.final_result && (
+                  <div className="bg-white rounded-lg p-3 border border-purple-200">
+                    <p className="text-sm text-gray-600">Final Result</p>
+                    <p className="text-lg font-bold text-purple-700 uppercase">{profile.final_result.replace('_', ' ')}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Card */}
       <div className="card mb-6">
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
             <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center text-3xl mr-4">
-              👤
+              {profile.status === 'completed' ? '🎓' : '👤'}
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{profile.user?.name}</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                {profile.status === 'completed' && profile.program === 'PhD' ? 'Dr. ' : ''}{profile.user?.name}
+              </h2>
               <p className="text-gray-600">{profile.user?.email}</p>
               <span className={`badge ${getStatusBadge(profile.status)} mt-2`}>
                 {profile.status?.replace('_', ' ').toUpperCase()}

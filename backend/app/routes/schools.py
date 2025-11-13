@@ -73,7 +73,6 @@ def get_my_school():
             'research_area': student.research_area,
             'admission_date': student.admission_date.isoformat() if student.admission_date else None,
             'status': student.status,
-            'admission_mode': student.admission_mode,
             'thesis_title': student.thesis_title,
             'supervisor': {
                 'id': student.supervisor.id,
