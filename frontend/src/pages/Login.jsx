@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import backgroundImage from '../assets/preview.png';
+import logo from '../assets/newlogo.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -28,31 +30,27 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header with gradient background */}
-      <div className="bg-gradient-to-r from-iit-blue to-iit-darkblue py-8 px-6">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Background image for entire page */}
+      <div className="absolute inset-0 opacity-60 z-0">
+        <img src={backgroundImage} alt="IIT Mandi Campus" className="w-full h-full object-cover" />
+      </div>
+
+      {/* Header */}
+      <div className="relative z-10 py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center space-x-3">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-            <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l9-5-9-5-9 5 9 5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-            </svg>
+          <div className="w-16 h-16 flex items-center justify-center">
+            <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">IIT Mandi</h1>
-            <p className="text-sm text-white/90">Research Scholars Portal</p>
+            <h1 className="text-2xl font-bold text-gray-900 drop-shadow-lg">IIT Mandi</h1>
+            <p className="text-sm text-gray-800 drop-shadow">Research Scholars Portal</p>
           </div>
         </div>
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 overflow-hidden opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full" style={{
-            backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(0, 102, 255, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 61, 153, 0.05) 0%, transparent 50%)',
-          }}></div>
-        </div>
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
 
         <div className="w-full max-w-md relative z-10">
           {/* Login form - no card boundary */}
