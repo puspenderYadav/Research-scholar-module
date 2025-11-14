@@ -743,12 +743,18 @@ def get_announcement_attachment(filename):
 def bulk_admission():
     """
     Bulk admission of scholars via CSV upload (Dean Academics only)
-    CSV Format: name, email, phone, enrollment_number, program, school_code, admission_date,
+    CSV Format: name, personal_email, phone, program, admission_year, school_code, admission_date,
                 research_area, supervisor_email, co_supervisor_email,
                 dc_member1_email, dc_member2_email, dc_member3_email,
                 apc_member1_email, apc_member2_email, apc_member3_email
+    
+    Institute email will be auto-generated in format: XYYZZZ@university.edu
+    where X = P (PhD) or M (MSc), YY = admission year, ZZZ = serial number
     """
     from app.models.committee import Committee, CommitteeMember
+    from app.utils.email_service import EmailService
+    import secrets
+    import string
     
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
@@ -766,11 +772,15 @@ def bulk_admission():
         success_count = 0
         error_count = 0
         errors = []
+        successful_uploads = []
+        
+        # Get the university domain from config
+        university_domain = current_app.config.get('STUDENT_EMAIL_DOMAIN', 'university.edu')
         
         for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 to account for header
             try:
                 # Validate required fields
-                required_fields = ['name', 'email', 'enrollment_number', 'program', 'school_code', 
+                required_fields = ['name', 'personal_email', 'program', 'admission_year', 'school_code', 
                                  'supervisor_email', 'dc_member1_email', 'dc_member2_email', 'dc_member3_email',
                                  'apc_member1_email', 'apc_member2_email', 'apc_member3_email']
                 
@@ -780,17 +790,20 @@ def bulk_admission():
                     error_count += 1
                     continue
 
-                # Check if user already exists
-                existing_user = User.query.filter_by(email=row['email'].strip()).first()
-                if existing_user:
-                    errors.append(f"Row {row_num}: User with email {row['email']} already exists")
+                # Validate program
+                program = row['program'].strip().upper()
+                if program not in ['PHD', 'MSC']:
+                    errors.append(f"Row {row_num}: Program must be either 'PhD' or 'MSc'")
                     error_count += 1
                     continue
 
-                # Check if enrollment number exists
-                existing_scholar = Scholar.query.filter_by(enrollment_number=row['enrollment_number'].strip()).first()
-                if existing_scholar:
-                    errors.append(f"Row {row_num}: Scholar with enrollment number {row['enrollment_number']} already exists")
+                # Validate admission year
+                try:
+                    admission_year = int(row['admission_year'].strip())
+                    if admission_year < 2000 or admission_year > 2100:
+                        raise ValueError("Invalid year range")
+                except:
+                    errors.append(f"Row {row_num}: Invalid admission_year. Must be a 4-digit year")
                     error_count += 1
                     continue
 
@@ -798,6 +811,35 @@ def bulk_admission():
                 school = School.query.filter_by(code=row['school_code'].strip()).first()
                 if not school:
                     errors.append(f"Row {row_num}: School with code {row['school_code']} not found")
+                    error_count += 1
+                    continue
+
+                # Generate enrollment number and institute email
+                # Format: XYYZZZ where X=P(PhD) or M(MSc), YY=year, ZZZ=serial
+                program_prefix = 'P' if program == 'PHD' else 'M'
+                year_suffix = str(admission_year)[2:]  # Last 2 digits of year
+                
+                # Get the highest serial number for this program and year
+                enrollment_pattern = f'{program_prefix}{year_suffix}%'
+                last_scholar = Scholar.query.filter(
+                    Scholar.enrollment_number.like(enrollment_pattern)
+                ).order_by(Scholar.enrollment_number.desc()).first()
+                
+                if last_scholar:
+                    # Extract serial number and increment
+                    last_serial = int(last_scholar.enrollment_number[-3:])
+                    new_serial = last_serial + 1
+                else:
+                    new_serial = 1
+                
+                # Format: P25001, M25001, etc.
+                enrollment_number = f'{program_prefix}{year_suffix}{new_serial:03d}'
+                institute_email = f'{enrollment_number}@{university_domain}'
+
+                # Check if institute email already exists
+                existing_user = User.query.filter_by(email=institute_email).first()
+                if existing_user:
+                    errors.append(f"Row {row_num}: Institute email {institute_email} already exists")
                     error_count += 1
                     continue
 
@@ -875,17 +917,18 @@ def bulk_admission():
                             error_count += 1
                             continue
 
-                # Create user
+                # Create user with institute email
                 user = User(
                     name=row['name'].strip(),
-                    email=row['email'].strip(),
+                    email=institute_email,  # Use generated institute email
                     phone=row.get('phone', '').strip() or None,
                     role='scholar',
                     is_active=True
                 )
-                # Set default password (should be changed on first login)
-                default_password = row.get('password', 'Scholar@123')
-                user.set_password(default_password)
+                
+                # Generate random secure password
+                password = ''.join(secrets.choice(string.ascii_letters + string.digits + '!@#$%') for _ in range(12))
+                user.set_password(password)
                 
                 db.session.add(user)
                 db.session.flush()
@@ -893,8 +936,8 @@ def bulk_admission():
                 # Create scholar profile
                 scholar = Scholar(
                     user_id=user.id,
-                    enrollment_number=row['enrollment_number'].strip(),
-                    program=row['program'].strip(),
+                    enrollment_number=enrollment_number,
+                    program=program,
                     school_id=school.id,
                     supervisor_id=supervisor.id,
                     co_supervisor_id=co_supervisor.id if co_supervisor else None,
@@ -931,7 +974,29 @@ def bulk_admission():
                     )
                     db.session.add(committee_member)
 
+                # Send credentials email to personal email
+                personal_email = row['personal_email'].strip()
+                try:
+                    EmailService.send_scholar_credentials_email(
+                        scholar=scholar,
+                        personal_email=personal_email,
+                        username=institute_email,
+                        password=password,
+                        enrollment_number=enrollment_number
+                    )
+                    email_sent = True
+                except Exception as e:
+                    email_sent = False
+                    errors.append(f"Row {row_num}: Scholar created but email failed - {str(e)}")
+
                 success_count += 1
+                successful_uploads.append({
+                    'name': row['name'].strip(),
+                    'enrollment_number': enrollment_number,
+                    'institute_email': institute_email,
+                    'personal_email': personal_email,
+                    'email_sent': email_sent
+                })
                 
             except Exception as e:
                 errors.append(f"Row {row_num}: {str(e)}")
@@ -948,7 +1013,8 @@ def bulk_admission():
             'message': f'Bulk admission completed. {success_count} scholars added, {error_count} errors.',
             'success_count': success_count,
             'error_count': error_count,
-            'errors': errors if errors else None
+            'errors': errors if errors else None,
+            'successful_uploads': successful_uploads
         }), 200 if error_count == 0 else 207  # 207 = Multi-Status
 
     except Exception as e:
@@ -969,10 +1035,10 @@ def download_bulk_admission_template():
     # Header row with all required fields
     writer.writerow([
         'name',
-        'email',
+        'personal_email',
         'phone',
-        'enrollment_number',
         'program',
+        'admission_year',
         'school_code',
         'admission_date',
         'research_area',
@@ -983,17 +1049,16 @@ def download_bulk_admission_template():
         'dc_member3_email',
         'apc_member1_email',
         'apc_member2_email',
-        'apc_member3_email',
-        'password'
+        'apc_member3_email'
     ])
 
-    # Add sample data row
+    # Add sample data rows
     writer.writerow([
         'John Doe',
-        'john.doe@university.edu',
+        'john.doe@gmail.com',
         '1234567890',
-        'PHD2025001',
         'PhD',
+        '2025',
         'CS',
         '2025-01-15',
         'Machine Learning',
@@ -1004,8 +1069,26 @@ def download_bulk_admission_template():
         'dc3@university.edu',
         'apc1@university.edu',
         'apc2@university.edu',
-        'apc3@university.edu',
-        'Scholar@123'
+        'apc3@university.edu'
+    ])
+    
+    writer.writerow([
+        'Jane Smith',
+        'jane.smith@yahoo.com',
+        '0987654321',
+        'MSc',
+        '2025',
+        'EE',
+        '2025-01-20',
+        'Signal Processing',
+        'supervisor2@university.edu',
+        'cosupervisor1@university.edu',
+        'dc4@university.edu',
+        'dc5@university.edu',
+        'dc6@university.edu',
+        'apc4@university.edu',
+        'apc5@university.edu',
+        'apc6@university.edu'
     ])
     
     # Prepare response
@@ -1014,5 +1097,5 @@ def download_bulk_admission_template():
         io.BytesIO(output.getvalue().encode('utf-8')),
         mimetype='text/csv',
         as_attachment=True,
-        download_name='bulk_admission_template.csv'
+        download_name='scholars_upload_template.csv'
     )

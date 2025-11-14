@@ -98,27 +98,35 @@ const BulkScholarUpload = () => {
         <h2 className="text-xl font-semibold text-blue-800 mb-4">📋 Instructions</h2>
         <ol className="list-decimal list-inside space-y-2 text-gray-700">
           <li>Download the CSV template using the button below</li>
-          <li>Fill in the scholar details in the CSV file</li>
+          <li>Fill in the scholar details in the CSV file with their personal emails</li>
           <li>Ensure all required columns are filled correctly</li>
           <li>Upload the completed CSV file</li>
           <li>The system will automatically:
             <ul className="list-disc list-inside ml-6 mt-1 space-y-1 text-sm">
-              <li>Generate enrollment numbers (format: XYYAAA where X=P/M, YY=year, AAA=serial)</li>
-              <li>Create user accounts for each student</li>
-              <li>Generate secure passwords</li>
-              <li>Send credentials to students via email</li>
+              <li>Generate enrollment numbers (format: XYYZZZ where X=P/M for PhD/MSc, YY=year last 2 digits, ZZZ=serial)</li>
+              <li>Generate institute email addresses (enrollment@university.edu)</li>
+              <li>Create user accounts with secure random passwords</li>
+              <li>Send credentials to personal emails</li>
+              <li>Students login using institute email and password from their personal email</li>
             </ul>
           </li>
         </ol>
 
         <div className="mt-4 p-3 bg-white border border-blue-300 rounded">
           <p className="text-sm font-semibold text-gray-700 mb-2">Required CSV Columns:</p>
-          <div className="text-xs text-gray-600 font-mono bg-gray-50 p-2 rounded">
-            name, personal_email, phone, program, school_code, supervisor_employee_id, admission_date
+          <div className="text-xs text-gray-600 font-mono bg-gray-50 p-2 rounded overflow-x-auto">
+            name, personal_email, program, admission_year, school_code, admission_date, supervisor_email,
+            dc_member1_email, dc_member2_email, dc_member3_email, apc_member1_email, apc_member2_email, apc_member3_email
           </div>
           <p className="text-sm font-semibold text-gray-700 mt-3 mb-2">Optional CSV Columns:</p>
           <div className="text-xs text-gray-600 font-mono bg-gray-50 p-2 rounded">
-            co_supervisor_employee_id, research_area, thesis_title, expected_completion_date
+            phone, co_supervisor_email, research_area
+          </div>
+          <div className="mt-3 p-2 bg-yellow-50 border border-yellow-300 rounded">
+            <p className="text-xs text-yellow-800">
+              <strong>Note:</strong> Program must be 'PhD' or 'MSc'. Admission year must be 4-digit year (e.g., 2025).
+              Institute email will be auto-generated as P25001@university.edu (PhD) or M25001@university.edu (MSc).
+            </p>
           </div>
         </div>
       </div>
@@ -240,36 +248,27 @@ const BulkScholarUpload = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Row</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Enrollment</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Program</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">School</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Supervisor</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Email Sent</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Institute Email</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Personal Email</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Credentials Sent</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {result.successful_uploads.map((scholar, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 text-sm text-gray-600">{scholar.row}</td>
                         <td className="px-4 py-2 text-sm font-medium text-gray-900">{scholar.name}</td>
                         <td className="px-4 py-2 text-sm text-blue-600 font-mono">{scholar.enrollment_number}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{scholar.email}</td>
-                        <td className="px-4 py-2 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            scholar.program === 'PhD' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {scholar.program}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{scholar.school}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{scholar.supervisor}</td>
+                        <td className="px-4 py-2 text-sm text-gray-600 font-mono">{scholar.institute_email}</td>
+                        <td className="px-4 py-2 text-sm text-gray-600">{scholar.personal_email}</td>
                         <td className="px-4 py-2 text-sm">
                           {scholar.email_sent ? (
-                            <span className="text-green-600">✓ Sent</span>
+                            <span className="text-green-600 font-medium">✓ Sent</span>
                           ) : (
+                            <span className="text-red-600 font-medium">✗ Failed</span>
+                          )}
+                        </td>
                             <span className="text-yellow-600">⚠ Failed</span>
                           )}
                         </td>
@@ -282,30 +281,17 @@ const BulkScholarUpload = () => {
           )}
 
           {/* Failed Uploads */}
-          {result.failed_uploads && result.failed_uploads.length > 0 && (
+          {result.errors && result.errors.length > 0 && (
             <div className="card bg-red-50 border border-red-200">
               <h3 className="text-lg font-semibold text-red-700 mb-4">
-                ❌ Failed to Create ({result.failed_uploads.length})
+                ❌ Errors ({result.errors.length})
               </h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-red-200">
-                  <thead className="bg-red-100">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-red-700 uppercase">Row</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-red-700 uppercase">Name</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-red-700 uppercase">Error</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-red-200">
-                    {result.failed_uploads.map((failure, index) => (
-                      <tr key={index} className="hover:bg-red-50">
-                        <td className="px-4 py-2 text-sm text-gray-600">{failure.row}</td>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900">{failure.name}</td>
-                        <td className="px-4 py-2 text-sm text-red-700">{failure.error}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-2">
+                {result.errors.map((error, index) => (
+                  <div key={index} className="bg-white p-3 rounded border border-red-200">
+                    <p className="text-sm text-red-700">{error}</p>
+                  </div>
+                ))}
               </div>
             </div>
           )}

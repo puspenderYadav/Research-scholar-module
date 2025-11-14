@@ -335,6 +335,96 @@ Best regards,
 
         return EmailService.send_email(personal_email, subject, body, html_body)
 
+    @staticmethod
+    def send_school_chair_credentials_email(chair_name, chair_email, password, school_name):
+        """Send credentials email to newly appointed school chair"""
+        print(f"\n[EMAIL] Preparing to send school chair credentials email...")
+        print(f"   To: {chair_email}")
+        print(f"   Chair: {chair_name}")
+        print(f"   School: {school_name}")
+
+        subject = f"Welcome to {current_app.config['APP_NAME']} - School Chair Account Created"
+
+        body = f"""
+Dear {chair_name},
+
+Welcome to {current_app.config['APP_NAME']}!
+
+You have been appointed as the School Chair for {school_name}. Your account has been successfully created.
+
+Login Credentials:
+Email: {chair_email}
+Temporary Password: {password}
+
+Please login using your email and change your password immediately for security purposes.
+Login URL: {current_app.config['FRONTEND_URL']}/login
+
+Important: Keep your credentials secure and do not share them with anyone. Select "School Chair" as your role when logging in.
+
+Best regards,
+{current_app.config['APP_NAME']} Team
+"""
+
+        html_body = f"""
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb; border-radius: 10px;">
+        <div style="background-color: #7c3aed; color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px;">Welcome to {current_app.config['APP_NAME']}!</h1>
+            <p style="margin: 5px 0 0 0; font-size: 14px;">School Chair Account Created</p>
+        </div>
+
+        <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px;">
+            <p style="font-size: 16px;">Dear <strong>{chair_name}</strong>,</p>
+            <p>Congratulations! You have been appointed as the <strong>School Chair</strong> for <strong>{school_name}</strong>.</p>
+
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #7c3aed;">
+                <h3 style="margin-top: 0; color: #7c3aed;">Your Login Credentials</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Email:</strong></td>
+                        <td style="padding: 8px 0;"><code style="background-color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px;">{chair_email}</code></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0;"><strong>Temporary Password:</strong></td>
+                        <td style="padding: 8px 0;"><code style="background-color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 14px; color: #dc2626;">{password}</code></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div style="background-color: #ede9fe; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #7c3aed;">
+                <h3 style="margin-top: 0; color: #5b21b6; font-size: 16px;">Your Responsibilities</h3>
+                <p style="margin: 5px 0;"><strong>School:</strong> {school_name}</p>
+                <p style="margin: 5px 0;">As School Chair, you can manage faculty and students in your school.</p>
+            </div>
+
+            <div style="background-color: #fee2e2; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
+                <p style="margin: 0; color: #991b1b;"><strong>⚠️ Important Security Notice:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px; color: #991b1b;">
+                    <li>Change your password immediately after first login</li>
+                    <li>Do not share your credentials with anyone</li>
+                    <li>Select "School Chair" as your role when logging in</li>
+                    <li>Use your email ({chair_email}) to login</li>
+                </ul>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{current_app.config['FRONTEND_URL']}/login" style="display: inline-block; padding: 12px 30px; background-color: #7c3aed; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">Login to Your Account</a>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+            <p style="font-size: 12px; color: #6b7280; text-align: center; margin: 0;">
+                If you have any questions or need assistance, please contact the Dean's office.<br>
+                <strong>{current_app.config['APP_NAME']}</strong>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+        return EmailService.send_email(chair_email, subject, body, html_body)
 
     @staticmethod
     def send_suspension_email(scholar, start_date, end_date, reason):

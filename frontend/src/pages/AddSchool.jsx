@@ -7,7 +7,9 @@ const AddSchool = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
-    code: ''
+    code: '',
+    chair_email: '',
+    chair_name: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,10 +23,17 @@ const AddSchool = () => {
 
     try {
       const response = await deanAPI.createSchool(formData);
-      setSuccess(`School "${formData.name}" created successfully!`);
+      
+      let successMsg = `School "${formData.name}" created successfully!`;
+      if (response.data.chair_created) {
+        successMsg += ` School chair account created and credentials sent to ${formData.chair_email}.`;
+      } else if (formData.chair_email && !response.data.email_sent) {
+        successMsg += ` Note: Failed to send email. Temporary password: ${response.data.temporary_password}`;
+      }
+      setSuccess(successMsg);
 
       // Reset form
-      setFormData({ name: '', code: '' });
+      setFormData({ name: '', code: '', chair_email: '', chair_name: '' });
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create school');
     } finally {
@@ -97,6 +106,52 @@ const AddSchool = () => {
               <p className="mt-1 text-sm text-gray-500">
                 Short code for the school (will be converted to uppercase)
               </p>
+            </div>
+
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                School Chair Information
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                A school chair account will be automatically created and login credentials will be sent to the provided email.
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Chair Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="chair_email"
+                    required
+                    value={formData.chair_email}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="e.g., chair@university.edu"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    Email address for login and credentials delivery
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Chair Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    name="chair_name"
+                    value={formData.chair_name}
+                    onChange={handleChange}
+                    className="input-field"
+                    placeholder="e.g., Dr. John Smith"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">
+                    Full name of the school chair
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3 pt-4">
