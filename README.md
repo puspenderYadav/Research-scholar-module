@@ -6,7 +6,6 @@
 [![Backend](https://img.shields.io/badge/backend-Flask%203.0-blue)]()
 [![Frontend](https://img.shields.io/badge/frontend-React%2018-61dafb)]()
 [![Database](https://img.shields.io/badge/database-PostgreSQL-336791)]()
-[![License](https://img.shields.io/badge/license-MIT-green)]()
 
 ---
 
