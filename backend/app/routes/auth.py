@@ -115,6 +115,87 @@ def change_password():
     return jsonify({'message': 'Password changed successfully'}), 200
 
 
+@bp.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    """Request password reset - sends reset link to email"""
+    import secrets
+    from datetime import timedelta
+    from app.utils.email_service import EmailService
+
+    data = request.get_json()
+
+    if not data or not data.get('email'):
+        return jsonify({'error': 'Email is required'}), 400
+
+    user = User.query.filter_by(email=data['email']).first()
+
+    # Always return success to prevent email enumeration
+    if not user:
+        return jsonify({'message': 'If the email exists, a password reset link has been sent'}), 200
+
+    if not user.is_active:
+        return jsonify({'message': 'If the email exists, a password reset link has been sent'}), 200
+
+    # Generate reset token (valid for 1 hour)
+    reset_token = secrets.token_urlsafe(32)
+
+    # Store token in JWT with expiry
+    from flask_jwt_extended import create_access_token
+    reset_jwt = create_access_token(
+        identity=str(user.id),
+        additional_claims={'reset_token': reset_token, 'purpose': 'password_reset'},
+        expires_delta=timedelta(hours=1)
+    )
+
+    # Send reset email
+    EmailService.send_password_reset_email(user, reset_jwt)
+
+    return jsonify({'message': 'If the email exists, a password reset link has been sent'}), 200
+
+
+@bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    """Reset password using reset token"""
+    from flask_jwt_extended import decode_token
+    from jwt.exceptions import ExpiredSignatureError, DecodeError
+
+    data = request.get_json()
+
+    if not data or not data.get('token') or not data.get('new_password'):
+        return jsonify({'error': 'Reset token and new password are required'}), 400
+
+    if len(data['new_password']) < 8:
+        return jsonify({'error': 'Password must be at least 8 characters long'}), 400
+
+    try:
+        # Decode and validate token
+        decoded = decode_token(data['token'])
+
+        # Check if token is for password reset
+        if decoded.get('purpose') != 'password_reset':
+            return jsonify({'error': 'Invalid reset token'}), 400
+
+        user_id = int(decoded.get('sub'))
+        user = User.query.get(user_id)
+
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        if not user.is_active:
+            return jsonify({'error': 'Account is inactive'}), 403
+
+        # Reset password
+        user.set_password(data['new_password'])
+        db.session.commit()
+
+        return jsonify({'message': 'Password reset successful. You can now login with your new password.'}), 200
+
+    except ExpiredSignatureError:
+        return jsonify({'error': 'Reset token has expired. Please request a new password reset.'}), 400
+    except (DecodeError, Exception) as e:
+        return jsonify({'error': 'Invalid reset token'}), 400
+
+
 @bp.route('/register-scholar', methods=['POST'])
 @jwt_required()
 def register_scholar():

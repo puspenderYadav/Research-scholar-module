@@ -473,3 +473,81 @@ Dean of Academics
 </html>
 """
         return EmailService.send_email(to_email, subject, body, html_body)
+
+
+    @staticmethod
+    def send_password_reset_email(user, reset_token):
+        """Send password reset email with reset link"""
+        subject = f"{current_app.config['APP_NAME']} - Password Reset Request"
+
+        # Create reset link
+        reset_link = f"{current_app.config['FRONTEND_URL']}/reset-password?token={reset_token}"
+
+        body = f"""
+Dear {user.name},
+
+We received a request to reset your password for your {current_app.config['APP_NAME']} account.
+
+Email: {user.email}
+Role: {user.role}
+
+To reset your password, click the link below:
+{reset_link}
+
+This link will expire in 1 hour for security reasons.
+
+If you did not request a password reset, please ignore this email or contact support if you have concerns.
+
+Best regards,
+{current_app.config['APP_NAME']} Team
+"""
+
+        html_body = f"""
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb; border-radius: 10px;">
+        <div style="background-color: #2563eb; color: white; padding: 20px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px;">Password Reset Request</h1>
+        </div>
+
+        <div style="background-color: white; padding: 30px; border-radius: 0 0 10px 10px;">
+            <p style="font-size: 16px;">Dear <strong>{user.name}</strong>,</p>
+            <p>We received a request to reset your password for your account.</p>
+
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #2563eb;">
+                <h3 style="margin-top: 0; color: #2563eb;">Account Details</h3>
+                <p style="margin: 5px 0;"><strong>Email:</strong> {user.email}</p>
+                <p style="margin: 5px 0;"><strong>Role:</strong> {user.role}</p>
+            </div>
+
+            <p>Click the button below to reset your password:</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{reset_link}" style="display: inline-block; padding: 12px 30px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">Reset Password</a>
+            </div>
+
+            <p style="font-size: 14px; color: #6b7280;">Or copy and paste this link into your browser:</p>
+            <p style="font-size: 12px; background-color: #f3f4f6; padding: 10px; border-radius: 4px; word-break: break-all;">{reset_link}</p>
+
+            <div style="background-color: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                <p style="margin: 0; color: #92400e;"><strong>⚠️ Security Notice:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px; color: #92400e;">
+                    <li>This link will expire in <strong>1 hour</strong></li>
+                    <li>If you didn't request this reset, you can safely ignore this email</li>
+                    <li>Your password won't change until you click the link and set a new one</li>
+                </ul>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+            <p style="font-size: 12px; color: #6b7280; text-align: center; margin: 0;">
+                If you have any concerns about your account security, please contact support.<br>
+                <strong>{current_app.config['APP_NAME']}</strong>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+        return EmailService.send_email(user.email, subject, body, html_body)

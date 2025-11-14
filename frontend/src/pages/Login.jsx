@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import backgroundImage from '../assets/preview.png';
 import logo from '../assets/newlogo.png';
@@ -164,9 +164,9 @@ const Login = () => {
           </button>
 
           <div className="text-center">
-            <a href="#" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium transition-colors">
+            <Link to="/forgot-password" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium transition-colors">
               Forgot your password?
-            </a>
+            </Link>
           </div>
         </form>
 
