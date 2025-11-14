@@ -1,0 +1,31 @@
+services:
+  # Backend API Service
+  - type: web
+    name: research-portal-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn --bind 0.0.0.0:$PORT run:app"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: research-portal-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://research-portal-frontend.onrender.com
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+# Database
+databases:
+  - name: research-portal-db
+    plan: free
+    databaseName: research_portal
+    user: research_user

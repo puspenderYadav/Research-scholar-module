@@ -1,98 +1,195 @@
-# Deployment Checklist
+# Render Deployment Checklist
 
-## Pre-Deployment Steps
+Use this checklist to deploy your Research Portal to Render.com
 
-### Environment Setup
-- [ ] Copy `.env.example` to `.env` in backend folder
-- [ ] Update `DATABASE_URL` with production database credentials
-- [ ] Change `SECRET_KEY` to a secure random string
-- [ ] Change `JWT_SECRET_KEY` to a secure random string
-- [ ] Configure production email settings (SMTP)
-- [ ] Update `FRONTEND_URL` to production domain
+## Pre-Deployment
 
-### Backend Configuration
-- [ ] Install PostgreSQL and create database
-- [ ] Create virtual environment: `python -m venv venv`
-- [ ] Activate virtual environment
-- [ ] Install dependencies: `pip install -r requirements.txt`
-- [ ] Run database migrations: `flask db upgrade`
-- [ ] Create admin users (Dean, AD Research, etc.)
-- [ ] Test backend: `python run.py`
+- [ ] GitHub account created
+- [ ] Render.com account created (FREE)
+- [ ] Code pushed to GitHub repository
+- [ ] Tested locally (both backend and frontend work)
 
-### Frontend Configuration
-- [ ] Copy `.env.example` to `.env` in frontend folder (if needed)
-- [ ] Update `VITE_API_URL` to production API URL
-- [ ] Install dependencies: `npm install`
-- [ ] Build for production: `npm run build`
-- [ ] Test production build: `npm run preview`
+---
 
-### Security Checklist
-- [ ] All `.env` files added to `.gitignore`
-- [ ] No test credentials in code
-- [ ] No hardcoded secrets
-- [ ] CORS configured for production domain only
-- [ ] HTTPS/SSL certificates configured
-- [ ] Database credentials secured
-- [ ] File upload limits configured
-- [ ] Rate limiting enabled (if applicable)
+## 1. Create Database (5 minutes)
 
-### Production Deployment
-- [ ] Set up production database backups
-- [ ] Configure logging and monitoring
-- [ ] Set up error tracking (e.g., Sentry)
-- [ ] Deploy backend with Gunicorn or similar
-- [ ] Deploy frontend to static hosting or Nginx
-- [ ] Configure reverse proxy (Nginx)
-- [ ] Set up domain and DNS
-- [ ] Enable HTTPS with Let's Encrypt
-- [ ] Test all critical workflows
-- [ ] Create initial admin accounts
+- [ ] Login to Render Dashboard: https://dashboard.render.com
+- [ ] Click **New +** → **PostgreSQL**
+- [ ] Name: `research-portal-db`
+- [ ] Database: `research_portal`
+- [ ] User: `research_user`
+- [ ] Plan: **Free**
+- [ ] Click **Create Database**
+- [ ] **Copy Internal Database URL** (save it for next step!)
 
-### Post-Deployment
-- [ ] Monitor application logs
-- [ ] Test email notifications
-- [ ] Verify file uploads working
-- [ ] Check all API endpoints
-- [ ] Test authentication flows
-- [ ] Verify database connections
-- [ ] Monitor performance metrics
-- [ ] Set up automated backups
-- [ ] Document admin procedures
-- [ ] Train initial users
+---
+
+## 2. Deploy Backend (10 minutes)
+
+- [ ] Click **New +** → **Web Service**
+- [ ] Connect GitHub repository
+- [ ] Select repository
+- [ ] Configure:
+  - [ ] Name: `research-portal-backend`
+  - [ ] Root Directory: `backend`
+  - [ ] Runtime: `Python 3`
+  - [ ] Build Command: `pip install -r requirements.txt && flask db upgrade`
+  - [ ] Start Command: `gunicorn --bind 0.0.0.0:$PORT run:app`
+  - [ ] Plan: **Free**
+
+### Environment Variables:
+
+- [ ] `PYTHON_VERSION` = `3.11.0`
+- [ ] `FLASK_ENV` = `production`
+- [ ] `DATABASE_URL` = *[Paste Database URL from step 1]*
+- [ ] `SECRET_KEY` = *[Generate: run `python -c "import secrets; print(secrets.token_urlsafe(32))"`]*
+- [ ] `JWT_SECRET_KEY` = *[Generate another key]*
+- [ ] `FRONTEND_URL` = `https://research-portal-frontend.onrender.com`
+
+- [ ] Click **Create Web Service**
+- [ ] Wait for deployment (~5-10 minutes)
+- [ ] **Copy backend URL** (e.g., `https://research-portal-backend.onrender.com`)
+
+### Initialize Admin Accounts:
+
+- [ ] Go to backend service → **Shell** tab
+- [ ] Run: `flask init-admin-accounts`
+- [ ] Verify Dean Academics and AD Research accounts created
+
+### Seed Database (Optional - for test data):
+
+- [ ] Run: `flask seed-db`
+- [ ] Verify test users and sample data created
+
+---
+
+## 3. Deploy Frontend (10 minutes)
+
+- [ ] Click **New +** → **Static Site**
+- [ ] Connect GitHub repository (same one)
+- [ ] Configure:
+  - [ ] Name: `research-portal-frontend`
+  - [ ] Root Directory: `frontend`
+  - [ ] Build Command: `npm install && npm run build`
+  - [ ] Publish Directory: `dist`
+
+### Environment Variables:
+
+- [ ] `VITE_API_URL` = `https://research-portal-backend.onrender.com/api` *[Use your backend URL]*
+
+- [ ] Click **Create Static Site**
+- [ ] Wait for deployment (~5-10 minutes)
+- [ ] **Copy frontend URL** (e.g., `https://research-portal-frontend.onrender.com`)
+
+---
+
+## 4. Update Backend Settings (2 minutes)
+
+- [ ] Go to backend service → **Environment** tab
+- [ ] Update `FRONTEND_URL` to your actual frontend URL
+- [ ] Click **Save Changes**
+- [ ] Wait for auto-redeploy (~2-3 minutes)
+
+---
+
+## 5. Test Deployment (5 minutes)
+
+- [ ] Open frontend URL in browser
+- [ ] Login page loads correctly
+- [ ] Try logging in with Dean Academics:
+  - Email: `dean.academics@iitmandi.ac.in`
+  - Password: `Dean@123`
+  - Role: **Dean Academics**
+- [ ] Dashboard loads
+- [ ] Try logging in with AD Research:
+  - Email: `ad.research@iitmandi.ac.in`
+  - Password: `ADResearch@123`
+  - Role: **AD Research**
+- [ ] Profile page works
+- [ ] Navigation works
+- [ ] No console errors
+
+---
+
+## Post-Deployment
+
+- [ ] Change default passwords for production users
+- [ ] Update branding (logo, university name)
+- [ ] Configure email notifications (optional)
+- [ ] Share login credentials with users
+- [ ] Set up monitoring/alerts
+- [ ] Add custom domain (optional)
+
+---
+
+## Your Deployment URLs
+
+```
+Frontend:  https://______________________.onrender.com
+Backend:   https://______________________.onrender.com
+Database:  [Internal only]
+```
+
+---
 
 ## Quick Commands
 
-### Backend
+### Generate Secret Keys:
 ```bash
-# Development
-cd backend
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-python run.py
-
-# Production
-gunicorn -w 4 -b 0.0.0.0:5000 "app:create_app('production')"
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
-### Frontend
+### Seed Database (via Render Shell):
 ```bash
-# Development
-cd frontend
-npm run dev
-
-# Production build
-npm run build
+flask seed-db
 ```
 
-### Database
-```bash
-# Backup
-pg_dump -U postgres research_portal > backup_$(date +%Y%m%d).sql
+### View Logs:
+Go to service → **Logs** tab
 
-# Restore
-psql -U postgres research_portal < backup_YYYYMMDD.sql
-```
+---
 
-## Support Contacts
-- Technical Support: research@iitmandi.ac.in
-- Documentation: See README.md and docs/ folder
+## Fixed Admin Credentials
+
+**Production admin accounts (always available):**
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Dean Academics** | dean.academics@iitmandi.ac.in | Dean@123 |
+| **AD Research** | ad.research@iitmandi.ac.in | ADResearch@123 |
+
+## Default Test Credentials
+
+After running `flask seed-db`:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Scholar 1 (PhD) | scholar1@university.edu | password123 |
+| Scholar 2 (MSc) | scholar2@university.edu | password123 |
+| Supervisor 1 | supervisor1@university.edu | password123 |
+| Supervisor 2 | supervisor2@university.edu | password123 |
+| School Chair | chair.cs@university.edu | password123 |
+
+---
+
+## Troubleshooting
+
+### Backend slow to respond?
+- Free tier spins down after 15 min inactivity
+- First request takes 30-60 seconds
+
+### CORS errors?
+- Check `FRONTEND_URL` in backend environment variables
+- Must match exact frontend URL
+
+### Build failed?
+- Check deployment logs
+- Verify `PYTHON_VERSION` = `3.11.0`
+- Check `requirements.txt` has all dependencies
+
+---
+
+**Total Time:** ~30 minutes
+**Total Cost:** $0/month (FREE tier)
+
+**Need help?** See [RENDER_DEPLOYMENT_GUIDE.md](RENDER_DEPLOYMENT_GUIDE.md) for detailed instructions.
