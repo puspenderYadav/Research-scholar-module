@@ -30,6 +30,17 @@ from werkzeug.utils import secure_filename
 bp = Blueprint('dean', __name__, url_prefix='/api/dean')
 
 
+@bp.route('/test-cors', methods=['GET', 'OPTIONS'])
+def test_cors():
+    """Test endpoint to check CORS configuration"""
+    from flask import current_app
+    return jsonify({
+        'message': 'CORS is working!',
+        'frontend_url': current_app.config.get('FRONTEND_URL'),
+        'environment': current_app.config.get('ENV', 'unknown')
+    }), 200
+
+
 @bp.route('/dashboard', methods=['GET'])
 @jwt_required()
 @role_required('dean_academics')
