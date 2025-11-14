@@ -950,8 +950,10 @@ def recruit_faculty():
         db.session.commit()
 
         # Send credentials email to personal email
+        email_sent = False
+        email_error_msg = None
         try:
-            EmailService.send_faculty_credentials_email(
+            email_sent = EmailService.send_faculty_credentials_email(
                 faculty_name=data['name'],
                 personal_email=data['personal_email'],
                 institute_email=data['email'],
@@ -960,11 +962,24 @@ def recruit_faculty():
                 designation=data['designation'],
                 school_name=school.name
             )
+            if not email_sent:
+                email_error_msg = "Email service returned False - check mail configuration"
+                print(f"⚠️  Failed to send email: {email_error_msg}")
         except Exception as email_error:
-            print(f"Failed to send email: {email_error}")
+            email_error_msg = str(email_error)
+            print(f"❌ Exception sending email: {email_error}")
+            import traceback
+            traceback.print_exc()
+
+        response_message = 'Faculty recruited successfully.'
+        if email_sent:
+            response_message += ' Credentials sent to personal email.'
+        else:
+            response_message += f' However, failed to send credentials email: {email_error_msg}'
 
         return jsonify({
-            'message': 'Faculty recruited successfully. Credentials sent to personal email.',
+            'message': response_message,
+            'email_sent': email_sent,
             'user': user.to_dict(),
             'supervisor': supervisor.to_dict(),
             'temporary_password': temporary_password  # In production, don't return this

@@ -25,17 +25,24 @@ def create_app(config_name='default'):
 
     # Configure CORS - MUST be before blueprints are registered
     # Flask-CORS will automatically handle OPTIONS requests
-    # Use regex pattern to match both localhost and production frontend
-    import re
 
     # Get allowed origins from config
-    allowed_origins = [
-        re.compile(r"^http://(localhost|127\.0\.0\.1):(3000|3001|3002)$")
-    ]
+    allowed_origins = []
+
+    # Add localhost patterns for development
+    allowed_origins.extend([
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+        "http://127.0.0.1:3002",
+        "http://localhost:5000"
+    ])
 
     # Add production frontend URL if set
     frontend_url = app.config.get('FRONTEND_URL')
-    if frontend_url and not frontend_url.startswith('http://localhost'):
+    if frontend_url and frontend_url not in allowed_origins:
         allowed_origins.append(frontend_url)
 
     CORS(app,
@@ -45,10 +52,7 @@ def create_app(config_name='default'):
              "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
              "expose_headers": ["Content-Disposition"],
              "supports_credentials": True,
-             "max_age": 3600,
-             "send_wildcard": False,
-             "always_send": True,
-             "automatic_options": True
+             "max_age": 3600
          }},
          supports_credentials=True)
 
