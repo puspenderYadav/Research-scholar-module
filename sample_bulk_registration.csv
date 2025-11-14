@@ -1,0 +1,4 @@
+name,email,enrollment_number,program,year_of_joining,research_area,supervisor_email
+Paridhi Mittal,paridhimittal3106@gmail.com,PHD001,PhD,2024,Machine Learning,supervisor1@university.edu
+Sample Scholar 1,scholar.sample1@university.edu,PHD002,PhD,2024,Artificial Intelligence,supervisor1@university.edu
+Sample Scholar 2,scholar.sample2@university.edu,MSC001,M.Sc.,2024,Data Science,supervisor2@university.edu
