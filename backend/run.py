@@ -59,6 +59,52 @@ def init_db():
 
 
 @app.cli.command()
+def init_admin_accounts():
+    """Initialize fixed admin accounts (Dean Academics and AD Research)"""
+    print("Initializing admin accounts...")
+
+    # Dean Academics
+    dean_email = 'dean.academics@iitmandi.ac.in'
+    dean = User.query.filter_by(email=dean_email).first()
+
+    if not dean:
+        dean = User(
+            email=dean_email,
+            name='Dean Academics',
+            role='dean_academics',
+            is_active=True
+        )
+        dean.set_password('Dean@123')
+        db.session.add(dean)
+        print(f"✓ Created Dean Academics account: {dean_email}")
+    else:
+        print(f"✓ Dean Academics account already exists: {dean_email}")
+
+    # AD Research
+    ad_research_email = 'ad.research@iitmandi.ac.in'
+    ad_research = User.query.filter_by(email=ad_research_email).first()
+
+    if not ad_research:
+        ad_research = User(
+            email=ad_research_email,
+            name='AD Research',
+            role='ad_research',
+            is_active=True
+        )
+        ad_research.set_password('ADResearch@123')
+        db.session.add(ad_research)
+        print(f"✓ Created AD Research account: {ad_research_email}")
+    else:
+        print(f"✓ AD Research account already exists: {ad_research_email}")
+
+    db.session.commit()
+    print("\n=== Admin Account Credentials ===")
+    print(f"Dean Academics: {dean_email} / Dean@123")
+    print(f"AD Research: {ad_research_email} / ADResearch@123")
+    print("\nAdmin accounts initialized successfully!")
+
+
+@app.cli.command()
 def seed_db():
     """Seed the database with sample data"""
     from datetime import date, timedelta
@@ -75,13 +121,13 @@ def seed_db():
     db.session.flush()
 
     # Create Dean Academics
-    dean = User(email='dean@university.edu', name='Dr. Dean Academics', role='dean_academics', is_active=True)
-    dean.set_password('password123')
+    dean = User(email='dean.academics@iitmandi.ac.in', name='Dean Academics', role='dean_academics', is_active=True)
+    dean.set_password('Dean@123')
     db.session.add(dean)
 
     # Create AD Research
-    ad_research = User(email='ad.research@university.edu', name='Dr. AD Research', role='ad_research', is_active=True)
-    ad_research.set_password('adresearch123')
+    ad_research = User(email='ad.research@iitmandi.ac.in', name='AD Research', role='ad_research', is_active=True)
+    ad_research.set_password('ADResearch@123')
     db.session.add(ad_research)
 
     # Create School Chair
@@ -177,8 +223,8 @@ def seed_db():
     db.session.commit()
     print("Database seeded successfully!")
     print("\n=== Test Credentials ===")
-    print("Dean: dean@university.edu / password123")
-    print("AD Research: ad.research@university.edu / password123")
+    print("Dean Academics: dean.academics@iitmandi.ac.in / Dean@123")
+    print("AD Research: ad.research@iitmandi.ac.in / ADResearch@123")
     print("School Chair: chair.cs@university.edu / password123")
     print("Supervisor 1: supervisor1@university.edu / password123")
     print("Supervisor 2: supervisor2@university.edu / password123")
