@@ -7,6 +7,5 @@ pip install -r requirements.txt
 # Run database migrations
 flask db upgrade
 
-# Seed database with initial data (only if needed)
-# Uncomment the line below if you want to seed on first deployment
-# flask seed-db
+# Initialize admin accounts automatically
+flask init-admin-accounts
