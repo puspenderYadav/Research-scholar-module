@@ -5,7 +5,8 @@ set -o errexit
 pip install -r requirements.txt
 
 # Run database migrations
+export FLASK_APP=run.py
 flask db upgrade
 
 # Initialize admin accounts automatically
-flask init-admin-accounts
+python init_admin.py
