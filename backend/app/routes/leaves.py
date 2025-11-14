@@ -91,12 +91,14 @@ def create_leave():
     total_days = request.form.get('total_days')
     reason = request.form.get('reason')
 
+    print(f"DEBUG: Leave application - type={leave_type}, days={total_days}, start={start_date}, end={end_date}")
+
     # Validate required fields
     if not all([leave_type, start_date, end_date, total_days, reason]):
         return jsonify({'error': 'All fields are required'}), 400
 
     # Validate leave type
-    if leave_type not in ['personal', 'medical', 'maternity', 'paternity']:
+    if leave_type not in ['personal', 'medical', 'maternity', 'paternity', 'field_trip']:
         return jsonify({'error': 'Invalid leave type'}), 400
 
     # Check leave balance
@@ -127,7 +129,9 @@ def create_leave():
     if 'supporting_document' in request.files:
         file = request.files['supporting_document']
         if file and file.filename:
-            supporting_document = save_uploaded_file(file, 'leaves')
+            relative_path, filename = save_uploaded_file(file, 'leaves')
+            if relative_path:
+                supporting_document = relative_path
 
     # Validate supporting document for non-personal leaves
     if leave_type != 'personal' and not supporting_document:
@@ -157,9 +161,10 @@ def create_leave():
             message=f'Scholar {scholar.enrollment_number} has submitted a {leave_type} leave application for {total_days} days',
             notification_type='approval',
             priority='high',
-            related_entity_type='leave',
+            related_entity_type='leave_application',
             related_entity_id=leave.id,
-            action_link=f'/leaves/{leave.id}'
+            action_link='/leaves',
+            send_email=True
         )
 
     db.session.commit()
@@ -221,9 +226,10 @@ def approve_leave(leave_id):
             message=f'Your {leave.leave_type} leave application has been rejected by {current_user.name}. Feedback: {feedback}',
             notification_type='alert',
             priority='high',
-            related_entity_type='leave',
+            related_entity_type='leave_application',
             related_entity_id=leave.id,
-            action_link=f'/leaves'
+            action_link='/leaves',
+            send_email=True
         )
 
     elif decision == 'approved':
@@ -240,9 +246,10 @@ def approve_leave(leave_id):
                     message=f'Scholar {scholar.enrollment_number} has a {leave.leave_type} leave application pending your approval',
                     notification_type='approval',
                     priority='high',
-                    related_entity_type='leave',
+                    related_entity_type='leave_application',
                     related_entity_id=leave.id,
-                    action_link=f'/leaves/{leave.id}'
+                    action_link='/leaves',
+                    send_email=True
                 )
 
         elif current_stage == 'school_chair':
@@ -267,9 +274,10 @@ def approve_leave(leave_id):
                 message=f'Your {leave.leave_type} leave application for {leave.total_days} days has been approved',
                 notification_type='success',
                 priority='high',
-                related_entity_type='leave',
+                related_entity_type='leave_application',
                 related_entity_id=leave.id,
-                action_link=f'/leaves'
+                action_link='/leaves',
+                send_email=True
             )
 
     db.session.commit()

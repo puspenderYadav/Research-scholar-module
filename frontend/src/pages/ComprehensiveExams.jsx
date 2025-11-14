@@ -198,7 +198,11 @@ const ComprehensiveExams = () => {
     <Layout>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Comprehensive Exams</h1>
-        <p className="text-gray-600 mt-2">Schedule and manage comprehensive examinations</p>
+        <p className="text-gray-600 mt-2">
+          {user.role === 'school_chair'
+            ? 'Schedule and manage comprehensive examinations'
+            : 'View comprehensive examinations'}
+        </p>
       </div>
 
       {success && (
@@ -213,13 +217,13 @@ const ComprehensiveExams = () => {
         </div>
       )}
 
-      {!showForm ? (
+      {user.role === 'school_chair' && !showForm ? (
         <div className="card mb-6">
           <button onClick={() => setShowForm(true)} className="btn-primary">
             + Schedule New Comprehensive Exam
           </button>
         </div>
-      ) : (
+      ) : user.role === 'school_chair' && showForm ? (
         <div className="card mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Schedule Comprehensive Exam</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -403,7 +407,7 @@ const ComprehensiveExams = () => {
             </div>
           </form>
         </div>
-      )}
+      ) : null}
 
       {/* Exams List */}
       <div className="card">

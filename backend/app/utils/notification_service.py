@@ -60,11 +60,19 @@ class NotificationService:
         return notifications
 
     @staticmethod
-    def get_user_notifications(user_id, unread_only=False, limit=50):
-        """Get notifications for a user"""
+    def get_user_notifications(user_id, unread_only=False, limit=50, notification_type=None, is_read=None):
+        """Get notifications for a user with optional filtering"""
         query = Notification.query.filter_by(user_id=user_id)
 
-        if unread_only:
+        # Filter by type if specified
+        if notification_type:
+            query = query.filter_by(notification_type=notification_type)
+        
+        # Filter by read status if specified
+        if is_read is not None:
+            is_read_bool = is_read.lower() == 'true' if isinstance(is_read, str) else is_read
+            query = query.filter_by(is_read=is_read_bool)
+        elif unread_only:
             query = query.filter_by(is_read=False)
 
         return query.order_by(Notification.created_at.desc()).limit(limit).all()
@@ -97,6 +105,16 @@ class NotificationService:
             user_id=user_id,
             is_read=False
         ).count()
+    
+    @staticmethod
+    def delete_notification(notification_id):
+        """Delete a notification"""
+        notification = Notification.query.get(notification_id)
+        if notification:
+            db.session.delete(notification)
+            db.session.commit()
+            return True
+        return False
 
     # Specific notification creators
 

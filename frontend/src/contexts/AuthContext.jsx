@@ -44,13 +44,21 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
-      const { access_token, refresh_token, user: userData } = response.data;
+      const { access_token, refresh_token, user: userData, profile } = response.data;
+
+      // Merge profile data into user object for easier access
+      const mergedUser = {
+        ...userData,
+        scholar_id: profile?.id || null,
+        supervisor_id: profile?.id || null,
+        profile: profile
+      };
 
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('refresh_token', refresh_token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(mergedUser));
 
-      setUser(userData);
+      setUser(mergedUser);
       return { success: true };
     } catch (error) {
       return {

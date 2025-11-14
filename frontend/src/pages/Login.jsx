@@ -172,36 +172,11 @@ const Login = () => {
 
             {/* Footer in same card */}
             <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="text-center mb-4">
+              <div className="text-center">
                 <p className="text-xs text-gray-500 mb-1">For support, contact</p>
                 <a href="mailto:research@iitmandi.ac.in" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium">
                   research@iitmandi.ac.in
                 </a>
-              </div>
-
-              {/* Test Credentials */}
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <div className="flex items-center justify-center mb-3">
-                  <svg className="w-4 h-4 text-iit-blue mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-xs font-semibold text-gray-700">Test Credentials</p>
-                </div>
-                <div className="space-y-1.5 text-xs text-gray-600">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Scholar:</span>
-                    <span className="font-mono text-gray-500">scholar1@university.edu</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Supervisor:</span>
-                    <span className="font-mono text-gray-500">supervisor1@university.edu</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">AD Research:</span>
-                    <span className="font-mono text-gray-500">ad.research@university.edu</span>
-                  </div>
-                  <p className="text-center text-gray-400 mt-2 pt-2 border-t border-gray-100">Password: Use role-based password</p>
-                </div>
               </div>
             </div>
           </div>

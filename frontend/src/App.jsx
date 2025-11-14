@@ -17,7 +17,6 @@ import AddSchool from './pages/AddSchool'
 import Announcements from './pages/Announcements'
 import Supervisors from './pages/Supervisors'
 import MyCommitteeScholars from './pages/MyCommitteeScholars'
-import Exams from './pages/Exams'
 import Seminars from './pages/Seminars'
 import Synopsis from './pages/Synopsis'
 import ProgressReports from './pages/ProgressReports'
@@ -27,11 +26,13 @@ import Calendar from './pages/Calendar'
 import Notifications from './pages/Notifications'
 import SupervisorChangeRequest from './pages/SupervisorChangeRequest'
 import SupervisorChangeApprovals from './pages/SupervisorChangeApprovals'
+import SupervisorApprovals from './pages/SupervisorApprovals'
 import BulkScholarUpload from './pages/BulkScholarUpload'
 import ComprehensiveExams from './pages/ComprehensiveExams'
 import LeaveApplications from './pages/LeaveApplications'
 import LeaveApprovals from './pages/LeaveApprovals'
 import Meetings from './pages/Meetings'
+import Approvals from './pages/Approvals'
 
 function App() {
   return (
@@ -119,9 +120,9 @@ function App() {
             </PrivateRoute>
           } />
 
-          <Route path="/exams" element={
+          <Route path="/supervisor-approvals" element={
             <PrivateRoute>
-              <Exams />
+              <SupervisorApprovals />
             </PrivateRoute>
           } />
 
@@ -194,6 +195,12 @@ function App() {
           <Route path="/meetings" element={
             <PrivateRoute>
               <Meetings />
+            </PrivateRoute>
+          } />
+
+          <Route path="/approvals" element={
+            <PrivateRoute>
+              <Approvals />
             </PrivateRoute>
           } />
 

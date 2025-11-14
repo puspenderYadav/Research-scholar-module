@@ -5,27 +5,30 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     grant_type: '',
     event_name: '',
-    organizer_name: '',
+    organizers: '',
     venue_country: '',
+    departure_date: '',
+    return_date: '',
+    total_days: 0,
     broad_area: '',
-    reason_for_visit: '',
+    reasons_for_visit: '',
     funds_from_other_agencies: false,
     via_institute: false,
     institute_amount: '',
-    institute_reason: '',
+    institute_reasons: '',
     via_other_sources: false,
     funding_agency_name: '',
     sanctioned_amount: '',
     registration_waiver_requested: false,
-    other_funds_from_supervisor: false,
+    funds_from_supervisor_grant: false,
     supervisor_grant_amount: '',
     anticipated_expenses: '',
-    other_details_funding: '',
+    other_financial_details: '',
     presenting_paper: false,
     paper_title: '',
     number_of_papers: '',
     paper_links: '',
-    other_details_paper: ''
+    paper_other_details: ''
   });
 
   const [files, setFiles] = useState({
@@ -38,10 +41,23 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: type === 'checkbox' ? checked : value
-    }));
+    };
+
+    // Auto-calculate total days when dates change
+    if (name === 'departure_date' || name === 'return_date') {
+      if (newFormData.departure_date && newFormData.return_date) {
+        const departure = new Date(newFormData.departure_date);
+        const returnDate = new Date(newFormData.return_date);
+        const diffTime = Math.abs(returnDate - departure);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        newFormData.total_days = diffDays;
+      }
+    }
+
+    setFormData(newFormData);
   };
 
   const handleFileChange = (e) => {
@@ -60,36 +76,36 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
     // Required fields
     if (!formData.grant_type) newErrors.grant_type = 'Travel grant type is required';
     if (!formData.event_name) newErrors.event_name = 'Event name is required';
-    if (!formData.organizer_name) newErrors.organizer_name = 'Organizer name is required';
+    if (!formData.organizers) newErrors.organizers = 'Organizer name is required';
     if (!formData.venue_country) newErrors.venue_country = 'Venue & Country is required';
+    if (!formData.departure_date) newErrors.departure_date = 'Departure date is required';
+    if (!formData.return_date) newErrors.return_date = 'Return date is required';
     if (!files.invitation_letter) newErrors.invitation_letter = 'Invitation letter is required';
     if (!formData.broad_area) newErrors.broad_area = 'Broad area is required';
-    if (!formData.reason_for_visit) newErrors.reason_for_visit = 'Reason for visit is required';
+    if (!formData.reasons_for_visit) newErrors.reasons_for_visit = 'Reason for visit is required';
+    if (!formData.anticipated_expenses) newErrors.anticipated_expenses = 'Anticipated expenses is required';
 
     // Conditional required fields - Institute funding
     if (formData.funds_from_other_agencies && formData.via_institute) {
       if (!formData.institute_amount) newErrors.institute_amount = 'Institute amount is required';
-      if (!formData.institute_reason) newErrors.institute_reason = 'Institute reason is required';
+      if (!formData.institute_reasons) newErrors.institute_reasons = 'Institute reason is required';
     }
 
     // Conditional required fields - Other sources
     if (formData.funds_from_other_agencies && formData.via_other_sources) {
       if (!formData.funding_agency_name) newErrors.funding_agency_name = 'Funding agency name is required';
       if (!formData.sanctioned_amount) newErrors.sanctioned_amount = 'Sanctioned amount is required';
-      
+
       if (formData.registration_waiver_requested && !files.waiver_document) {
         newErrors.waiver_document = 'Waiver document is required';
       }
-      
-      if (formData.other_funds_from_supervisor && !formData.supervisor_grant_amount) {
+
+      if (formData.funds_from_supervisor_grant && !formData.supervisor_grant_amount) {
         newErrors.supervisor_grant_amount = 'Supervisor grant amount is required';
       }
     }
 
-    // Anticipated expenses
-    if (formData.funds_from_other_agencies && !formData.anticipated_expenses) {
-      newErrors.anticipated_expenses = 'Anticipated expenses is required';
-    }
+    // Remove duplicate anticipated_expenses validation (already in required fields above)
 
     // Conditional required fields - Presenting paper
     if (formData.presenting_paper) {
@@ -99,23 +115,40 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
     }
 
     setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      console.log('Validation errors:', newErrors);
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
+      console.log('Form validation failed. Please check the errors above.');
+      // Scroll to first error
+      const firstError = document.querySelector('.text-red-500');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
     setLoading(true);
     try {
       const submitData = new FormData();
-      
-      // Append all form fields
+
+      // Append all form fields (map departure_date to start_date, return_date to end_date)
       Object.keys(formData).forEach(key => {
-        submitData.append(key, formData[key]);
+        if (key === 'departure_date') {
+          submitData.append('start_date', formData[key]);
+        } else if (key === 'return_date') {
+          submitData.append('end_date', formData[key]);
+        } else {
+          submitData.append(key, formData[key]);
+        }
       });
 
       // Append files
@@ -123,10 +156,10 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
         submitData.append('invitation_letter', files.invitation_letter);
       }
       if (files.waiver_document) {
-        submitData.append('waiver_document', files.waiver_document);
+        submitData.append('registration_waiver_document', files.waiver_document);
       }
 
-      await api.post('/travel-grants', submitData, {
+      await api.post('/travel-grants/', submitData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -145,7 +178,19 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-2xl font-bold mb-6">Apply for Travel Grant</h2>
-      
+
+      {/* Error Summary */}
+      {Object.keys(errors).length > 0 && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+          <h3 className="text-red-800 font-semibold mb-2">Please fix the following errors:</h3>
+          <ul className="list-disc list-inside text-red-700 text-sm space-y-1">
+            {Object.entries(errors).map(([field, message]) => (
+              <li key={field}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Travel Grant Type */}
         <div>
@@ -190,12 +235,12 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
           </label>
           <input
             type="text"
-            name="organizer_name"
-            value={formData.organizer_name}
+            name="organizers"
+            value={formData.organizers}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.organizer_name && <p className="text-red-500 text-sm mt-1">{errors.organizer_name}</p>}
+          {errors.organizers && <p className="text-red-500 text-sm mt-1">{errors.organizers}</p>}
         </div>
 
         {/* Venue & Country */}
@@ -211,6 +256,55 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           {errors.venue_country && <p className="text-red-500 text-sm mt-1">{errors.venue_country}</p>}
+        </div>
+
+        {/* Travel Dates */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Departure Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Departure Date <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              name="departure_date"
+              value={formData.departure_date}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.departure_date && <p className="text-red-500 text-sm mt-1">{errors.departure_date}</p>}
+          </div>
+
+          {/* Return Date */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Return Date <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              name="return_date"
+              value={formData.return_date}
+              onChange={handleChange}
+              min={formData.departure_date}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {errors.return_date && <p className="text-red-500 text-sm mt-1">{errors.return_date}</p>}
+          </div>
+
+          {/* Total Days (Auto-calculated) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Total Days
+            </label>
+            <input
+              type="number"
+              name="total_days"
+              value={formData.total_days}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 font-semibold"
+              readOnly
+            />
+            <p className="text-xs text-gray-500 mt-1">Auto-calculated</p>
+          </div>
         </div>
 
         {/* Invitation Letter */}
@@ -249,13 +343,28 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
             State Reasons for Visit <span className="text-red-500">*</span>
           </label>
           <textarea
-            name="reason_for_visit"
-            value={formData.reason_for_visit}
+            name="reasons_for_visit"
+            value={formData.reasons_for_visit}
             onChange={handleChange}
             rows="4"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          {errors.reason_for_visit && <p className="text-red-500 text-sm mt-1">{errors.reason_for_visit}</p>}
+          {errors.reasons_for_visit && <p className="text-red-500 text-sm mt-1">{errors.reasons_for_visit}</p>}
+        </div>
+
+        {/* Anticipated Expenses */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Anticipated Expenses (in INR) <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            name="anticipated_expenses"
+            value={formData.anticipated_expenses}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {errors.anticipated_expenses && <p className="text-red-500 text-sm mt-1">{errors.anticipated_expenses}</p>}
         </div>
 
         {/* Funds from Other Agencies */}
@@ -311,13 +420,13 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
                       State Reasons <span className="text-red-500">*</span>
                     </label>
                     <textarea
-                      name="institute_reason"
-                      value={formData.institute_reason}
+                      name="institute_reasons"
+                      value={formData.institute_reasons}
                       onChange={handleChange}
                       rows="3"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    {errors.institute_reason && <p className="text-red-500 text-sm mt-1">{errors.institute_reason}</p>}
+                    {errors.institute_reasons && <p className="text-red-500 text-sm mt-1">{errors.institute_reasons}</p>}
                   </div>
                 </div>
               )}
@@ -401,8 +510,8 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
                     <label className="flex items-center space-x-2">
                       <input
                         type="checkbox"
-                        name="other_funds_from_supervisor"
-                        checked={formData.other_funds_from_supervisor}
+                        name="funds_from_supervisor_grant"
+                        checked={formData.funds_from_supervisor_grant}
                         onChange={handleChange}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
@@ -411,7 +520,7 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
                       </span>
                     </label>
 
-                    {formData.other_funds_from_supervisor && (
+                    {formData.funds_from_supervisor_grant && (
                       <div className="ml-6 mt-3">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Mention Amount <span className="text-red-500">*</span>
@@ -431,29 +540,14 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
               )}
             </div>
 
-            {/* Anticipated Expenses */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Anticipated Expenses (in INR) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                name="anticipated_expenses"
-                value={formData.anticipated_expenses}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.anticipated_expenses && <p className="text-red-500 text-sm mt-1">{errors.anticipated_expenses}</p>}
-            </div>
-
             {/* Other Details (Funding) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Other Details
               </label>
               <textarea
-                name="other_details_funding"
-                value={formData.other_details_funding}
+                name="other_financial_details"
+                value={formData.other_financial_details}
                 onChange={handleChange}
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -527,8 +621,8 @@ const TravelGrantApplicationForm = ({ onSuccess, onCancel }) => {
                 Other Details
               </label>
               <textarea
-                name="other_details_paper"
-                value={formData.other_details_paper}
+                name="paper_other_details"
+                value={formData.paper_other_details}
                 onChange={handleChange}
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

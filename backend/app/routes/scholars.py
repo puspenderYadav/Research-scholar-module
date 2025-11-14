@@ -117,7 +117,11 @@ def request_supervisor_change():
             title='Supervisor Change Request',
             message=f'Scholar {scholar.enrollment_number} has requested to change supervisor. Reason: {data["reason"]}',
             notification_type='general',
-            priority='medium'
+            priority='medium',
+            related_entity_type='scholar',
+            related_entity_id=scholar.id,
+            action_link='/scholars',
+            send_email=True
         )
 
     return jsonify({'message': 'Supervisor change request submitted successfully'}), 200

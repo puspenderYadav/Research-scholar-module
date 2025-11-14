@@ -246,3 +246,8 @@ export const meetingAPI = {
   cleanupOld: () => api.post('/meetings/cleanup-old'),
   cleanupNotifications: () => api.post('/meetings/cleanup-notifications'),
 };
+
+export const approvalsAPI = {
+  getAll: () => api.get('/approvals/all'),
+  getSummary: () => api.get('/approvals/summary'),
+};

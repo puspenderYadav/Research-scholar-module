@@ -49,7 +49,8 @@ const Layout = ({ children }) => {
     { name: 'Leave Applications', path: '/leave-applications', icon: '🏖️', roles: ['scholar'] },
     { name: 'Leave Approvals', path: '/leave-approvals', icon: '✅', roles: ['supervisor', 'school_chair'] },
     { name: 'Meetings', path: '/meetings', icon: '🤝', roles: ['supervisor', 'scholar'] },
-    { name: 'Travel Grants', path: '/travel-grants', icon: '✈️', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
+    { name: 'Travel Grants', path: '/travel-grants', icon: '✈️', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research', 'dean_academics'] },
+    { name: 'Approvals', path: '/approvals', icon: '✓', roles: ['supervisor', 'school_chair', 'ad_research', 'dean_academics'] },
     { name: 'Calendar', path: '/calendar', icon: '📅', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
   ];
 

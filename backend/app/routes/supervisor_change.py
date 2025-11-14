@@ -71,13 +71,16 @@ def create_request():
     db.session.add(change_request)
     db.session.commit()
 
-    # Send notification to BOTH current AND new supervisor
+    # Send notification to BOTH current AND new supervisor with action links
     NotificationService.create_notification(
         user_id=scholar.supervisor.user_id,
         title='Supervisor Change Request - Your Approval Required',
         message=f'Scholar {scholar.enrollment_number} ({scholar.user.name}) has requested to change supervisors. Please review and approve/decline the request.',
         notification_type='supervisor_change',
         priority='high',
+        related_entity_type='supervisor_change_request',
+        related_entity_id=change_request.id,
+        action_link=f'/supervisor-approvals?request_id={change_request.id}',
         send_email=True
     )
 
@@ -87,6 +90,9 @@ def create_request():
         message=f'Scholar {scholar.enrollment_number} ({scholar.user.name}) has requested you as their new supervisor. Please review and approve/decline the request.',
         notification_type='supervisor_change',
         priority='high',
+        related_entity_type='supervisor_change_request',
+        related_entity_id=change_request.id,
+        action_link=f'/supervisor-approvals?request_id={change_request.id}',
         send_email=True
     )
 

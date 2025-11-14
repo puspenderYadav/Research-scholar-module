@@ -17,7 +17,7 @@ const ProgressReports = () => {
 
   // Determine what to show based on user role
   const isScholar = user?.role === 'scholar';
-  const isReviewer = user?.role === 'supervisor' || user?.role === 'committee_member';
+  const isReviewer = user?.role === 'supervisor' || user?.role === 'dc_member' || user?.role === 'adc_member' || user?.role === 'school_chair' || user?.role === 'ad_research' || user?.role === 'dean_academics';
 
   return (
     <Layout>

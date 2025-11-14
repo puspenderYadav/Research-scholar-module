@@ -12,6 +12,7 @@ class Committee(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    scholar = db.relationship('Scholar', back_populates='committee')
     members = db.relationship('CommitteeMember', backref='committee', lazy='dynamic', cascade='all, delete-orphan')
 
     def get_dc_members(self):

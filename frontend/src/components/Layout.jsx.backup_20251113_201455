@@ -1,0 +1,163 @@
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { notificationAPI } from '../services/api';
+
+const Layout = ({ children }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    loadNotificationCount();
+    const interval = setInterval(loadNotificationCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadNotificationCount = async () => {
+    try {
+      const response = await notificationAPI.getUnread();
+      setUnreadCount(response.data.unread_count);
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const navItems = [
+    { name: 'Dashboard', path: '/dashboard', icon: '🏠', roles: ['all'] },
+    { name: 'Profile', path: '/profile', icon: '👤', roles: ['scholar'] },
+    { name: 'Faculty Profile', path: '/faculty-profile', icon: '👨‍🏫', roles: ['supervisor', 'faculty'] },
+    { name: 'School Chair Profile', path: '/school-chair-profile', icon: '🏫', roles: ['school_chair'] },
+    { name: 'AD Research', path: '/research-office-profile', icon: '📋', roles: ['ad_research'] },
+    { name: 'Analytics', path: '/dean-academics-profile', icon: '👔', roles: ['dean_academics'] },
+    { name: 'Recruit Faculty', path: '/recruit-faculty', icon: '➕', roles: ['dean_academics'] },
+    { name: 'Add School', path: '/add-school', icon: '🏛️', roles: ['dean_academics'] },
+    { name: 'Announcements', path: '/announcements', icon: '📢', roles: ['dean_academics', 'ad_research'] },
+    { name: 'Supervisors', path: '/supervisors', icon: '👨‍🏫', roles: ['ad_research'] },
+    { name: 'My Committee Scholars', path: '/my-committee-scholars', icon: '👥', roles: ['supervisor'] },
+    { name: 'Comprehensive Exams', path: '/comprehensive-exams', icon: '📋', roles: ['scholar', 'ad_research'] },
+    { name: 'Seminars', path: '/seminars', icon: '🎤', roles: ['scholar', 'supervisor'] },
+    { name: 'Synopsis', path: '/synopsis', icon: '📄', roles: ['scholar', 'supervisor'] },
+    { name: 'Progress Reports', path: '/progress-reports', icon: '📊', roles: ['scholar', 'supervisor'] },
+    { name: 'Thesis', path: '/thesis', icon: '📚', roles: ['scholar', 'supervisor'] },
+    { name: 'Leave Applications', path: '/leave-applications', icon: '🏖️', roles: ['scholar'] },
+    { name: 'Leave Approvals', path: '/leave-approvals', icon: '✅', roles: ['supervisor', 'school_chair'] },
+    { name: 'Meetings', path: '/meetings', icon: '🤝', roles: ['supervisor', 'scholar'] },
+    { name: 'Travel Grants', path: '/travel-grants', icon: '✈️', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
+    { name: 'Calendar', path: '/calendar', icon: '📅', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
+  ];
+
+  const filteredNavItems = navItems.filter(item =>
+    item.roles.includes('all') || item.roles.includes(user?.role)
+  );
+
+  const isActive = (path) => location.pathname === path;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="bg-gradient-to-r from-iit-blue to-iit-darkblue text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <Link to="/dashboard" className="flex items-center space-x-3">
+                <div className="font-bold">
+                  <div className="text-xl">IIT Mandi</div>
+                  <div className="text-xs text-iit-lightblue">Research Scholars Portal</div>
+                </div>
+              </Link>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/notifications"
+                className="relative hover:bg-white hover:bg-opacity-10 px-3 py-2 rounded-md transition"
+              >
+                <span className="text-xl">🔔</span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </Link>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center hover:bg-white hover:bg-opacity-10 px-3 py-2 rounded-md transition"
+                >
+                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-2">
+                    <span className="text-sm font-semibold">{user?.name?.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <span className="hidden md:inline">{user?.name}</span>
+                  <span className="ml-2">▼</span>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                    {!['dean_academics', 'ad_research'].includes(user?.role) && (
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        My Profile
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white shadow-md min-h-screen border-r border-gray-200">
+          <nav className="mt-5">
+            {filteredNavItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center px-6 py-3 text-gray-700 hover:bg-iit-lightblue hover:text-iit-blue transition ${
+                  isActive(item.path) ? 'bg-iit-lightblue text-iit-blue border-r-4 border-iit-blue font-semibold' : ''
+                }`}
+              >
+                <span className="mr-3 text-xl">{item.icon}</span>
+                <span>{item.name}</span>
+              </Link>
+            ))}
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          {children}
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+          <p>&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Layout;

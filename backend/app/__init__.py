@@ -25,10 +25,13 @@ def create_app(config_name='default'):
 
     # Configure CORS - MUST be before blueprints are registered
     # Flask-CORS will automatically handle OPTIONS requests
+    # Use regex pattern to match both localhost and 127.0.0.1
+    import re
     CORS(app,
          resources={r"/api/*": {
-             "origins": ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002",
-                        "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://127.0.0.1:3002"],
+             "origins": [
+                 re.compile(r"^http://(localhost|127\.0\.0\.1):(3000|3001|3002)$")
+             ],
              "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
              "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
              "expose_headers": ["Content-Disposition"],
@@ -58,7 +61,7 @@ def create_app(config_name='default'):
 
     # Register blueprints
     from app.routes import auth, scholars, supervisors, committees, exams, seminars, \
-        synopsis, progress, thesis, travel_grants, notifications, calendar, dashboard, supervisor_change, schools, research_office, dean, comprehensive_exams, leaves, meetings, school_chair
+        synopsis, progress, thesis, travel_grants, notifications, calendar, dashboard, supervisor_change, schools, research_office, dean, comprehensive_exams, leaves, meetings, school_chair, approvals
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(scholars.bp)
@@ -81,5 +84,6 @@ def create_app(config_name='default'):
     app.register_blueprint(leaves.bp)
     app.register_blueprint(meetings.bp)
     app.register_blueprint(school_chair.bp)
+    app.register_blueprint(approvals.bp)
 
     return app

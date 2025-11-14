@@ -17,7 +17,7 @@ const TravelGrantApprovalWorkflow = () => {
 
   const fetchPendingGrants = async () => {
     try {
-      const response = await api.get('/travel-grants/pending-approvals');
+      const response = await api.get('/travel-grants/pending');
       setPendingGrants(response.data);
     } catch (error) {
       console.error('Error fetching pending grants:', error);
@@ -27,7 +27,7 @@ const TravelGrantApprovalWorkflow = () => {
   const getApprovalLevel = () => {
     const roleToLevel = {
       'supervisor': 'supervisor',
-      'committee_member': 'committee',
+      'committee_member': 'dc',
       'school_chair': 'school_chair',
       'ad_research': 'ad_research',
       'dean_academics': 'dean_academics'
@@ -50,10 +50,9 @@ const TravelGrantApprovalWorkflow = () => {
 
     setLoading(true);
     try {
-      await api.post(`/api/travel-grants/${selectedGrant.id}/approve`, {
-        level: getApprovalLevel(),
-        action: action,
-        comment: comment
+      await api.post(`/travel-grants/${selectedGrant.id}/approve`, {
+        decision: action === 'approve' ? 'approved' : 'rejected',
+        comments: comment
       });
 
       alert(`Application ${action === 'approve' ? 'approved' : 'rejected'} successfully`);
@@ -81,7 +80,7 @@ const TravelGrantApprovalWorkflow = () => {
   const getLevelName = (level) => {
     const names = {
       'supervisor': 'Supervisor',
-      'committee': 'Doctoral Committee',
+      'dc': 'Doctoral Committee',
       'school_chair': 'School Chair',
       'ad_research': 'AD Research',
       'dean_academics': 'Dean Academics'
@@ -170,7 +169,7 @@ const TravelGrantApprovalWorkflow = () => {
                     <div className="mt-3 flex space-x-4">
                       {grant.invitation_letter && (
                         <a
-                          href={`/api/travel-grants/${grant.id}/download/invitation_letter`}
+                          href={`/travel-grants/${grant.id}/download/invitation_letter`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:text-blue-800"
@@ -180,7 +179,7 @@ const TravelGrantApprovalWorkflow = () => {
                       )}
                       {grant.waiver_document && (
                         <a
-                          href={`/api/travel-grants/${grant.id}/download/waiver_document`}
+                          href={`/travel-grants/${grant.id}/download/waiver_document`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:text-blue-800"

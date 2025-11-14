@@ -184,7 +184,8 @@ def create_meeting():
         priority='high',
         related_entity_type='meeting',
         related_entity_id=meeting.id,
-        action_link=f'/meetings/{meeting.id}'
+        action_link='/meetings',
+        send_email=True
     )
 
     db.session.commit()
@@ -238,7 +239,8 @@ def update_meeting(meeting_id):
             priority='medium',
             related_entity_type='meeting',
             related_entity_id=meeting.id,
-            action_link=f'/meetings/{meeting.id}'
+            action_link='/meetings',
+            send_email=True
         )
 
     db.session.commit()
@@ -273,7 +275,9 @@ def cancel_meeting(meeting_id):
             notification_type='meeting',
             priority='high',
             related_entity_type='meeting',
-            related_entity_id=meeting.id
+            related_entity_id=meeting.id,
+            action_link='/meetings',
+            send_email=True
         )
 
     db.session.commit()
@@ -315,7 +319,8 @@ def add_scholar_comment(meeting_id):
             priority='medium',
             related_entity_type='meeting',
             related_entity_id=meeting.id,
-            action_link=f'/meetings/{meeting.id}'
+            action_link='/meetings',
+            send_email=False
         )
 
     db.session.commit()

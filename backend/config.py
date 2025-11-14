@@ -26,6 +26,9 @@ class Config:
     JWT_TOKEN_LOCATION = ['headers']
     JWT_HEADER_NAME = 'Authorization'
     JWT_HEADER_TYPE = 'Bearer'
+    
+    # JWT should not process OPTIONS requests (CORS preflight)
+    # This is handled by setting proper CORS configuration
 
     # Mail Configuration
     MAIL_SERVER = os.environ.get('MAIL_SERVER') or 'smtp.gmail.com'

@@ -52,12 +52,14 @@ def get_my_profile():
     profile_data['committees'] = [
         {
             'id': cm.committee.id,
-            'name': cm.committee.name,
-            'type': cm.committee.committee_type,
-            'role': cm.role,
+            'member_type': cm.member_type,  # DC, APC, or ADC
+            'is_active': cm.is_active,
+            'assigned_date': cm.assigned_date.isoformat() if cm.assigned_date else None,
             'scholar': {
+                'id': cm.committee.scholar.id,
                 'enrollment_number': cm.committee.scholar.enrollment_number,
-                'name': cm.committee.scholar.user.name if cm.committee.scholar.user else None
+                'name': cm.committee.scholar.user.name if cm.committee.scholar.user else None,
+                'program': cm.committee.scholar.program
             } if cm.committee.scholar else None
         } for cm in committee_memberships
     ]

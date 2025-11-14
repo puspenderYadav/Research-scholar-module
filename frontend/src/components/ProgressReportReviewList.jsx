@@ -67,7 +67,7 @@ export default function ProgressReportReviewList() {
 
     setProcessingId(reportId);
     try {
-      await api.post(`/progress-reports/${reportId}/review`, {
+      await api.post(`/progress-reports/${reportId}/approve`, {
         action,
         comments: comments || ''
       });

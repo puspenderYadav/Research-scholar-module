@@ -36,6 +36,7 @@ class Seminar(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    scholar = db.relationship('Scholar', back_populates='seminars', foreign_keys=[scholar_id])
     scheduled_by_user = db.relationship('User', foreign_keys=[scheduled_by])
 
     def to_dict(self):

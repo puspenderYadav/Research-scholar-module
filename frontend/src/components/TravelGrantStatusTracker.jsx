@@ -11,7 +11,7 @@ const TravelGrantStatusTracker = ({ grantId }) => {
 
   const fetchGrantDetails = async () => {
     try {
-      const response = await api.get(`/api/travel-grants/${grantId}`);
+      const response = await api.get(`/travel-grants/${grantId}`);
       setGrant(response.data);
     } catch (error) {
       console.error('Error fetching grant details:', error);
@@ -23,7 +23,7 @@ const TravelGrantStatusTracker = ({ grantId }) => {
   const getApprovalLevels = () => {
     return [
       { level: 'supervisor', name: 'Supervisor' },
-      { level: 'committee', name: 'Doctoral Committee' },
+      { level: 'dc', name: 'Doctoral Committee' },
       { level: 'school_chair', name: 'School Chair' },
       { level: 'ad_research', name: 'AD Research' },
       { level: 'dean_academics', name: 'Dean Academics' }

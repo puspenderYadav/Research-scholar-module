@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from app.utils.decorators import get_current_user
 from app.utils.notification_service import NotificationService
@@ -8,9 +8,21 @@ bp = Blueprint('notifications', __name__, url_prefix='/api/notifications')
 @bp.route('/', methods=['GET'])
 @jwt_required()
 def get_notifications():
-    """Get notifications for current user"""
+    """Get notifications for current user with optional filtering"""
     current_user = get_current_user()
-    notifications = NotificationService.get_user_notifications(current_user.id, limit=50)
+    
+    # Get query parameters for filtering
+    notification_type = request.args.get('type')  # approval, announcement, deadline, etc.
+    is_read = request.args.get('is_read')  # true/false
+    limit = int(request.args.get('limit', 50))
+    
+    notifications = NotificationService.get_user_notifications(
+        current_user.id, 
+        limit=limit,
+        notification_type=notification_type,
+        is_read=is_read
+    )
+    
     return jsonify([n.to_dict() for n in notifications]), 200
 
 @bp.route('/unread', methods=['GET'])
@@ -35,3 +47,10 @@ def mark_all_read():
     current_user = get_current_user()
     NotificationService.mark_all_as_read(current_user.id)
     return jsonify({'message': 'All notifications marked as read'}), 200
+
+@bp.route('/<int:notification_id>', methods=['DELETE'])
+@jwt_required()
+def delete_notification(notification_id):
+    """Delete a notification"""
+    NotificationService.delete_notification(notification_id)
+    return jsonify({'message': 'Notification deleted'}), 200

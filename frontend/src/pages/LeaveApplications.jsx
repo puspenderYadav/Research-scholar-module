@@ -134,7 +134,8 @@ const LeaveApplications = () => {
       personal: 'Personal Leave',
       medical: 'Medical Leave',
       maternity: 'Maternity Leave',
-      paternity: 'Paternity Leave'
+      paternity: 'Paternity Leave',
+      field_trip: 'Field Trip'
     };
     return labels[type] || type;
   };
@@ -310,6 +311,7 @@ const LeaveApplications = () => {
                     <option value="medical">2 - Medical Leave (30 days)</option>
                     <option value="maternity">3 - Maternity Leave</option>
                     <option value="paternity">4 - Paternity Leave</option>
+                    <option value="field_trip">5 - Field Trip</option>
                   </select>
                 </div>
 
@@ -388,6 +390,9 @@ const LeaveApplications = () => {
                   />
                   {formData.leave_type === 'personal' && (
                     <p className="text-xs text-gray-500 mt-1">Not required for personal leave</p>
+                  )}
+                  {formData.leave_type === 'field_trip' && (
+                    <p className="text-xs text-blue-600 mt-1">Upload conference invitation, travel approval letter, or field trip approval document</p>
                   )}
                 </div>
 

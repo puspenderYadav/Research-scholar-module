@@ -25,6 +25,12 @@ class Scholar(db.Model):
     # Status
     status = db.Column(db.String(50), default='active')  # active, on_leave, completed, withdrawn, suspended, rusticated
 
+    # Degree Completion Fields
+    defense_completion_date = db.Column(db.Date)  # Date when thesis defense was completed
+    degree_awarded_date = db.Column(db.Date)  # Date when degree was officially awarded
+    final_result = db.Column(db.String(50))  # pass, pass_with_distinction, fail
+    thesis_defense_status = db.Column(db.String(50))  # not_submitted, under_review, defense_scheduled, defense_completed, degree_awarded
+
     # Suspension/Rustication fields
     suspension_start_date = db.Column(db.Date)
     suspension_end_date = db.Column(db.Date)
@@ -39,13 +45,13 @@ class Scholar(db.Model):
     # Relationships
     supervisor = db.relationship('Supervisor', foreign_keys=[supervisor_id], backref='supervised_scholars')
     co_supervisor = db.relationship('Supervisor', foreign_keys=[co_supervisor_id], backref='co_supervised_scholars')
-    committee = db.relationship('Committee', backref='scholar', uselist=False, cascade='all, delete-orphan')
-    exams = db.relationship('Exam', backref='scholar', lazy='dynamic', cascade='all, delete-orphan')
-    seminars = db.relationship('Seminar', backref='scholar', lazy='dynamic', cascade='all, delete-orphan')
-    synopsis_reports = db.relationship('Synopsis', backref='scholar', lazy='dynamic', cascade='all, delete-orphan')
-    progress_reports = db.relationship('ProgressReport', backref='scholar', lazy='dynamic', cascade='all, delete-orphan')
-    thesis_submissions = db.relationship('Thesis', backref='scholar', lazy='dynamic', cascade='all, delete-orphan')
-    travel_grants = db.relationship('TravelGrant', backref='scholar', lazy='dynamic', cascade='all, delete-orphan')
+    committee = db.relationship('Committee', back_populates='scholar', uselist=False, cascade='all, delete-orphan')
+    exams = db.relationship('Exam', back_populates='scholar', lazy='dynamic', cascade='all, delete-orphan')
+    seminars = db.relationship('Seminar', back_populates='scholar', lazy='dynamic', cascade='all, delete-orphan')
+    synopsis_reports = db.relationship('Synopsis', back_populates='scholar', lazy='dynamic', cascade='all, delete-orphan')
+    progress_reports = db.relationship('ProgressReport', back_populates='scholar', lazy='dynamic', cascade='all, delete-orphan')
+    thesis_submissions = db.relationship('Thesis', back_populates='scholar', lazy='dynamic', cascade='all, delete-orphan')
+    travel_grants = db.relationship('TravelGrant', back_populates='scholar', lazy='dynamic', cascade='all, delete-orphan')
 
     def to_dict(self, include_relations=False):
         """Convert scholar to dictionary"""
@@ -63,6 +69,12 @@ class Scholar(db.Model):
             'supervisor_id': self.supervisor_id,
             'co_supervisor_id': self.co_supervisor_id,
             'status': self.status,
+            # Degree completion fields
+            'defense_completion_date': self.defense_completion_date.isoformat() if self.defense_completion_date else None,
+            'degree_awarded_date': self.degree_awarded_date.isoformat() if self.degree_awarded_date else None,
+            'final_result': self.final_result,
+            'thesis_defense_status': self.thesis_defense_status,
+            # Suspension/Rustication
             'suspension_start_date': self.suspension_start_date.isoformat() if self.suspension_start_date else None,
             'suspension_end_date': self.suspension_end_date.isoformat() if self.suspension_end_date else None,
             'suspension_reason': self.suspension_reason,

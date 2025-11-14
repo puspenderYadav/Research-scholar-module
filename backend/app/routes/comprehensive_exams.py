@@ -14,9 +14,9 @@ bp = Blueprint('comprehensive_exams', __name__, url_prefix='/api/comprehensive-e
 
 @bp.route('/', methods=['POST'])
 @jwt_required()
-@role_required('ad_research', 'dean_academics')
+@role_required('school_chair')
 def create_exam():
-    """Create a comprehensive exam and notify all eligible students"""
+    """Create a comprehensive exam and notify all eligible students (School Chair only)"""
     current_user = get_current_user()
     data = request.get_json()
 
@@ -85,12 +85,49 @@ def create_exam():
                     user_id=scholar.user.id,
                     title='Comprehensive Exam Scheduled',
                     message=message,
-                    type='exam',
-                    related_id=exam.id
+                    notification_type='exam',
+                    priority='high',
+                    related_entity_type='exam',
+                    related_entity_id=exam.id,
+                    action_link='/exams',
+                    send_email=True
                 )
                 notification_count += 1
 
         db.session.commit()
+
+        # Send notification to AD Research and Dean Academics
+        # Get AD Research and Dean users
+        ad_research_users = User.query.filter_by(role='ad_research').all()
+        dean_users = User.query.filter_by(role='dean_academics').all()
+
+        notification_message = f"New comprehensive exam '{exam.title}' has been scheduled by {current_user.name} on {exam.exam_date.strftime('%B %d, %Y')} at {exam.exam_time.strftime('%I:%M %p')}. Venue: {exam.venue}. {notification_count} students have been notified."
+
+        for ad_user in ad_research_users:
+            NotificationService.create_notification(
+                user_id=ad_user.id,
+                title='Comprehensive Exam Scheduled',
+                message=notification_message,
+                notification_type='exam',
+                priority='medium',
+                related_entity_type='exam',
+                related_entity_id=exam.id,
+                action_link='/exams',
+                send_email=True
+            )
+
+        for dean_user in dean_users:
+            NotificationService.create_notification(
+                user_id=dean_user.id,
+                title='Comprehensive Exam Scheduled',
+                message=notification_message,
+                notification_type='exam',
+                priority='medium',
+                related_entity_type='exam',
+                related_entity_id=exam.id,
+                action_link='/exams',
+                send_email=True
+            )
 
         result = exam.to_dict()
         result['notified_students'] = notification_count
@@ -160,9 +197,9 @@ def get_exam(exam_id):
 
 @bp.route('/<int:exam_id>', methods=['PUT'])
 @jwt_required()
-@role_required('ad_research', 'dean_academics')
+@role_required('school_chair')
 def update_exam(exam_id):
-    """Update comprehensive exam"""
+    """Update comprehensive exam (School Chair only)"""
     exam = ComprehensiveExam.query.get_or_404(exam_id)
     data = request.get_json()
 
@@ -238,8 +275,12 @@ def update_result(exam_id, registration_id):
                 user_id=registration.scholar.user.id,
                 title='Comprehensive Exam Result Published',
                 message=message,
-                type='exam',
-                related_id=exam_id
+                notification_type='exam',
+                priority='high',
+                related_entity_type='exam',
+                related_entity_id=exam_id,
+                action_link='/exams',
+                send_email=True
             )
 
         return jsonify({
@@ -254,9 +295,9 @@ def update_result(exam_id, registration_id):
 
 @bp.route('/<int:exam_id>', methods=['DELETE'])
 @jwt_required()
-@role_required('ad_research', 'dean_academics')
+@role_required('school_chair')
 def delete_exam(exam_id):
-    """Delete comprehensive exam"""
+    """Delete comprehensive exam (School Chair only)"""
     exam = ComprehensiveExam.query.get_or_404(exam_id)
 
     try:
