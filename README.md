@@ -10,7 +10,7 @@
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Overview](#-overview)
 - [Features](#-features)
@@ -34,7 +34,7 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 The Research Scholars Management Portal is a modern, full-stack solution designed to streamline and automate the complete lifecycle of research scholars. Built with scalability, security, and user experience in mind, it provides:
 
@@ -53,9 +53,9 @@ The Research Scholars Management Portal is a modern, full-stack solution designe
 
 ---
 
-## ✨ Features
+##  Features
 
-### 🎓 Academic Management
+###  Academic Management
 - **Scholar Profiles** - Auto-created at admission with complete academic history
 - **Supervisor Assignment** - Primary and co-supervisor management
 - **Committee Formation** - Doctoral Committee (DC) and Additional Committee (APC) setup
@@ -65,7 +65,7 @@ The Research Scholars Management Portal is a modern, full-stack solution designe
 - **Progress Reports** - Quarterly/bi-annual reporting with ratings and feedback
 - **Thesis Defense** - Complete workflow from draft to final submission
 
-### 📝 Advanced Workflows
+###  Advanced Workflows
 
 #### Progress Report Workflow
 ```
@@ -113,7 +113,7 @@ Scholar → Supervisor → School Chair (if >7 days)
 - Automatic approval routing
 - Document attachment support
 
-### 📧 Notification System
+###  Notification System
 - **Real-Time Alerts** - In-app notification center with unread badges
 - **Email Notifications** - Automatic emails for critical events
 - **Priority Levels** - Low, Medium, High, Urgent
@@ -130,7 +130,7 @@ Scholar → Supervisor → School Chair (if >7 days)
 - Deadline tracking
 - Date-based filtering
 
-### 🔐 Security Features
+###  Security Features
 - **JWT Authentication** - Secure token-based auth with refresh tokens
 - **Role-Based Access Control (RBAC)** - Decorator-based permission system
 - **Password Security** - Werkzeug password hashing
@@ -165,7 +165,7 @@ Scholar → Supervisor → School Chair (if >7 days)
 - Approval workflows
 - Resource allocation
 
-### 📊 Centralized Approval System
+### Centralized Approval System
 - **Unified Dashboard** - All pending approvals in one view
 - **Approval Categories:**
   - Progress Reports
@@ -180,7 +180,7 @@ Scholar → Supervisor → School Chair (if >7 days)
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 ### Backend
 | Technology | Version | Purpose |
@@ -366,7 +366,7 @@ research-portal/
 
 ---
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before installation, ensure you have the following installed:
 
@@ -389,7 +389,7 @@ git --version       # Should show 2+
 
 ---
 
-## 🔧 Installation
+##  Installation
 
 ### Clone the Repository
 
@@ -528,7 +528,7 @@ flask run
  * Debugger PIN: xxx-xxx-xxx
 ```
 
-✅ **Backend is now running on http://localhost:5000**
+ **Backend is now running on http://localhost:5000**
 
 Test it:
 ```bash
@@ -590,7 +590,7 @@ npm run dev
   ➜  press h to show help
 ```
 
-✅ **Frontend is now running on http://localhost:3000**
+ **Frontend is now running on http://localhost:3000**
 
 ---
 
@@ -630,7 +630,7 @@ export default defineConfig({
 
 ---
 
-## 🚀 Running the Application
+## Running the Application
 
 ### Development Mode
 
@@ -660,7 +660,7 @@ See [Deployment](#-deployment) section below.
 
 ---
 
-## 🔑 Test Credentials
+##  Test Credentials
 
 After starting the backend, use these credentials to test different roles:
 
@@ -714,7 +714,7 @@ curl -X POST http://localhost:5000/api/auth/register-scholar \
 
 ---
 
-## 📚 API Documentation
+##  API Documentation
 
 ### Base URL
 ```
@@ -812,7 +812,7 @@ curl -X POST http://localhost:5000/api/travel-grants/1/approve \
 
 ---
 
-## 👥 User Roles & Permissions
+##  User Roles & Permissions
 
 ### Role Hierarchy
 
@@ -960,7 +960,7 @@ Dean Academics (Full System Access)
 
 ---
 
-## 🔄 Core Workflows
+##  Core Workflows
 
 ### 1. Progress Report Workflow
 
@@ -1110,7 +1110,7 @@ Scholar Request → Current Supervisor → New Supervisor → Dean
 
 ---
 
-## 💻 Development
+##  Development
 
 ### Backend Development
 
@@ -1316,7 +1316,7 @@ npm run lint  # If ESLint configured
 
 ---
 
-## 🚢 Deployment
+## Deployment
 
 ### Production Checklist
 
@@ -1974,7 +1974,7 @@ tail -f /var/log/nginx/access.log
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Here's how:
 
@@ -2045,12 +2045,6 @@ chore: Update dependencies
 - Ensure all tests pass
 - Maintain >80% code coverage
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ```
 MIT License
 
@@ -2075,7 +2069,7 @@ copies of the Software...
 - **Test Report:** [COMPREHENSIVE_MODULE_TEST_REPORT.md](COMPREHENSIVE_MODULE_TEST_REPORT.md) - Full system test results
 
 ### Get Help
-- **Email:** support@university.edu
+- **Email:** b24187@students.iitmandi.ac.in
 - **Issues:** [GitHub Issues](https://github.com/YOUR-REPO/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/YOUR-REPO/discussions)
 
@@ -2096,7 +2090,7 @@ Open an issue with:
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 ### Built With
 - **Backend:** Flask, PostgreSQL, SQLAlchemy, JWT
@@ -2128,7 +2122,7 @@ This project was built to solve real-world challenges in academic research manag
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
 ### Version 1.1 (Q1 2025)
 - [ ] Mobile responsive improvements
@@ -2158,7 +2152,7 @@ This project was built to solve real-world challenges in academic research manag
 
 ---
 
-## 📈 Changelog
+## Changelog
 
 ### Version 1.0.0 (November 2025)
 **Initial Release**
@@ -2173,17 +2167,8 @@ This project was built to solve real-world challenges in academic research manag
 - ✅ Production-ready deployment
 
 ---
-
 <div align="center">
 
-**⭐ Star this repo if you find it helpful!**
-
-**🚀 Ready to revolutionize research management!**
-
-**Made with ❤️ for the academic community**
-
----
-
-**Version 1.0.0** | **Last Updated: November 14, 2025** | **Status: Production Ready ✅**
+**Version 1.0.0** | **Last Updated: November 14, 2025** | **Status: Production Ready **
 
 </div>
