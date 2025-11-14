@@ -22,6 +22,10 @@ class EmailService:
             bool: True if sent successfully, False otherwise
         """
         try:
+            print(f"   Sending email to: {to_email}")
+            print(f"   Subject: {subject}")
+            print(f"   From: {current_app.config['MAIL_DEFAULT_SENDER']}")
+
             msg = Message(
                 subject=subject,
                 recipients=[to_email],
@@ -30,9 +34,12 @@ class EmailService:
                 sender=current_app.config['MAIL_DEFAULT_SENDER']
             )
             mail.send(msg)
+            print(f"   SUCCESS: Email sent to {to_email}")
             return True
         except Exception as e:
-            print(f"Error sending email: {e}")
+            print(f"   ERROR sending email to {to_email}: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     @staticmethod
@@ -231,6 +238,11 @@ Best regards,
     @staticmethod
     def send_faculty_credentials_email(faculty_name, personal_email, institute_email, password, employee_id, designation, school_name):
         """Send credentials email to newly recruited faculty"""
+        print(f"\n[EMAIL] Preparing to send faculty credentials email...")
+        print(f"   To: {personal_email}")
+        print(f"   Faculty: {faculty_name}")
+        print(f"   Employee ID: {employee_id}")
+
         subject = f"Welcome to {current_app.config['APP_NAME']} - Faculty Account Created"
 
         body = f"""

@@ -1064,6 +1064,148 @@ def get_all_schools():
     return jsonify({'schools': schools_data}), 200
 
 
+@bp.route('/delete-school/<int:school_id>', methods=['DELETE'])
+@jwt_required()
+@role_required('dean_academics')
+def delete_school(school_id):
+    """Delete a school and all associated faculty (cascade delete)"""
+    current_user = get_current_user()
+
+    try:
+        # Find the school
+        school = School.query.get(school_id)
+        if not school:
+            return jsonify({'error': 'School not found'}), 404
+
+        # Check if school has students
+        student_count = Scholar.query.filter_by(school_id=school_id).count()
+        if student_count > 0:
+            return jsonify({
+                'error': f'Cannot delete school. It has {student_count} active student(s). Please reassign or remove students first.'
+            }), 400
+
+        # Get all faculty in this school
+        faculty_list = Supervisor.query.filter_by(school_id=school_id).all()
+        faculty_count = len(faculty_list)
+
+        # Delete all faculty and their user accounts
+        for faculty in faculty_list:
+            user = User.query.get(faculty.user_id)
+            if user:
+                # Delete the user account
+                db.session.delete(user)
+            # Delete the supervisor record
+            db.session.delete(faculty)
+
+        # Delete the school
+        school_name = school.name
+        db.session.delete(school)
+        db.session.commit()
+
+        return jsonify({
+            'message': f'School "{school_name}" deleted successfully along with {faculty_count} faculty member(s).',
+            'deleted_faculty_count': faculty_count
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error deleting school: {str(e)}'}), 500
+
+
+@bp.route('/delete-faculty/<int:supervisor_id>', methods=['DELETE'])
+@jwt_required()
+@role_required('dean_academics')
+def delete_faculty(supervisor_id):
+    """Delete a faculty member"""
+    current_user = get_current_user()
+
+    try:
+        # Find the supervisor
+        supervisor = Supervisor.query.get(supervisor_id)
+        if not supervisor:
+            return jsonify({'error': 'Faculty not found'}), 404
+
+        # Check if faculty has active students
+        phd_students = Scholar.query.filter_by(supervisor_id=supervisor_id, status='active').count()
+        msc_students = Scholar.query.filter_by(supervisor_id=supervisor_id, status='active').count()
+        total_students = phd_students + msc_students
+
+        if total_students > 0:
+            return jsonify({
+                'error': f'Cannot delete faculty. They are supervising {total_students} active student(s). Please reassign students first.'
+            }), 400
+
+        # Get user details
+        user = User.query.get(supervisor.user_id)
+        faculty_name = user.name if user else "Unknown"
+
+        # Delete the user account
+        if user:
+            db.session.delete(user)
+
+        # Delete the supervisor record
+        db.session.delete(supervisor)
+        db.session.commit()
+
+        return jsonify({
+            'message': f'Faculty "{faculty_name}" deleted successfully.'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error deleting faculty: {str(e)}'}), 500
+
+
+@bp.route('/transfer-faculty/<int:supervisor_id>', methods=['PUT'])
+@jwt_required()
+@role_required('dean_academics')
+def transfer_faculty(supervisor_id):
+    """Transfer a faculty member from one school to another"""
+    current_user = get_current_user()
+    data = request.get_json()
+
+    # Validate required fields
+    if not data.get('new_school_id'):
+        return jsonify({'error': 'new_school_id is required'}), 400
+
+    try:
+        # Find the supervisor
+        supervisor = Supervisor.query.get(supervisor_id)
+        if not supervisor:
+            return jsonify({'error': 'Faculty not found'}), 404
+
+        # Find the new school
+        new_school = School.query.get(data['new_school_id'])
+        if not new_school:
+            return jsonify({'error': 'New school not found'}), 404
+
+        # Get old school info
+        old_school = School.query.get(supervisor.school_id)
+        old_school_name = old_school.name if old_school else "Unknown"
+
+        # Get faculty info
+        user = User.query.get(supervisor.user_id)
+        faculty_name = user.name if user else "Unknown"
+
+        # Transfer the faculty
+        supervisor.school_id = data['new_school_id']
+
+        # Update specialization if provided
+        if data.get('specialization'):
+            supervisor.specialization = data['specialization']
+
+        db.session.commit()
+
+        return jsonify({
+            'message': f'Faculty "{faculty_name}" transferred from "{old_school_name}" to "{new_school.name}" successfully.',
+            'supervisor': supervisor.to_dict()
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error transferring faculty: {str(e)}'}), 500
+
+
 # Announcement Endpoints
 
 UPLOAD_FOLDER = 'uploads/announcements'
