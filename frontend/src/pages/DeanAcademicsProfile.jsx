@@ -313,6 +313,9 @@ const DeanAcademicsProfile = () => {
   const [approvalAction, setApprovalAction] = useState(null); // { type, id, action: 'approve'/'reject' }
   const [approvalComments, setApprovalComments] = useState('');
   const [approvalLoading, setApprovalLoading] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [selectedFaculty, setSelectedFaculty] = useState(null);
+  const [transferData, setTransferData] = useState({ new_school_id: '', specialization: '' });
 
   useEffect(() => {
     fetchDashboardData();
@@ -354,6 +357,89 @@ const DeanAcademicsProfile = () => {
       }
 
       setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteFaculty = async (faculty) => {
+    if (!window.confirm(`Are you sure you want to delete faculty "${faculty.user?.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await deanAPI.deleteFaculty(faculty.id);
+      alert('Faculty deleted successfully');
+      fetchDashboardData(); // Refresh data
+    } catch (error) {
+      console.error('Error deleting faculty:', error);
+      alert(error.response?.data?.error || 'Failed to delete faculty');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteSchool = async (school) => {
+    if (school.student_count > 0) {
+      alert(`Cannot delete school "${school.name}". It has ${school.student_count} active students. Please reassign or remove students first.`);
+      return;
+    }
+
+    const message = school.faculty_count > 0
+      ? `Are you sure you want to delete school "${school.name}"? This will also delete ${school.faculty_count} faculty member(s). This action cannot be undone.`
+      : `Are you sure you want to delete school "${school.name}"? This action cannot be undone.`;
+
+    if (!window.confirm(message)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await deanAPI.deleteSchool(school.id);
+      alert('School deleted successfully');
+      fetchDashboardData(); // Refresh data
+    } catch (error) {
+      console.error('Error deleting school:', error);
+      alert(error.response?.data?.error || 'Failed to delete school');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTransferFaculty = (faculty) => {
+    setSelectedFaculty(faculty);
+    setTransferData({
+      new_school_id: '',
+      specialization: faculty.specialization || ''
+    });
+    setShowTransferModal(true);
+  };
+
+  const handleTransferSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!transferData.new_school_id) {
+      alert('Please select a school');
+      return;
+    }
+
+    if (transferData.new_school_id === selectedFaculty.school_id?.toString()) {
+      alert('Faculty is already in this school');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await deanAPI.transferFaculty(selectedFaculty.id, transferData);
+      alert('Faculty transferred successfully');
+      setShowTransferModal(false);
+      setSelectedFaculty(null);
+      setTransferData({ new_school_id: '', specialization: '' });
+      fetchDashboardData(); // Refresh data
+    } catch (error) {
+      console.error('Error transferring faculty:', error);
+      alert(error.response?.data?.error || 'Failed to transfer faculty');
     } finally {
       setLoading(false);
     }
@@ -893,8 +979,19 @@ const DeanAcademicsProfile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {dashboardData?.schools?.map((school) => (
                     <div key={school.id} className="border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition">
-                      <h4 className="font-semibold text-gray-900">{school.name}</h4>
-                      <p className="text-sm text-gray-600 mb-3">Code: {school.code}</p>
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold text-gray-900">{school.name}</h4>
+                          <p className="text-sm text-gray-600">Code: {school.code}</p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteSchool(school)}
+                          className="text-red-600 hover:text-red-900 text-sm font-medium"
+                          title="Delete School"
+                        >
+                          Delete
+                        </button>
+                      </div>
 
                       {school.chair && (
                         <div className="text-sm text-gray-700 mb-3">
@@ -1369,6 +1466,9 @@ const DeanAcademicsProfile = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Accepting
                         </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -1397,6 +1497,20 @@ const DeanAcademicsProfile = () => {
                             }`}>
                               {faculty.is_accepting_students ? 'Yes' : 'No'}
                             </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                            <button
+                              onClick={() => handleTransferFaculty(faculty)}
+                              className="text-blue-600 hover:text-blue-900 font-medium"
+                            >
+                              Transfer
+                            </button>
+                            <button
+                              onClick={() => handleDeleteFaculty(faculty)}
+                              className="text-red-600 hover:text-red-900 font-medium"
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -1490,6 +1604,87 @@ const DeanAcademicsProfile = () => {
                   {approvalLoading ? 'Processing...' : approvalAction.action === 'approve' ? 'Approve' : 'Reject'}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Transfer Faculty Modal */}
+        {showTransferModal && selectedFaculty && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Transfer Faculty: {selectedFaculty.user?.name}
+              </h3>
+
+              <form onSubmit={handleTransferSubmit}>
+                <div className="space-y-4">
+                  {/* Current School Info */}
+                  <div className="bg-gray-50 p-3 rounded">
+                    <p className="text-sm text-gray-600">Current School:</p>
+                    <p className="font-medium text-gray-900">{selectedFaculty.school?.name}</p>
+                  </div>
+
+                  {/* New School Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Transfer To School <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={transferData.new_school_id}
+                      onChange={(e) => setTransferData({ ...transferData, new_school_id: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Select a school</option>
+                      {dashboardData?.schools
+                        ?.filter(s => s.id !== selectedFaculty.school_id)
+                        .map(school => (
+                          <option key={school.id} value={school.id}>
+                            {school.name} ({school.code})
+                          </option>
+                        ))
+                      }
+                    </select>
+                  </div>
+
+                  {/* Specialization */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Specialization (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={transferData.specialization}
+                      onChange={(e) => setTransferData({ ...transferData, specialization: e.target.value })}
+                      placeholder="Update specialization (optional)"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowTransferModal(false);
+                      setSelectedFaculty(null);
+                      setTransferData({ new_school_id: '', specialization: '' });
+                    }}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    disabled={loading}
+                  >
+                    {loading ? 'Transferring...' : 'Transfer Faculty'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

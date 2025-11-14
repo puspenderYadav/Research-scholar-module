@@ -224,6 +224,9 @@ export const deanAPI = {
   rusticateScholar: (scholarId, data) => api.post(`/dean/rusticate-scholar/${scholarId}`, data),
   reactivateScholar: (scholarId) => api.post(`/dean/reactivate-scholar/${scholarId}`),
   exportScholars: () => api.get('/dean/export-scholars', { responseType: 'blob' }),
+  deleteFaculty: (supervisorId) => api.delete(`/dean/delete-faculty/${supervisorId}`),
+  deleteSchool: (schoolId) => api.delete(`/dean/delete-school/${schoolId}`),
+  transferFaculty: (supervisorId, data) => api.put(`/dean/transfer-faculty/${supervisorId}`, data),
 };
 
 export const leaveAPI = {
