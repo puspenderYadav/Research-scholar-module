@@ -1686,3 +1686,125 @@ def export_scholars():
         as_attachment=True,
         download_name=filename
     )
+
+
+@bp.route('/initialize-schools', methods=['POST'])
+@jwt_required()
+@role_required('dean_academics')
+def initialize_schools():
+    """
+    Initialize 4 IIT Mandi schools with predefined chair accounts
+    This endpoint can only be called by Dean of Academics
+    It creates schools if they don't exist, or reactivates them if deleted
+    """
+    SCHOOLS = [
+        {
+            'name': 'School of Mathematical and Statistical Sciences',
+            'code': 'SMSS',
+            'chair_email': 'chair.smss@iitmandi.ac.in',
+            'chair_name': 'SMSS Chair',
+            'password': 'smss@123'
+        },
+        {
+            'name': 'School of Mechanical and Materials Engineering',
+            'code': 'SMME',
+            'chair_email': 'chair.smme@iitmandi.ac.in',
+            'chair_name': 'SMME Chair',
+            'password': 'smme@123'
+        },
+        {
+            'name': 'School of Computing and Electrical Engineering',
+            'code': 'SCEE',
+            'chair_email': 'chair.scee@iitmandi.ac.in',
+            'chair_name': 'SCEE Chair',
+            'password': 'scee@123'
+        },
+        {
+            'name': 'School of Biosciences and Bioengineering',
+            'code': 'SBB',
+            'chair_email': 'chair.sbb@iitmandi.ac.in',
+            'chair_name': 'SBB Chair',
+            'password': 'sbb@123'
+        }
+    ]
+
+    try:
+        created = []
+        updated = []
+        skipped = []
+
+        for school_data in SCHOOLS:
+            # Check if school code already exists
+            existing_school = School.query.filter_by(code=school_data['code']).first()
+
+            if existing_school:
+                if existing_school.is_deleted:
+                    # Undelete the school
+                    existing_school.is_deleted = False
+                    existing_school.deleted_at = None
+                    existing_school.deleted_by = None
+                    existing_school.name = school_data['name']
+
+                    # Reactivate or create chair
+                    if existing_school.chair:
+                        existing_school.chair.is_active = True
+                        existing_school.chair.set_password(school_data['password'])
+                    else:
+                        chair = User(
+                            email=school_data['chair_email'],
+                            name=school_data['chair_name'],
+                            role='school_chair',
+                            is_active=True
+                        )
+                        chair.set_password(school_data['password'])
+                        db.session.add(chair)
+                        db.session.flush()
+                        existing_school.chair_id = chair.id
+
+                    updated.append(school_data['code'])
+                else:
+                    skipped.append(school_data['code'])
+                continue
+
+            # Check if chair email already exists
+            existing_chair = User.query.filter_by(email=school_data['chair_email']).first()
+            if existing_chair:
+                existing_chair.set_password(school_data['password'])
+                existing_chair.is_active = True
+                existing_chair.role = 'school_chair'
+                chair = existing_chair
+            else:
+                # Create new chair account
+                chair = User(
+                    email=school_data['chair_email'],
+                    name=school_data['chair_name'],
+                    role='school_chair',
+                    is_active=True
+                )
+                chair.set_password(school_data['password'])
+                db.session.add(chair)
+                db.session.flush()
+
+            # Create school
+            school = School(
+                name=school_data['name'],
+                code=school_data['code'],
+                chair_id=chair.id,
+                is_deleted=False
+            )
+            db.session.add(school)
+            created.append(school_data['code'])
+
+        db.session.commit()
+
+        return jsonify({
+            'message': 'Schools initialized successfully',
+            'created': created,
+            'updated': updated,
+            'skipped': skipped,
+            'credentials': SCHOOLS
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error initializing schools: {str(e)}'}), 500
