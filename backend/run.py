@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Research Scholars Management Portal - Main Application Entry Point
+Updated: Email configuration for production deployment
 """
 import sys
 import os
