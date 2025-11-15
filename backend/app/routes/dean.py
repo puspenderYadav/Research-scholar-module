@@ -48,8 +48,8 @@ def get_dashboard():
     """Get comprehensive dean academics dashboard with complete institutional overview"""
     current_user = get_current_user()
 
-    # Get all schools
-    schools = School.query.all()
+    # Get all non-deleted schools
+    schools = School.query.filter_by(is_deleted=False).all()
     schools_data = []
 
     for school in schools:
