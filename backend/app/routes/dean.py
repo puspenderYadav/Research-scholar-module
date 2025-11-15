@@ -1005,12 +1005,12 @@ def recruit_faculty():
 @jwt_required()
 @role_required('dean_academics')
 def create_school():
-    """Create a new school/department"""
+    """Create a new school/department with school chair account"""
     current_user = get_current_user()
     data = request.get_json()
 
     # Validate required fields
-    required_fields = ['name', 'code']
+    required_fields = ['name', 'code', 'chair_email']
     for field in required_fields:
         if not data.get(field):
             return jsonify({'error': f'{field} is required'}), 400
@@ -1023,20 +1023,69 @@ def create_school():
     if School.query.filter_by(name=data['name'], is_deleted=False).first():
         return jsonify({'error': 'School with this name already exists'}), 400
 
+    # Check if chair email already exists
+    if User.query.filter_by(email=data['chair_email']).first():
+        return jsonify({'error': 'A user with this email already exists'}), 400
+
     try:
-        # Create school
+        # Generate chair name from email if not provided
+        chair_name = data.get('chair_name') or data['chair_email'].split('@')[0].title()
+
+        # Generate temporary password
+        import secrets
+        import string
+        alphabet = string.ascii_letters + string.digits
+        chair_password = ''.join(secrets.choice(alphabet) for i in range(16))
+
+        # Create school chair user account
+        chair_user = User(
+            email=data['chair_email'],
+            name=chair_name,
+            role='school_chair',
+            is_active=True
+        )
+        chair_user.set_password(chair_password)
+        db.session.add(chair_user)
+        db.session.flush()  # Get chair user ID
+
+        # Create school with chair
         school = School(
             name=data['name'],
             code=data['code'].upper(),
-            chair_id=None,
+            chair_id=chair_user.id,
             is_deleted=False
         )
         db.session.add(school)
         db.session.commit()
 
+        # Send credentials email to chair
+        email_sent = False
+        try:
+            email_sent = EmailService.send_school_chair_credentials_email(
+                chair_name=chair_name,
+                chair_email=data['chair_email'],
+                password=chair_password,
+                school_name=school.name
+            )
+            if not email_sent:
+                print(f"Warning: Failed to send email to school chair {data['chair_email']}")
+        except Exception as email_error:
+            print(f"Error sending email to school chair: {email_error}")
+            import traceback
+            traceback.print_exc()
+
+        # Build response message
+        if email_sent:
+            message = f'School "{school.name}" created successfully. Login credentials have been sent to {data["chair_email"]}.'
+        else:
+            message = f'School "{school.name}" created successfully. Note: Failed to send email. Temporary password: {chair_password}'
+
         return jsonify({
-            'message': 'School created successfully',
-            'school': school.to_dict()
+            'message': message,
+            'school': school.to_dict(),
+            'chair_created': True,
+            'email_sent': email_sent,
+            'temporary_password': chair_password if not email_sent else None
         }), 201
 
     except Exception as e:
