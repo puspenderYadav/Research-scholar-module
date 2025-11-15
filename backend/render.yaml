@@ -22,6 +22,20 @@ services:
         value: https://research-portal-frontend.onrender.com
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: MAIL_SERVER
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USE_TLS
+        value: True
+      - key: MAIL_USERNAME
+        value: researchmodule32@gmail.com
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        value: noreply@researchportal.edu
+      - key: APP_NAME
+        value: Research Scholars Management Portal
 
 # Database
 databases:
