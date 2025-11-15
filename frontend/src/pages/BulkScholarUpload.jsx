@@ -269,9 +269,6 @@ const BulkScholarUpload = () => {
                             <span className="text-red-600 font-medium">✗ Failed</span>
                           )}
                         </td>
-                            <span className="text-yellow-600">⚠ Failed</span>
-                          )}
-                        </td>
                       </tr>
                     ))}
                   </tbody>
