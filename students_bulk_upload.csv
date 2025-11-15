@@ -1,0 +1,10 @@
+name,personal_email,phone,program,school_code,supervisor_employee_id,co_supervisor_employee_id,admission_date,research_area,thesis_title,expected_completion_date
+Student One,b24400@students.iitmandi.ac.in,9876543210,MSc,SCEE,FAC001,,2024-08-01,Computer Vision,Deep Learning Applications,2026-08-01
+Student Two,b24245@students.iitmandi.ac.in,9876543211,MSc,SCEE,FAC001,,2024-08-01,Computer Networks,Network Security Analysis,2026-08-01
+Student Three,b24150@students.iitmandi.ac.in,9876543212,MSc,SMME,SMME,,2024-08-01,Materials Science,Advanced Materials Research,2026-08-01
+Student Four,b24187@students.iitmandi.ac.in,9876543213,MSc,BDBS,BDBS001,,2024-08-01,Bioengineering,Biomechanical Systems,2026-08-01
+Student Five,b24283@students.iitmandi.ac.in,9876543214,MSc,SMSS,SMSS001,,2024-08-01,Statistics,Statistical Modeling,2026-08-01
+Student Six,b24371@students.iitmandi.ac.in,9876543215,MSc,SCEE,SCEE001,,2024-08-01,Electrical Systems,Power Systems Analysis,2026-08-01
+Student Seven,paridhimittal3106@gmail.com,9876543216,MSc,SMSS,SMSS001,,2024-08-01,Mathematical Modeling,Optimization Techniques,2026-08-01
+Student Eight,mparidhi110@gmail.com,9876543217,MSc,BDBS,BDBS001,,2024-08-01,Biosciences,Molecular Biology,2026-08-01
+Student Nine,s68260907@gmail.com,9876543218,MSc,SMME,SMME,,2024-08-01,Mechanical Engineering,Thermal Analysis,2026-08-01

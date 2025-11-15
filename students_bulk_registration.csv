@@ -1,0 +1,10 @@
+name,email,enrollment_number,program,year_of_joining,research_area,supervisor_email
+Student One,b24400@students.iitmandi.ac.in,B24400,M.Sc.,2024,Computer Science,vikas@iitmandi.ac.in
+Student Two,b24245@students.iitmandi.ac.in,B24245,M.Sc.,2024,Computer Science,vikas@iitmandi.ac.in
+Student Three,b24150@students.iitmandi.ac.in,B24150,M.Sc.,2024,Mechanical Engineering,khushi@iitmandi.ac.in
+Student Four,b24187@students.iitmandi.ac.in,B24187,M.Sc.,2024,Biosciences,saloni@iitmandi.ac.in
+Student Five,b24283@students.iitmandi.ac.in,B24283,M.Sc.,2024,Mathematical Sciences,paridhi@iitmandi.ac.in
+Student Six,b24371@students.iitmandi.ac.in,B24371,M.Sc.,2024,Computer Science,vikas@iitmandi.ac.in
+Student Seven,paridhimittal3106@gmail.com,EXT001,M.Sc.,2024,Mathematical Sciences,paridhi@iitmandi.ac.in
+Student Eight,mparidhi110@gmail.com,EXT002,M.Sc.,2024,Biosciences,saloni@iitmandi.ac.in
+Student Nine,s68260907@gmail.com,EXT003,M.Sc.,2024,Mechanical Engineering,khushi@iitmandi.ac.in

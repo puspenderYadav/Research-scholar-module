@@ -1026,12 +1026,17 @@ def create_school():
     # If chair details provided, validate them
     chair_user = None
     chair_password = None
-    if data.get('chair_email') and data.get('chair_name'):
+    if data.get('chair_email'):
         # Check if email already exists
         if User.query.filter_by(email=data['chair_email']).first():
             return jsonify({'error': 'A user with this email already exists'}), 400
 
     try:
+        # Initialize chair-related variables
+        chair_user = None
+        chair_password = None
+        chair_name = None
+
         # Create school first without chair
         school = School(
             name=data['name'],
@@ -1041,8 +1046,10 @@ def create_school():
         db.session.add(school)
         db.session.flush()  # Get school ID without committing
 
-        # Create school chair if email and name provided
-        if data.get('chair_email') and data.get('chair_name'):
+        # Create school chair if email is provided
+        if data.get('chair_email'):
+            # Use provided name or generate default from email
+            chair_name = data.get('chair_name') or data['chair_email'].split('@')[0].title()
             # Generate temporary password
             import secrets
             import string
@@ -1052,7 +1059,7 @@ def create_school():
             # Create user account for chair
             chair_user = User(
                 email=data['chair_email'],
-                name=data['chair_name'],
+                name=chair_name,
                 role='school_chair',
                 is_active=True
             )
@@ -1070,7 +1077,7 @@ def create_school():
         if chair_user and chair_password:
             try:
                 email_sent = EmailService.send_school_chair_credentials_email(
-                    chair_name=data['chair_name'],
+                    chair_name=chair_name,
                     chair_email=data['chair_email'],
                     password=chair_password,
                     school_name=school.name
