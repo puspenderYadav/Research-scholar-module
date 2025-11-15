@@ -10,11 +10,17 @@ class School(db.Model):
     code = db.Column(db.String(20), unique=True, nullable=False)
     chair_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
+    # Soft delete fields
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+    deleted_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     chair = db.relationship('User', foreign_keys=[chair_id])
+    deleter = db.relationship('User', foreign_keys=[deleted_by])
     scholars = db.relationship('Scholar', backref='school', lazy='dynamic')
     supervisors = db.relationship('Supervisor', backref='school', lazy='dynamic')
 

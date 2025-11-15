@@ -11,8 +11,8 @@ bp = Blueprint('schools', __name__, url_prefix='/api/schools')
 @bp.route('/', methods=['GET'])
 @jwt_required()
 def get_schools():
-    """Get list of all schools"""
-    schools = School.query.all()
+    """Get list of all non-deleted schools"""
+    schools = School.query.filter_by(is_deleted=False).all()
     return jsonify([s.to_dict() for s in schools]), 200
 
 
@@ -23,11 +23,11 @@ def get_my_school():
     """Get school chair's school with all faculty and students"""
     current_user = get_current_user()
 
-    # Find the school where current user is chair
-    school = School.query.filter_by(chair_id=current_user.id).first()
+    # Find the school where current user is chair (excluding deleted schools)
+    school = School.query.filter_by(chair_id=current_user.id, is_deleted=False).first()
 
     if not school:
-        return jsonify({'error': 'You are not assigned as chair of any school'}), 404
+        return jsonify({'error': 'You are not assigned as chair of any active school'}), 404
 
     # Get basic school info
     school_data = school.to_dict()
@@ -112,4 +112,7 @@ def get_my_school():
 def get_school(school_id):
     """Get school details"""
     school = School.query.get_or_404(school_id)
+    # Check if school is deleted
+    if school.is_deleted:
+        return jsonify({'error': 'School not found or has been deleted'}), 404
     return jsonify(school.to_dict()), 200

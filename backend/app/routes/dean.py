@@ -1005,7 +1005,7 @@ def recruit_faculty():
 @jwt_required()
 @role_required('dean_academics')
 def create_school():
-    """Create a new school/department with optional school chair"""
+    """Create a new school/department"""
     current_user = get_current_user()
     data = request.get_json()
 
@@ -1015,93 +1015,28 @@ def create_school():
         if not data.get(field):
             return jsonify({'error': f'{field} is required'}), 400
 
-    # Check if school code already exists
-    if School.query.filter_by(code=data['code'].upper()).first():
+    # Check if school code already exists (excluding deleted schools)
+    if School.query.filter_by(code=data['code'].upper(), is_deleted=False).first():
         return jsonify({'error': 'School with this code already exists'}), 400
 
-    # Check if school name already exists
-    if School.query.filter_by(name=data['name']).first():
+    # Check if school name already exists (excluding deleted schools)
+    if School.query.filter_by(name=data['name'], is_deleted=False).first():
         return jsonify({'error': 'School with this name already exists'}), 400
 
-    # If chair details provided, validate them
-    chair_user = None
-    chair_password = None
-    if data.get('chair_email'):
-        # Check if email already exists
-        if User.query.filter_by(email=data['chair_email']).first():
-            return jsonify({'error': 'A user with this email already exists'}), 400
-
     try:
-        # Initialize chair-related variables
-        chair_user = None
-        chair_password = None
-        chair_name = None
-
-        # Create school first without chair
+        # Create school
         school = School(
             name=data['name'],
             code=data['code'].upper(),
-            chair_id=None  # Will be set after chair creation
+            chair_id=None,
+            is_deleted=False
         )
         db.session.add(school)
-        db.session.flush()  # Get school ID without committing
-
-        # Create school chair if email is provided
-        if data.get('chair_email'):
-            # Use provided name or generate default from email
-            chair_name = data.get('chair_name') or data['chair_email'].split('@')[0].title()
-            # Generate temporary password
-            import secrets
-            import string
-            alphabet = string.ascii_letters + string.digits
-            chair_password = ''.join(secrets.choice(alphabet) for i in range(16))
-
-            # Create user account for chair
-            chair_user = User(
-                email=data['chair_email'],
-                name=chair_name,
-                role='school_chair',
-                is_active=True
-            )
-            chair_user.set_password(chair_password)
-            db.session.add(chair_user)
-            db.session.flush()  # Get user ID
-
-            # Update school with chair_id
-            school.chair_id = chair_user.id
-
         db.session.commit()
 
-        # Send credentials email to chair if created
-        email_sent = False
-        if chair_user and chair_password:
-            try:
-                email_sent = EmailService.send_school_chair_credentials_email(
-                    chair_name=chair_name,
-                    chair_email=data['chair_email'],
-                    password=chair_password,
-                    school_name=school.name
-                )
-                if not email_sent:
-                    print(f"Warning: Failed to send email to school chair {data['chair_email']}")
-            except Exception as email_error:
-                print(f"Error sending email to school chair: {email_error}")
-                import traceback
-                traceback.print_exc()
-
-        response_message = 'School created successfully'
-        if chair_user:
-            if email_sent:
-                response_message += f'. School chair account created and credentials sent to {data["chair_email"]}'
-            else:
-                response_message += f'. School chair account created but failed to send email. Temporary password: {chair_password}'
-
         return jsonify({
-            'message': response_message,
-            'school': school.to_dict(),
-            'chair_created': chair_user is not None,
-            'email_sent': email_sent,
-            'temporary_password': chair_password if chair_user and not email_sent else None
+            'message': 'School created successfully',
+            'school': school.to_dict()
         }), 201
 
     except Exception as e:
@@ -1113,8 +1048,8 @@ def create_school():
 @jwt_required()
 @role_required('dean_academics')
 def get_all_schools():
-    """Get all schools with faculty and student counts"""
-    schools = School.query.all()
+    """Get all non-deleted schools with faculty and student counts"""
+    schools = School.query.filter_by(is_deleted=False).all()
 
     schools_data = []
     for school in schools:
@@ -1133,7 +1068,7 @@ def get_all_schools():
 @jwt_required()
 @role_required('dean_academics')
 def delete_school(school_id):
-    """Delete a school and all associated faculty (cascade delete)"""
+    """Soft delete a school and deactivate all associated users"""
     current_user = get_current_user()
 
     try:
@@ -1142,34 +1077,53 @@ def delete_school(school_id):
         if not school:
             return jsonify({'error': 'School not found'}), 404
 
-        # Check if school has students
-        student_count = Scholar.query.filter_by(school_id=school_id).count()
-        if student_count > 0:
-            return jsonify({
-                'error': f'Cannot delete school. It has {student_count} active student(s). Please reassign or remove students first.'
-            }), 400
+        # Check if school is already deleted
+        if school.is_deleted:
+            return jsonify({'error': 'School is already deleted'}), 400
+
+        # Get all students in this school
+        students = Scholar.query.filter_by(school_id=school_id).all()
+        student_count = len(students)
 
         # Get all faculty in this school
         faculty_list = Supervisor.query.filter_by(school_id=school_id).all()
         faculty_count = len(faculty_list)
 
-        # Delete all faculty and their user accounts
+        # Get school chair
+        chair = User.query.get(school.chair_id) if school.chair_id else None
+
+        # Deactivate all students
+        for student in students:
+            user = User.query.get(student.user_id)
+            if user and user.is_active:
+                user.is_active = False
+
+        # Deactivate all faculty
         for faculty in faculty_list:
             user = User.query.get(faculty.user_id)
-            if user:
-                # Delete the user account
-                db.session.delete(user)
-            # Delete the supervisor record
-            db.session.delete(faculty)
+            if user and user.is_active:
+                user.is_active = False
 
-        # Delete the school
+        # Deactivate school chair
+        if chair and chair.is_active:
+            chair.is_active = False
+
+        # Soft delete the school
+        school.is_deleted = True
+        school.deleted_at = datetime.utcnow()
+        school.deleted_by = current_user.id
+
         school_name = school.name
-        db.session.delete(school)
         db.session.commit()
 
+        total_deactivated = student_count + faculty_count + (1 if chair else 0)
+
         return jsonify({
-            'message': f'School "{school_name}" deleted successfully along with {faculty_count} faculty member(s).',
-            'deleted_faculty_count': faculty_count
+            'message': f'School "{school_name}" has been deactivated. All associated users have been deactivated but records are preserved.',
+            'deactivated_students': student_count,
+            'deactivated_faculty': faculty_count,
+            'deactivated_chair': 1 if chair else 0,
+            'total_deactivated': total_deactivated
         }), 200
 
     except Exception as e:
