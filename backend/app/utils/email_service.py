@@ -22,9 +22,14 @@ class EmailService:
             bool: True if sent successfully, False otherwise
         """
         try:
-            print(f"   Sending email to: {to_email}")
+            print(f"[EMAIL] Attempting to send email...")
+            print(f"   To: {to_email}")
             print(f"   Subject: {subject}")
             print(f"   From: {current_app.config['MAIL_DEFAULT_SENDER']}")
+            print(f"   SMTP Server: {current_app.config.get('MAIL_SERVER', 'NOT SET')}")
+            print(f"   SMTP Port: {current_app.config.get('MAIL_PORT', 'NOT SET')}")
+            print(f"   SMTP Username: {current_app.config.get('MAIL_USERNAME', 'NOT SET')}")
+            print(f"   SMTP Password: {'SET' if current_app.config.get('MAIL_PASSWORD') else 'NOT SET'}")
 
             msg = Message(
                 subject=subject,
@@ -34,10 +39,11 @@ class EmailService:
                 sender=current_app.config['MAIL_DEFAULT_SENDER']
             )
             mail.send(msg)
-            print(f"   SUCCESS: Email sent to {to_email}")
+            print(f"[EMAIL] SUCCESS: Email sent to {to_email}")
             return True
         except Exception as e:
-            print(f"   ERROR sending email to {to_email}: {e}")
+            print(f"[EMAIL] ERROR sending email to {to_email}: {e}")
+            print(f"[EMAIL] Error type: {type(e).__name__}")
             import traceback
             traceback.print_exc()
             return False
