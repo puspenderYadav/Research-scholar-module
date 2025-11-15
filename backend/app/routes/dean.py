@@ -1117,7 +1117,15 @@ def get_all_schools():
 @jwt_required()
 @role_required('dean_academics')
 def delete_school(school_id):
-    """Soft delete a school and deactivate all associated users"""
+    """
+    Hard delete a school and all associated records
+    This permanently removes:
+    - All students (scholars) and their user accounts
+    - All faculty (supervisors) and their user accounts
+    - School chair user account
+    - The school itself
+    - All related data (progress reports, thesis, etc.)
+    """
     current_user = get_current_user()
 
     try:
@@ -1126,9 +1134,8 @@ def delete_school(school_id):
         if not school:
             return jsonify({'error': 'School not found'}), 404
 
-        # Check if school is already deleted
-        if school.is_deleted:
-            return jsonify({'error': 'School is already deleted'}), 400
+        school_name = school.name
+        school_code = school.code
 
         # Get all students in this school
         students = Scholar.query.filter_by(school_id=school_id).all()
@@ -1141,38 +1148,52 @@ def delete_school(school_id):
         # Get school chair
         chair = User.query.get(school.chair_id) if school.chair_id else None
 
-        # Deactivate all students
+        # Delete all students and their user accounts
+        student_user_ids = []
         for student in students:
-            user = User.query.get(student.user_id)
-            if user and user.is_active:
-                user.is_active = False
+            if student.user_id:
+                student_user_ids.append(student.user_id)
+            # Delete the scholar record
+            db.session.delete(student)
 
-        # Deactivate all faculty
+        # Delete student user accounts
+        for user_id in student_user_ids:
+            user = User.query.get(user_id)
+            if user:
+                db.session.delete(user)
+
+        # Delete all faculty and their user accounts
+        faculty_user_ids = []
         for faculty in faculty_list:
-            user = User.query.get(faculty.user_id)
-            if user and user.is_active:
-                user.is_active = False
+            if faculty.user_id:
+                faculty_user_ids.append(faculty.user_id)
+            # Delete the supervisor record
+            db.session.delete(faculty)
 
-        # Deactivate school chair
-        if chair and chair.is_active:
-            chair.is_active = False
+        # Delete faculty user accounts
+        for user_id in faculty_user_ids:
+            user = User.query.get(user_id)
+            if user:
+                db.session.delete(user)
 
-        # Soft delete the school
-        school.is_deleted = True
-        school.deleted_at = datetime.utcnow()
-        school.deleted_by = current_user.id
+        # Delete school chair user account
+        if chair:
+            db.session.delete(chair)
 
-        school_name = school.name
+        # Delete the school itself
+        db.session.delete(school)
+
+        # Commit all deletions
         db.session.commit()
 
-        total_deactivated = student_count + faculty_count + (1 if chair else 0)
+        total_deleted = student_count + faculty_count + (1 if chair else 0)
 
         return jsonify({
-            'message': f'School "{school_name}" has been deactivated. All associated users have been deactivated but records are preserved.',
-            'deactivated_students': student_count,
-            'deactivated_faculty': faculty_count,
-            'deactivated_chair': 1 if chair else 0,
-            'total_deactivated': total_deactivated
+            'message': f'School "{school_name}" ({school_code}) and all related records have been permanently deleted.',
+            'deleted_students': student_count,
+            'deleted_faculty': faculty_count,
+            'deleted_chair': 1 if chair else 0,
+            'total_deleted': total_deleted
         }), 200
 
     except Exception as e:
