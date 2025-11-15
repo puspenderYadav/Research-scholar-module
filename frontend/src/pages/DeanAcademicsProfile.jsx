@@ -380,6 +380,37 @@ const DeanAcademicsProfile = () => {
     }
   };
 
+  const handleResetChairPassword = async (school) => {
+    if (!school.chair) {
+      alert('This school has no chair assigned');
+      return;
+    }
+
+    if (!window.confirm(`Reset password for chair "${school.chair.name}" (${school.chair.email})? A new password will be generated and displayed.`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await deanAPI.resetChairPassword(school.id);
+
+      if (response.data.email_sent) {
+        alert(`Password reset successful!\n\nNew credentials have been sent to ${response.data.chair_email}`);
+      } else {
+        // Show the password in a modal or alert if email failed
+        const password = response.data.new_password;
+        alert(`Password reset successful!\n\nEmail: ${response.data.chair_email}\nNew Password: ${password}\n\nPlease save this password - it cannot be retrieved later!`);
+      }
+
+      fetchDashboardData(); // Refresh data
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      alert(error.response?.data?.error || 'Failed to reset password');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteSchool = async (school) => {
     if (school.student_count > 0) {
       alert(`Cannot delete school "${school.name}". It has ${school.student_count} active students. Please reassign or remove students first.`);
@@ -984,18 +1015,28 @@ const DeanAcademicsProfile = () => {
                           <h4 className="font-semibold text-gray-900">{school.name}</h4>
                           <p className="text-sm text-gray-600">Code: {school.code}</p>
                         </div>
-                        <button
-                          onClick={() => handleDeleteSchool(school)}
-                          className="text-red-600 hover:text-red-900 text-sm font-medium"
-                          title="Delete School"
-                        >
-                          Delete
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleResetChairPassword(school)}
+                            className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                            title="Reset Chair Password"
+                          >
+                            Reset Password
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSchool(school)}
+                            className="text-red-600 hover:text-red-900 text-sm font-medium"
+                            title="Delete School"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
 
                       {school.chair && (
                         <div className="text-sm text-gray-700 mb-3">
                           <p className="font-medium">Chair: {school.chair.name}</p>
+                          <p className="text-xs text-gray-500">{school.chair.email}</p>
                         </div>
                       )}
 

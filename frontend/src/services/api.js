@@ -227,6 +227,7 @@ export const deanAPI = {
   deleteFaculty: (supervisorId) => api.delete(`/dean/delete-faculty/${supervisorId}`),
   deleteSchool: (schoolId) => api.delete(`/dean/delete-school/${schoolId}`),
   transferFaculty: (supervisorId, data) => api.put(`/dean/transfer-faculty/${supervisorId}`, data),
+  resetChairPassword: (schoolId) => api.post(`/dean/reset-chair-password/${schoolId}`),
 };
 
 export const leaveAPI = {
