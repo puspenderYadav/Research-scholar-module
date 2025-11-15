@@ -1808,3 +1808,53 @@ def initialize_schools():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Error initializing schools: {str(e)}'}), 500
+
+
+@bp.route('/update-chair-email/<int:school_id>', methods=['PUT'])
+@jwt_required()
+@role_required('dean_academics')
+def update_chair_email(school_id):
+    """
+    Update school chair's email address
+    Only accessible by Dean of Academics
+    """
+    data = request.get_json()
+    new_email = data.get('new_email')
+
+    if not new_email:
+        return jsonify({'error': 'new_email is required'}), 400
+
+    try:
+        # Find the school
+        school = School.query.get(school_id)
+        if not school:
+            return jsonify({'error': 'School not found'}), 404
+
+        if school.is_deleted:
+            return jsonify({'error': 'School is deleted'}), 400
+
+        if not school.chair:
+            return jsonify({'error': 'School has no chair assigned'}), 404
+
+        chair = school.chair
+        old_email = chair.email
+
+        # Check if new email already exists
+        existing_user = User.query.filter_by(email=new_email).first()
+        if existing_user and existing_user.id != chair.id:
+            return jsonify({'error': f'Email {new_email} is already in use by another user'}), 400
+
+        # Update email
+        chair.email = new_email
+        db.session.commit()
+
+        return jsonify({
+            'message': f'Chair email updated successfully',
+            'school': school.to_dict(),
+            'old_email': old_email,
+            'new_email': new_email
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error updating chair email: {str(e)}'}), 500
