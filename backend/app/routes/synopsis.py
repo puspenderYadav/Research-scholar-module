@@ -161,9 +161,27 @@ def approve_synopsis(synopsis_id):
     if not action:
         return jsonify({'error': 'Action is required'}), 400
 
+    if action not in ['approved', 'rejected', 'changes_requested']:
+        return jsonify({'error': 'Invalid action'}), 400
+
     synopsis = Synopsis.query.get_or_404(synopsis_id)
+    scholar = synopsis.scholar
 
     try:
+        # Determine committee member for DC/APC stage
+        committee_member_id = None
+        if synopsis.current_stage == 'dc_apc' and current_user.role == 'supervisor':
+            # Find committee member record for this supervisor
+            committee = scholar.committee
+            if committee:
+                member = CommitteeMember.query.filter_by(
+                    committee_id=committee.id,
+                    supervisor_id=current_user.supervisor_profile.id,
+                    is_active=True
+                ).first()
+                if member:
+                    committee_member_id = member.id
+
         # Create or update approval record
         approval = SynopsisApproval.query.filter_by(
             synopsis_id=synopsis_id,
@@ -176,7 +194,8 @@ def approve_synopsis(synopsis_id):
                 synopsis_id=synopsis_id,
                 stage=synopsis.current_stage,
                 approver_id=current_user.id,
-                approver_role=current_user.role
+                approver_role=current_user.role,
+                committee_member_id=committee_member_id
             )
             db.session.add(approval)
 
@@ -187,10 +206,22 @@ def approve_synopsis(synopsis_id):
         # Update synopsis status based on action
         if action == 'rejected':
             synopsis.status = 'rejected'
+            synopsis.current_stage = 'rejected'
+
+            # Notify scholar about rejection
+            rejection_stage_names = {
+                'supervisor': 'Supervisor',
+                'dc_apc': 'DC/APC Committee',
+                'school_chair': 'School Chair',
+                'ad_research': 'Associate Dean Research',
+                'dean_academics': 'Dean Academics'
+            }
+            stage_name = rejection_stage_names.get(synopsis.current_stage, synopsis.current_stage)
+
             NotificationService.create_notification(
                 user_id=synopsis.scholar.user_id,
                 title='Synopsis Rejected',
-                message=f'Your synopsis has been rejected. Reason: {comments}',
+                message=f'Your synopsis has been rejected by {stage_name}. Reason: {comments}',
                 type='synopsis_rejected',
                 related_id=synopsis_id
             )
@@ -206,6 +237,35 @@ def approve_synopsis(synopsis_id):
             )
 
         elif action == 'approved':
+            # For DC/APC stage, check if all members have approved
+            if synopsis.current_stage == 'dc_apc':
+                committee = scholar.committee
+                if committee:
+                    # Get all DC and APC members
+                    dc_members = committee.get_dc_members()
+                    apc_members = committee.get_apc_members()
+                    all_committee_members = dc_members + apc_members
+
+                    # Get all approvals for this stage
+                    stage_approvals = SynopsisApproval.query.filter_by(
+                        synopsis_id=synopsis_id,
+                        stage='dc_apc',
+                        decision='approved'
+                    ).all()
+
+                    approved_member_ids = [a.committee_member_id for a in stage_approvals if a.committee_member_id]
+
+                    # Check if all members have approved
+                    all_approved = all(m.id in approved_member_ids for m in all_committee_members)
+
+                    if not all_approved:
+                        # Not all members approved yet, just save current approval
+                        db.session.commit()
+                        return jsonify({
+                            'message': 'Your approval has been recorded. Waiting for other committee members.',
+                            'synopsis': synopsis.to_dict()
+                        }), 200
+
             # Move to next stage
             stage_flow = {
                 'supervisor': ('dc_apc', 'with_dc_apc'),
@@ -219,6 +279,44 @@ def approve_synopsis(synopsis_id):
                 next_stage, next_status = stage_flow[synopsis.current_stage]
                 synopsis.current_stage = next_stage
                 synopsis.status = next_status
+
+                # Create approval records for next stage if needed
+                if next_stage == 'dc_apc':
+                    # Create approval records for all DC/APC members
+                    committee = scholar.committee
+                    if committee:
+                        dc_members = committee.get_dc_members()
+                        apc_members = committee.get_apc_members()
+                        for member in dc_members + apc_members:
+                            member_approval = SynopsisApproval(
+                                synopsis_id=synopsis_id,
+                                stage='dc_apc',
+                                approver_id=member.supervisor.user_id,
+                                approver_role='committee_member',
+                                committee_member_id=member.id,
+                                decision='pending'
+                            )
+                            db.session.add(member_approval)
+
+                            # Notify each committee member
+                            NotificationService.create_notification(
+                                user_id=member.supervisor.user_id,
+                                title='Synopsis Review Required',
+                                message=f'{scholar.user.name} ({scholar.enrollment_number}) has submitted a synopsis for your review.',
+                                type='synopsis_pending',
+                                related_id=synopsis_id
+                            )
+
+                elif next_stage == 'school_chair':
+                    # Notify school chair
+                    if scholar.school and scholar.school.chair:
+                        NotificationService.create_notification(
+                            user_id=scholar.school.chair_id,
+                            title='Synopsis Review Required',
+                            message=f'{scholar.user.name} ({scholar.enrollment_number}) has submitted a synopsis for your review.',
+                            type='synopsis_pending',
+                            related_id=synopsis_id
+                        )
 
                 # Check if completed
                 if next_stage == 'completed':
@@ -235,7 +333,7 @@ def approve_synopsis(synopsis_id):
                     NotificationService.create_notification(
                         user_id=synopsis.scholar.user_id,
                         title='Synopsis Advanced',
-                        message=f'Your synopsis has been approved and moved to {next_stage} stage.',
+                        message=f'Your synopsis has been approved and moved to the next stage.',
                         type='synopsis_progress',
                         related_id=synopsis_id
                     )

@@ -13,6 +13,7 @@ class Supervisor(db.Model):
     designation = db.Column(db.String(100))
     school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
     specialization = db.Column(db.Text)
+    personal_email = db.Column(db.String(120))  # Personal email for notifications
 
     # Supervision capacity
     max_phd_scholars = db.Column(db.Integer, default=8)

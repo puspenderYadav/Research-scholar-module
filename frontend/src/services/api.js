@@ -104,10 +104,13 @@ export const seminarAPI = {
 
 export const synopsisAPI = {
   getByScholar: (scholarId) => api.get(`/synopsis/scholar/${scholarId}`),
-  submit: (formData) => api.post('/synopsis', formData, {
+  getMySynopses: () => api.get('/synopsis/my-synopsis'),
+  submit: (formData) => api.post('/synopsis/submit', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   }),
   review: (id, data) => api.post(`/synopsis/${id}/review`, data),
+  approve: (id, data) => api.post(`/synopsis/${id}/approve`, data),
+  download: (id) => api.get(`/synopsis/${id}/download`, { responseType: 'blob' }),
 };
 
 export const progressReportAPI = {

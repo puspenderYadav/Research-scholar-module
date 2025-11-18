@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required
 from app.models.exam import Exam
 from app.models.seminar import Seminar
 from app.models.thesis import Thesis
+from app.models.meeting import Meeting
 from app.utils.decorators import get_current_user
 from datetime import datetime, timedelta
 
@@ -85,6 +86,28 @@ def get_calendar_events():
             'start': thesis.defense_date.isoformat() if thesis.defense_date else None,
             'venue': thesis.defense_venue,
             'status': thesis.defense_status
+        })
+
+    # Get meetings
+    meeting_query = Meeting.query.filter(
+        Meeting.scheduled_at.between(start_date, end_date),
+        Meeting.status != 'cancelled'
+    )
+    if scholar_id:
+        meeting_query = meeting_query.filter_by(scholar_id=scholar_id)
+    elif current_user.role == 'supervisor' and current_user.supervisor_profile:
+        # Show meetings for scholars supervised by this supervisor
+        meeting_query = meeting_query.filter_by(supervisor_id=current_user.supervisor_profile.id)
+
+    for meeting in meeting_query.all():
+        events.append({
+            'id': meeting.id,
+            'type': 'meeting',
+            'title': f'Meeting with {meeting.scholar.user.name if scholar_id else meeting.supervisor.user.name}',
+            'start': meeting.scheduled_at.isoformat() if meeting.scheduled_at else None,
+            'venue': meeting.venue,
+            'online_link': meeting.online_link,
+            'status': meeting.status
         })
 
     return jsonify(events), 200

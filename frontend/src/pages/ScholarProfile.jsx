@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { scholarAPI } from '../services/api';
+import SynopsisUploadTracker from '../components/SynopsisUploadTracker';
 
 const ScholarProfile = () => {
   const { user } = useAuth();
@@ -47,12 +48,13 @@ const ScholarProfile = () => {
   const loadCommittee = async (scholarId) => {
     try {
       setCommitteeLoading(true);
-      const response = await fetch(`/api/committees/scholar/${scholarId}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_BASE_URL}/committees/scholar/${scholarId}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCommittee(data);
@@ -503,6 +505,11 @@ const ScholarProfile = () => {
             <p className="text-lg text-gray-800">{profile.user?.phone || 'Not provided'}</p>
           </div>
         </div>
+      </div>
+
+      {/* Synopsis Upload and Tracking Section */}
+      <div className="mt-6">
+        <SynopsisUploadTracker scholarId={profile.id} />
       </div>
     </Layout>
   );

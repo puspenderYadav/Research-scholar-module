@@ -1,0 +1,7 @@
+roll_number,name,email,program,school_name,supervisor_email
+P25001,Priya Deshmukh,priya.deshmukh@students.uni.edu,PhD,School of Computing and Electrical Engineering,rajesh.kumar@uni.edu
+P25002,Karthik Venkatesh,karthik.v@students.uni.edu,PhD,School of Mathematical & Statistical Science,rakesh.kumar@uni.edu
+P25003,Neha Kapoor,neha.kapoor@students.uni.edu,PhD,School of Biosciences and Bioengineering,amit.patel@uni.edu
+M25001,Rahul Bhattacharya,rahul.b@students.uni.edu,M.Sc. (Research),School of Mechanical and Materials Engineering,vikram.singh@uni.edu
+M25002,Anjali Malhotra,anjali.m@students.uni.edu,M.Sc. (Research),School of Computing and Electrical Engineering,priya.sharma@uni.edu
+M25003,Vivek Choudhury,vivek.c@students.uni.edu,M.Sc. (Research),School of Biosciences and Bioengineering,sneha.verma@uni.edu

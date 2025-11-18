@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { notificationAPI } from '../services/api';
+import ChangePasswordModal from './ChangePasswordModal';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -112,6 +114,15 @@ const Layout = ({ children }) => {
                       </Link>
                     )}
                     <button
+                      onClick={() => {
+                        setShowChangePassword(true);
+                        setShowUserMenu(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    >
+                      Change Password
+                    </button>
+                    <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                     >
@@ -156,6 +167,12 @@ const Layout = ({ children }) => {
           <p>&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
     </div>
   );
 };

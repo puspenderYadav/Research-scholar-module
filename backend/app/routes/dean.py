@@ -952,6 +952,7 @@ def recruit_faculty():
             designation=data['designation'],
             school_id=data['school_id'],
             specialization=data.get('specialization', ''),
+            personal_email=data.get('personal_email'),
             max_phd_scholars=data.get('max_phd_scholars', 8),
             max_msc_scholars=data.get('max_msc_scholars', 5),
             is_accepting_students=data.get('is_accepting_students', True)
@@ -1251,6 +1252,65 @@ def reset_chair_password(school_id):
             'message': message,
             'email_sent': email_sent,
             'chair_email': chair.email,
+            'new_password': new_password if not email_sent else None
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error resetting password: {str(e)}'}), 500
+
+
+@bp.route('/reset-faculty-password/<int:supervisor_id>', methods=['POST'])
+@jwt_required()
+@role_required('dean_academics')
+def reset_faculty_password(supervisor_id):
+    """
+    Reset faculty password and return new password
+    Only accessible by Dean of Academics
+    """
+    try:
+        supervisor = Supervisor.query.get(supervisor_id)
+        if not supervisor:
+            return jsonify({'error': 'Faculty not found'}), 404
+
+        user = User.query.get(supervisor.user_id)
+        if not user:
+            return jsonify({'error': 'Faculty user account not found'}), 404
+
+        # Generate new random password
+        import secrets
+        import string
+        alphabet = string.ascii_letters + string.digits
+        new_password = ''.join(secrets.choice(alphabet) for i in range(16))
+
+        # Set new password
+        user.set_password(new_password)
+        db.session.commit()
+
+        # Try to send email with new password
+        email_sent = False
+        try:
+            from app.utils.email_service import EmailService
+            email_sent = EmailService.send_faculty_credentials_email(
+                faculty_name=user.name,
+                faculty_email=user.email,
+                password=new_password,
+                employee_id=supervisor.employee_id
+            )
+        except Exception as e:
+            print(f"Failed to send password reset email: {e}")
+
+        message = f'Password reset for {user.name} ({user.email})'
+        if email_sent:
+            message += '. New credentials sent to email.'
+        else:
+            message += f'. Email failed. New password: {new_password}'
+
+        return jsonify({
+            'message': message,
+            'email_sent': email_sent,
+            'faculty_email': user.email,
+            'employee_id': supervisor.employee_id,
             'new_password': new_password if not email_sent else None
         }), 200
 
