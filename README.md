@@ -662,15 +662,41 @@ See [Deployment](#-deployment) section below.
 
 After starting the backend, use these credentials to test different roles:
 
+### Admin Accounts
+
 | Role | Email | Password | Description |
 |------|-------|----------|-------------|
-| **Scholar (PhD)** | scholar1@university.edu | scholar123 | PhD student with active progress |
-| **Scholar (M.Sc.)** | scholar2@university.edu | scholar123 | M.Sc. student |
-| **Supervisor** | supervisor1@university.edu | supervisor123 | Faculty member supervising scholars |
-| **Committee Member** | committee1@university.edu | committee123 | DC/APC member |
-| **School Chair** | chair.cs@university.edu | chair123 | Computer Science department chair |
-| **AD Research** | ad.research@university.edu | adresearch123 | Associate Dean for Research |
-| **Dean Academics** | dean@university.edu | dean123 | Dean of Academic Affairs (full access) |
+| **Dean Academics** | dean@iitmandi.ac.in | Dean@123 | Dean of Academic Affairs (full access) |
+| **AD Research** | adresearch@iitmandi.ac.in | ADResearch@123 | Associate Dean for Research |
+
+### School Chair Accounts (IIT Mandi Schools)
+
+| School | Email | Password |
+|--------|-------|----------|
+| **SMSS** (Mathematical & Statistical Sciences) | smss.chair@iitmandi.ac.in | smss@123 |
+| **SMME** (Mechanical & Materials Engineering) | smme.chair@iitmandi.ac.in | smme@123 |
+| **SCEE** (Civil & Environmental Engineering) | scee.chair@iitmandi.ac.in | scee@123 |
+| **SBB** (Biosciences & Bioengineering) | sbb.chair@iitmandi.ac.in | sbb@123 |
+
+### Test/Demo Accounts (from run.py seed data)
+
+| Role | Email | Password | Description |
+|------|-------|----------|-------------|
+| **School Chair** | chair.cs@university.edu | password123 | Computer Science department chair |
+| **Supervisor 1** | supervisor1@university.edu | password123 | Faculty member supervising scholars |
+| **Supervisor 2** | supervisor2@university.edu | password123 | Faculty member supervising scholars |
+| **Scholar (PhD)** | scholar1@university.edu | password123 | PhD student with active progress |
+| **Scholar (M.Sc.)** | scholar2@university.edu | password123 | M.Sc. student |
+
+### Bulk Registered Scholars
+
+For scholars registered via bulk upload, the default password pattern is:
+```
+{enrollment_number}@123
+```
+Example: If enrollment number is `D24001`, password would be `D24001@123`
+
+> **Note:** This is a private repository. All credentials above are for development/testing purposes. Users should change their passwords after first login.
 
 ### First-Time Login Flow
 
