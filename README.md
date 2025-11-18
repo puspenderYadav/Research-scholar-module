@@ -371,10 +371,4 @@ lsof -ti:3000 | xargs kill -9
 
 ---
 
-## Contact
-
-**Email:** b24187@students.iitmandi.ac.in
-
----
-
 **Version 1.0.0** | **November 2025** | **IIT Mandi**
