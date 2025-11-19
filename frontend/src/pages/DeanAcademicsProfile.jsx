@@ -297,10 +297,8 @@ const DeanAcademicsProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState(null);
-  const [pendingApprovals, setPendingApprovals] = useState(null);
   const [allScholars, setAllScholars] = useState(null);
   const [allFaculty, setAllFaculty] = useState(null);
-  const [announcements, setAnnouncements] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -309,10 +307,6 @@ const DeanAcademicsProfile = () => {
   const [filterProgram, setFilterProgram] = useState('all');
   const [filterYear, setFilterYear] = useState('all');
   const [filterSchool, setFilterSchool] = useState('all');
-  const [showApprovalModal, setShowApprovalModal] = useState(false);
-  const [approvalAction, setApprovalAction] = useState(null); // { type, id, action: 'approve'/'reject' }
-  const [approvalComments, setApprovalComments] = useState('');
-  const [approvalLoading, setApprovalLoading] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [transferData, setTransferData] = useState({ new_school_id: '', specialization: '' });
@@ -324,19 +318,15 @@ const DeanAcademicsProfile = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [dashboardRes, pendingRes, scholarsRes, facultyRes, announcementsRes] = await Promise.all([
+      const [dashboardRes, scholarsRes, facultyRes] = await Promise.all([
         deanAPI.getDashboard(),
-        deanAPI.getPendingApprovals(),
         deanAPI.getAllScholars(),
-        deanAPI.getAllFaculty(),
-        deanAPI.getAnnouncements()
+        deanAPI.getAllFaculty()
       ]);
 
       setDashboardData(dashboardRes.data);
-      setPendingApprovals(pendingRes.data);
       setAllScholars(scholarsRes.data);
       setAllFaculty(facultyRes.data);
-      setAnnouncements(announcementsRes.data.announcements);
       setError(null);
     } catch (err) {
       console.error('Error fetching dean dashboard:', err);
@@ -473,63 +463,6 @@ const DeanAcademicsProfile = () => {
       alert(error.response?.data?.error || 'Failed to transfer faculty');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleApprovalClick = (type, id, action) => {
-    setApprovalAction({ type, id, action });
-    setApprovalComments('');
-    setShowApprovalModal(true);
-  };
-
-  const handleApprovalSubmit = async () => {
-    if (!approvalAction) return;
-
-    const { type, id, action } = approvalAction;
-
-    // For rejection, comments are required
-    if (action === 'reject' && !approvalComments.trim()) {
-      alert('Please provide a reason for rejection');
-      return;
-    }
-
-    setApprovalLoading(true);
-    try {
-      const endpoints = {
-        'synopsis': `/api/synopsis/${id}/approve`,
-        'progress_report': `/api/progress-reports/${id}/approve`,
-        'thesis': `/api/thesis/${id}/approve`,
-        'travel_grant': `/api/travel-grants/${id}/approve`,
-        'supervisor_change': `/api/supervisor-change/${id}/dean-decision`
-      };
-
-      const endpoint = endpoints[type];
-      if (!endpoint) {
-        throw new Error('Unknown approval type');
-      }
-
-      await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          decision: action === 'approve' ? 'approved' : 'rejected',
-          comments: approvalComments || undefined
-        })
-      });
-
-      alert(`Successfully ${action}d the ${type.replace('_', ' ')}`);
-      setShowApprovalModal(false);
-      setApprovalAction(null);
-      setApprovalComments('');
-      await fetchDashboardData(); // Refresh data
-    } catch (error) {
-      console.error('Error processing approval:', error);
-      alert(`Failed to ${action} the item. Please try again.`);
-    } finally {
-      setApprovalLoading(false);
     }
   };
 
@@ -690,149 +623,144 @@ const DeanAcademicsProfile = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-full overflow-x-hidden">
         {/* Header */}
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Dean Academics Dashboard</h1>
-              <p className="mt-2 text-gray-600">Complete Institutional Oversight</p>
+              <h1 className="text-2xl font-bold text-purple-900">Analytics</h1>
+              <p className="text-gray-600 mt-1">Complete Institutional Oversight</p>
             </div>
             <button
               onClick={() => navigate('/bulk-scholar-upload')}
-              className="btn-primary"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
             >
-              📤 Bulk Upload Scholars
+              Bulk Upload Scholars
             </button>
           </div>
         </div>
 
-        {/* Main Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">Total Schools</p>
-                <p className="text-3xl font-bold text-blue-900">{stats.overview?.total_schools || 0}</p>
-              </div>
-              <div className="text-4xl">🏫</div>
-            </div>
-          </div>
-
-          <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600">Total Students</p>
-                <p className="text-3xl font-bold text-green-900">{stats.overview?.total_students || 0}</p>
-                <p className="text-xs text-green-600 mt-1">
-                  Active: {stats.students?.by_status?.active || 0}
-                </p>
-              </div>
-              <div className="text-4xl">👨‍🎓</div>
-            </div>
-          </div>
-
-          <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-600">Total Faculty</p>
-                <p className="text-3xl font-bold text-purple-900">{stats.overview?.total_faculty || 0}</p>
-                <p className="text-xs text-purple-600 mt-1">
-                  Accepting: {stats.faculty?.accepting_students || 0}
-                </p>
-              </div>
-              <div className="text-4xl">👨‍🏫</div>
-            </div>
-          </div>
-
-          <div className="bg-red-50 rounded-lg p-6 border border-red-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-red-600">Pending Approvals</p>
-                <p className="text-3xl font-bold text-red-900">{stats.pending_approvals?.total || 0}</p>
-                <p className="text-xs text-red-600 mt-1">Require Action</p>
-              </div>
-              <div className="text-4xl">⏳</div>
-            </div>
-          </div>
+        {/* Main Statistics Table */}
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-purple-100">
+                <th className="px-6 py-3 text-left text-sm font-semibold text-purple-900 border-r border-purple-200">Total Schools</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-purple-900 border-r border-purple-200">Total Students</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-purple-900 border-r border-purple-200">Total Faculty</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-purple-900">Pending Approvals</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="px-6 py-4 text-lg font-bold text-gray-900 border-t border-gray-200 border-r border-gray-200">
+                  {stats.overview?.total_schools || 0}
+                </td>
+                <td className="px-6 py-4 border-t border-gray-200 border-r border-gray-200">
+                  <div className="text-lg font-bold text-gray-900">{stats.overview?.total_students || 0}</div>
+                  <div className="text-xs text-gray-600">Active: {stats.students?.by_status?.active || 0}</div>
+                </td>
+                <td className="px-6 py-4 border-t border-gray-200 border-r border-gray-200">
+                  <div className="text-lg font-bold text-gray-900">{stats.overview?.total_faculty || 0}</div>
+                  <div className="text-xs text-gray-600">Accepting: {stats.faculty?.accepting_students || 0}</div>
+                </td>
+                <td className="px-6 py-4 border-t border-gray-200">
+                  <div className="text-lg font-bold text-gray-900">{stats.pending_approvals?.total || 0}</div>
+                  <div className="text-xs text-gray-600">Require Action</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         {/* Secondary Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Student Distribution */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Student Distribution</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">PhD Students</span>
-                <span className="text-sm font-semibold text-gray-900">{stats.students?.by_program?.phd || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">M.Sc. Students</span>
-                <span className="text-sm font-semibold text-gray-900">{stats.students?.by_program?.msc || 0}</span>
-              </div>
-              <div className="border-t pt-3 mt-3">
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="px-6 py-3 bg-purple-100">
+              <h3 className="text-sm font-semibold text-purple-900">Student Distribution</h3>
+            </div>
+            <div className="p-4">
+              <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">On Leave</span>
-                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_status?.on_leave || 0}</span>
+                  <span className="text-sm text-gray-600">PhD Students</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_program?.phd || 0}</span>
                 </div>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm text-gray-600">Graduated</span>
-                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_status?.graduated || 0}</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">M.Sc. Students</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_program?.msc || 0}</span>
                 </div>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm text-gray-600">Withdrawn</span>
-                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_status?.withdrawn || 0}</span>
+                <div className="border-t pt-3 mt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">On Leave</span>
+                    <span className="text-sm font-semibold text-gray-900">{stats.students?.by_status?.on_leave || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-600">Graduated</span>
+                    <span className="text-sm font-semibold text-gray-900">{stats.students?.by_status?.graduated || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-600">Withdrawn</span>
+                    <span className="text-sm font-semibold text-gray-900">{stats.students?.by_status?.withdrawn || 0}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Admission Modes */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">By Admission Mode</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Regular</span>
-                <span className="text-sm font-semibold text-gray-900">{stats.students?.by_admission_mode?.regular || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Sponsored</span>
-                <span className="text-sm font-semibold text-gray-900">{stats.students?.by_admission_mode?.sponsored || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">External</span>
-                <span className="text-sm font-semibold text-gray-900">{stats.students?.by_admission_mode?.external || 0}</span>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="px-6 py-3 bg-purple-100">
+              <h3 className="text-sm font-semibold text-purple-900">By Admission Mode</h3>
+            </div>
+            <div className="p-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Regular</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_admission_mode?.regular || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Sponsored</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_admission_mode?.sponsored || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">External</span>
+                  <span className="text-sm font-semibold text-gray-900">{stats.students?.by_admission_mode?.external || 0}</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity (30 Days)</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">New Admissions</span>
-                <span className="text-sm font-semibold text-green-600">{stats.recent_activity?.new_admissions || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Graduations</span>
-                <span className="text-sm font-semibold text-blue-600">{stats.recent_activity?.graduations || 0}</span>
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <div className="px-6 py-3 bg-purple-100">
+              <h3 className="text-sm font-semibold text-purple-900">Recent Activity (30 Days)</h3>
+            </div>
+            <div className="p-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">New Admissions</span>
+                  <span className="text-sm font-semibold text-purple-900">{stats.recent_activity?.new_admissions || 0}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Graduations</span>
+                  <span className="text-sm font-semibold text-purple-900">{stats.recent_activity?.graduations || 0}</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs Navigation */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="bg-purple-100 border-b border-purple-200">
+            <nav className="flex justify-evenly">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`px-6 py-3 text-sm font-medium ${
                   activeTab === 'overview'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-b-2 border-purple-900 text-purple-900'
+                    : 'text-gray-500 hover:text-purple-900 hover:border-gray-300'
                 }`}
               >
                 Overview
@@ -841,71 +769,31 @@ const DeanAcademicsProfile = () => {
                 onClick={() => setActiveTab('schools')}
                 className={`px-6 py-3 text-sm font-medium ${
                   activeTab === 'schools'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-b-2 border-purple-900 text-purple-900'
+                    : 'text-gray-500 hover:text-purple-900 hover:border-gray-300'
                 }`}
               >
-                Schools ({dashboardData?.schools?.length || 0})
-              </button>
-              <button
-                onClick={() => setActiveTab('pending')}
-                className={`px-6 py-3 text-sm font-medium ${
-                  activeTab === 'pending'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Pending Approvals ({pendingApprovals?.total_count || 0})
+                Schools
               </button>
               <button
                 onClick={() => setActiveTab('scholars')}
                 className={`px-6 py-3 text-sm font-medium ${
                   activeTab === 'scholars'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-b-2 border-purple-900 text-purple-900'
+                    : 'text-gray-500 hover:text-purple-900 hover:border-gray-300'
                 }`}
               >
-                All Scholars ({allScholars?.length || 0})
+                All Scholars
               </button>
               <button
                 onClick={() => setActiveTab('faculty')}
                 className={`px-6 py-3 text-sm font-medium ${
                   activeTab === 'faculty'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-b-2 border-purple-900 text-purple-900'
+                    : 'text-gray-500 hover:text-purple-900 hover:border-gray-300'
                 }`}
               >
-                All Faculty ({allFaculty?.length || 0})
-              </button>
-              <button
-                onClick={() => setActiveTab('recruit-faculty')}
-                className={`px-6 py-3 text-sm font-medium ${
-                  activeTab === 'recruit-faculty'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Recruit Faculty
-              </button>
-              <button
-                onClick={() => setActiveTab('add-school')}
-                className={`px-6 py-3 text-sm font-medium ${
-                  activeTab === 'add-school'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Add School
-              </button>
-              <button
-                onClick={() => setActiveTab('announcements')}
-                className={`px-6 py-3 text-sm font-medium ${
-                  activeTab === 'announcements'
-                    ? 'border-b-2 border-blue-500 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Announcements ({announcements?.filter(a => !a.is_published).length || 0})
+                All Faculty
               </button>
             </nav>
           </div>
@@ -930,12 +818,12 @@ const DeanAcademicsProfile = () => {
                                 <p className="text-xs text-gray-500">{exam.scholar?.enrollment_number}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-medium text-blue-600">
+                                <p className="text-sm font-medium text-purple-900">
                                   {exam.scheduled_date ? new Date(exam.scheduled_date).toLocaleDateString() : 'TBD'}
                                 </p>
                                 <span className={`inline-block px-2 py-1 text-xs rounded mt-1 ${
                                   exam.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                  exam.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
+                                  exam.status === 'scheduled' ? 'bg-purple-100 text-purple-800' :
                                   'bg-yellow-100 text-yellow-800'
                                 }`}>
                                   {exam.status}
@@ -964,7 +852,7 @@ const DeanAcademicsProfile = () => {
                                 <p className="text-xs text-gray-500 mt-1">{seminar.scholar?.name || 'N/A'}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-medium text-blue-600">
+                                <p className="text-sm font-medium text-purple-900">
                                   {seminar.scheduled_date ? new Date(seminar.scheduled_date).toLocaleDateString() : 'TBD'}
                                 </p>
                               </div>
@@ -1018,7 +906,7 @@ const DeanAcademicsProfile = () => {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleResetChairPassword(school)}
-                            className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                            className="text-purple-900 hover:text-purple-900 text-sm font-medium"
                             title="Reset Chair Password"
                           >
                             Reset Password
@@ -1041,9 +929,9 @@ const DeanAcademicsProfile = () => {
                       )}
 
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div className="bg-blue-50 rounded p-2">
-                          <p className="text-xs text-blue-600">Faculty</p>
-                          <p className="text-lg font-bold text-blue-900">{school.faculty_count || 0}</p>
+                        <div className="bg-purple-50 rounded p-2">
+                          <p className="text-xs text-purple-900">Faculty</p>
+                          <p className="text-lg font-bold text-purple-900">{school.faculty_count || 0}</p>
                         </div>
                         <div className="bg-green-50 rounded p-2">
                           <p className="text-xs text-green-600">Students</p>
@@ -1064,258 +952,9 @@ const DeanAcademicsProfile = () => {
               </div>
             )}
 
-            {/* Pending Approvals Tab */}
-            {activeTab === 'pending' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900">Items Requiring Dean's Approval</h3>
-                  <div className="text-sm text-gray-600">
-                    Total: <span className="font-semibold text-gray-900">{pendingApprovals?.total_count || 0}</span> items
-                  </div>
-                </div>
-
-                {/* Supervisor Change Requests */}
-                {pendingApprovals?.supervisor_changes?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Supervisor Change Requests ({pendingApprovals.supervisor_changes.length})
-                    </h4>
-                    <div className="space-y-3">
-                      {pendingApprovals.supervisor_changes.map((request) => (
-                        <div key={request.id} className="border rounded-lg p-4 bg-yellow-50">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">
-                                {request.scholar?.name} ({request.scholar?.enrollment_number})
-                              </p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                From: {request.current_supervisor?.name} → To: {request.new_supervisor?.name}
-                              </p>
-                              <p className="text-sm text-gray-700 mt-2">Reason: {request.reason}</p>
-                              {request.current_supervisor?.comment && (
-                                <p className="text-xs text-gray-600 mt-1">
-                                  Current Supervisor: {request.current_supervisor.comment}
-                                </p>
-                              )}
-                              {request.new_supervisor?.comment && (
-                                <p className="text-xs text-gray-600 mt-1">
-                                  New Supervisor: {request.new_supervisor.comment}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right flex flex-col items-end gap-2">
-                              <p className="text-xs text-gray-500">
-                                {request.created_at ? new Date(request.created_at).toLocaleDateString() : 'N/A'}
-                              </p>
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  onClick={() => handleApprovalClick('supervisor_change', request.id, 'approve')}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleApprovalClick('supervisor_change', request.id, 'reject')}
-                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Synopsis */}
-                {pendingApprovals?.synopsis?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Synopsis Submissions ({pendingApprovals.synopsis.length})
-                    </h4>
-                    <div className="space-y-3">
-                      {pendingApprovals.synopsis.map((synopsis) => (
-                        <div key={synopsis.id} className="border rounded-lg p-4 bg-blue-50">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">{synopsis.title}</p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {synopsis.scholar?.name} ({synopsis.scholar?.enrollment_number})
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">{synopsis.scholar?.program}</p>
-                            </div>
-                            <div className="text-right flex flex-col items-end gap-2">
-                              <p className="text-xs text-gray-500">
-                                {synopsis.submitted_date ? new Date(synopsis.submitted_date).toLocaleDateString() : 'N/A'}
-                              </p>
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  onClick={() => handleApprovalClick('synopsis', synopsis.id, 'approve')}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleApprovalClick('synopsis', synopsis.id, 'reject')}
-                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Progress Reports */}
-                {pendingApprovals?.progress_reports?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Progress Reports ({pendingApprovals.progress_reports.length})
-                    </h4>
-                    <div className="space-y-3">
-                      {pendingApprovals.progress_reports.map((report) => (
-                        <div key={report.id} className="border rounded-lg p-4 bg-purple-50">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">{report.report_period}</p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {report.scholar?.name} ({report.scholar?.enrollment_number})
-                              </p>
-                            </div>
-                            <div className="text-right flex flex-col items-end gap-2">
-                              <p className="text-xs text-gray-500">
-                                {report.submitted_date ? new Date(report.submitted_date).toLocaleDateString() : 'N/A'}
-                              </p>
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  onClick={() => handleApprovalClick('progress_report', report.id, 'approve')}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleApprovalClick('progress_report', report.id, 'reject')}
-                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Thesis */}
-                {pendingApprovals?.thesis?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Thesis Submissions ({pendingApprovals.thesis.length})
-                    </h4>
-                    <div className="space-y-3">
-                      {pendingApprovals.thesis.map((thesis) => (
-                        <div key={thesis.id} className="border rounded-lg p-4 bg-green-50">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">{thesis.title}</p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {thesis.scholar?.name} ({thesis.scholar?.enrollment_number})
-                              </p>
-                              {thesis.defense_date && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Defense: {new Date(thesis.defense_date).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right flex flex-col items-end gap-2">
-                              <p className="text-xs text-gray-500">
-                                {thesis.submitted_date ? new Date(thesis.submitted_date).toLocaleDateString() : 'N/A'}
-                              </p>
-                              <div className="flex gap-2 mt-2">
-                                <button
-                                  onClick={() => handleApprovalClick('thesis', thesis.id, 'approve')}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleApprovalClick('thesis', thesis.id, 'reject')}
-                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Travel Grants */}
-                {pendingApprovals?.travel_grants?.length > 0 && (
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Travel Grants ({pendingApprovals.travel_grants.length})
-                    </h4>
-                    <div className="space-y-3">
-                      {pendingApprovals.travel_grants.map((grant) => (
-                        <div key={grant.id} className="border rounded-lg p-4 bg-orange-50">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">{grant.conference_name}</p>
-                              <p className="text-sm text-gray-600 mt-1">
-                                {grant.scholar?.name} ({grant.scholar?.enrollment_number})
-                              </p>
-                              <p className="text-sm text-gray-700 mt-1">
-                                {grant.location} | ₹{grant.requested_amount?.toLocaleString()}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {grant.start_date ? new Date(grant.start_date).toLocaleDateString() : 'N/A'} -
-                                {grant.end_date ? new Date(grant.end_date).toLocaleDateString() : 'N/A'}
-                              </p>
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => handleApprovalClick('travel_grant', grant.id, 'approve')}
-                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() => handleApprovalClick('travel_grant', grant.id, 'reject')}
-                                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {pendingApprovals?.total_count === 0 && (
-                  <p className="text-gray-500 text-center py-8">No pending approvals at this time</p>
-                )}
-              </div>
-            )}
-
             {/* All Scholars Tab */}
             {activeTab === 'scholars' && (
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-hidden">
                 {/* Filters Section */}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">Filters & Search</h3>
@@ -1325,12 +964,12 @@ const DeanAcademicsProfile = () => {
                       placeholder="Search by name, enrollment..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     />
                     <select
                       value={filterStatus}
                       onChange={(e) => setFilterStatus(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="all">All Status</option>
                       <option value="active">Active</option>
@@ -1341,7 +980,7 @@ const DeanAcademicsProfile = () => {
                     <select
                       value={filterProgram}
                       onChange={(e) => setFilterProgram(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="all">All Programs</option>
                       <option value="PhD">PhD</option>
@@ -1350,7 +989,7 @@ const DeanAcademicsProfile = () => {
                     <select
                       value={filterYear}
                       onChange={(e) => setFilterYear(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="all">All Years</option>
                       {admissionYears.map(year => (
@@ -1360,7 +999,7 @@ const DeanAcademicsProfile = () => {
                     <select
                       value={filterSchool}
                       onChange={(e) => setFilterSchool(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="all">All Schools</option>
                       {dashboardData?.schools?.map(school => (
@@ -1371,20 +1010,20 @@ const DeanAcademicsProfile = () => {
                 </div>
 
                 {/* Export Buttons */}
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h3 className="text-sm font-semibold text-blue-800 mb-3">📥 Export Data as CSV</h3>
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                  <h3 className="text-sm font-semibold text-purple-800 mb-3">Export Data as CSV</h3>
                   <div className="flex flex-wrap gap-3">
-                    <button onClick={exportCurrentYear} className="btn-primary text-sm">
-                      📅 Export {new Date().getFullYear()} Admissions
+                    <button onClick={exportCurrentYear} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                      Export {new Date().getFullYear()} Admissions
                     </button>
-                    <button onClick={exportPreviousYear} className="btn-secondary text-sm">
-                      📅 Export {new Date().getFullYear() - 1} Admissions
+                    <button onClick={exportPreviousYear} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                      Export {new Date().getFullYear() - 1} Admissions
                     </button>
-                    <button onClick={exportFiltered} className="btn-success text-sm">
-                      🔍 Export Filtered ({filteredScholars?.length || 0} scholars)
+                    <button onClick={exportFiltered} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                      Export Filtered ({filteredScholars?.length || 0} scholars)
                     </button>
-                    <button onClick={exportAll} className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition">
-                      📊 Export Complete Data ({allScholars?.length || 0} scholars)
+                    <button onClick={exportAll} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition">
+                      Export Complete Data ({allScholars?.length || 0} scholars)
                     </button>
                   </div>
                 </div>
@@ -1394,32 +1033,32 @@ const DeanAcademicsProfile = () => {
                   Showing <span className="font-semibold text-gray-900">{filteredScholars?.length || 0}</span> of <span className="font-semibold text-gray-900">{allScholars?.length || 0}</span> scholars
                 </div>
 
-                <div className="overflow-x-auto bg-white rounded-lg shadow">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">
+                  <table className="w-full divide-y divide-gray-200">
+                    <thead className="bg-purple-900">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Enrollment
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Name
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Program
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Admission Year
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
+                          Year
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           School
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Supervisor
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -1427,37 +1066,37 @@ const DeanAcademicsProfile = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredScholars?.map((scholar) => (
                         <tr key={scholar.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-3 py-2 text-sm font-medium text-gray-900">
                             {scholar.enrollment_number}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-3 py-2 text-sm text-gray-900">
                             {scholar.user?.name || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {scholar.program}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {scholar.admission_date ? new Date(scholar.admission_date).getFullYear() : 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 py-2">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               scholar.status === 'active' ? 'bg-green-100 text-green-800' :
                               scholar.status === 'suspended' ? 'bg-orange-100 text-orange-800' :
                               scholar.status === 'rusticated' ? 'bg-red-100 text-red-800' :
                               scholar.status === 'on_leave' ? 'bg-yellow-100 text-yellow-800' :
-                              scholar.status === 'graduated' ? 'bg-blue-100 text-blue-800' :
+                              scholar.status === 'graduated' ? 'bg-purple-100 text-purple-800' :
                               'bg-gray-100 text-gray-800'
                             }`}>
                               {scholar.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {scholar.school?.name || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {scholar.supervisor?.name || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <td className="px-3 py-2 text-sm">
                             <ScholarActions scholar={scholar} onUpdate={fetchDashboardData} />
                           </td>
                         </tr>
@@ -1474,40 +1113,40 @@ const DeanAcademicsProfile = () => {
 
             {/* All Faculty Tab */}
             {activeTab === 'faculty' && (
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-hidden">
                 <div className="mb-4">
                   <input
                     type="text"
                     placeholder="Search by name, employee ID, or specialization..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">
+                  <table className="w-full divide-y divide-gray-200">
+                    <thead className="bg-purple-900">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Employee ID
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Name
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Designation
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           School
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Students
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Accepting
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-white uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
@@ -1515,22 +1154,22 @@ const DeanAcademicsProfile = () => {
                     <tbody className="bg-white divide-y divide-gray-200">
                       {filteredFaculty?.map((faculty) => (
                         <tr key={faculty.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-3 py-2 text-sm font-medium text-gray-900">
                             {faculty.employee_id}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-3 py-2 text-sm text-gray-900">
                             {faculty.user?.name || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {faculty.designation}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {faculty.school?.name || 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-3 py-2 text-sm text-gray-600">
                             {faculty.current_students} / {faculty.max_phd_scholars + faculty.max_msc_scholars}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 py-2">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               faculty.is_accepting_students
                                 ? 'bg-green-100 text-green-800'
@@ -1539,10 +1178,10 @@ const DeanAcademicsProfile = () => {
                               {faculty.is_accepting_students ? 'Yes' : 'No'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                          <td className="px-3 py-2 text-sm space-x-2">
                             <button
                               onClick={() => handleTransferFaculty(faculty)}
-                              className="text-blue-600 hover:text-blue-900 font-medium"
+                              className="text-purple-900 hover:text-purple-900 font-medium"
                             >
                               Transfer
                             </button>
@@ -1564,90 +1203,8 @@ const DeanAcademicsProfile = () => {
                 )}
               </div>
             )}
-
-            {/* Recruit Faculty Tab */}
-            {activeTab === 'recruit-faculty' && (
-              <RecruitFacultyForm
-                schools={dashboardData?.schools || []}
-                onSuccess={() => {
-                  fetchDashboardData();
-                  setActiveTab('faculty');
-                }}
-              />
-            )}
-
-            {/* Add School Tab */}
-            {activeTab === 'add-school' && (
-              <AddSchoolForm
-                onSuccess={() => {
-                  fetchDashboardData();
-                  setActiveTab('schools');
-                }}
-              />
-            )}
-
-            {/* Announcements Tab */}
-            {activeTab === 'announcements' && (
-              <AnnouncementsTab
-                announcements={announcements}
-                onRefresh={fetchDashboardData}
-              />
-            )}
           </div>
         </div>
-
-        {/* Approval Modal */}
-        {showApprovalModal && approvalAction && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-bold mb-4 text-gray-900">
-                {approvalAction.action === 'approve' ? 'Approve' : 'Reject'} {approvalAction.type.replace('_', ' ').toUpperCase()}
-              </h3>
-              <p className="text-sm text-gray-600 mb-4">
-                {approvalAction.action === 'approve'
-                  ? 'Are you sure you want to approve this item?'
-                  : 'Please provide a reason for rejection:'}
-              </p>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Comments {approvalAction.action === 'reject' ? '*' : '(Optional)'}
-                </label>
-                <textarea
-                  value={approvalComments}
-                  onChange={(e) => setApprovalComments(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows="4"
-                  required={approvalAction.action === 'reject'}
-                  placeholder={approvalAction.action === 'approve' ? 'Optional comments...' : 'Reason for rejection (required)'}
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  onClick={() => {
-                    setShowApprovalModal(false);
-                    setApprovalAction(null);
-                    setApprovalComments('');
-                  }}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                  disabled={approvalLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleApprovalSubmit}
-                  className={`px-4 py-2 text-white rounded ${
-                    approvalAction.action === 'approve'
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : 'bg-red-600 hover:bg-red-700'
-                  } disabled:opacity-50`}
-                  disabled={approvalLoading}
-                >
-                  {approvalLoading ? 'Processing...' : approvalAction.action === 'approve' ? 'Approve' : 'Reject'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Transfer Faculty Modal */}
         {showTransferModal && selectedFaculty && (
@@ -1673,7 +1230,7 @@ const DeanAcademicsProfile = () => {
                     <select
                       value={transferData.new_school_id}
                       onChange={(e) => setTransferData({ ...transferData, new_school_id: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                       required
                     >
                       <option value="">Select a school</option>
@@ -1698,7 +1255,7 @@ const DeanAcademicsProfile = () => {
                       value={transferData.specialization}
                       onChange={(e) => setTransferData({ ...transferData, specialization: e.target.value })}
                       placeholder="Update specialization (optional)"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
                 </div>
@@ -1982,7 +1539,7 @@ const RecruitFacultyForm = ({ schools, onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
           >
             {loading ? 'Recruiting...' : 'Recruit Faculty'}
           </button>
@@ -2147,325 +1704,9 @@ const AddSchoolForm = ({ onSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary"
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
           >
             {loading ? 'Creating...' : 'Create School'}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-// Announcements Tab Component
-const AnnouncementsTab = ({ announcements, onRefresh }) => {
-  const [showCreateForm, setShowCreateForm] = useState(false);
-
-  const handleDeleteAnnouncement = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this announcement?')) {
-      return;
-    }
-
-    try {
-      await deanAPI.deleteAnnouncement(id);
-      alert('Announcement deleted successfully');
-      onRefresh();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete announcement');
-    }
-  };
-
-  const handlePublishAnnouncement = async (id) => {
-    if (!window.confirm('Are you sure you want to publish this announcement now?')) {
-      return;
-    }
-
-    try {
-      await deanAPI.publishAnnouncement(id);
-      alert('Announcement published successfully');
-      onRefresh();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Failed to publish announcement');
-    }
-  };
-
-  const scheduledAnnouncements = announcements?.filter(a => !a.is_published) || [];
-  const publishedAnnouncements = announcements?.filter(a => a.is_published) || [];
-
-  return (
-    <div className="space-y-6">
-      {showCreateForm ? (
-        <CreateAnnouncementForm
-          onSuccess={() => {
-            setShowCreateForm(false);
-            onRefresh();
-          }}
-          onCancel={() => setShowCreateForm(false)}
-        />
-      ) : (
-        <>
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-800">Announcements</h2>
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="btn-primary"
-            >
-              Create New Announcement
-            </button>
-          </div>
-
-          {/* Scheduled Announcements */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Scheduled Announcements ({scheduledAnnouncements.length})
-            </h3>
-            {scheduledAnnouncements.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No scheduled announcements</p>
-            ) : (
-              <div className="space-y-3">
-                {scheduledAnnouncements.map(announcement => (
-                  <div key={announcement.id} className="bg-white p-4 rounded-lg shadow">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
-                        <p className="text-sm text-gray-600 mt-1">{announcement.message}</p>
-                        <div className="mt-2 flex flex-wrap gap-4 text-xs text-gray-500">
-                          <span>Scheduled: {new Date(announcement.scheduled_time).toLocaleString()}</span>
-                          <span>Target: {announcement.target_audience.join(', ')}</span>
-                          {announcement.attachment_filename && (
-                            <span>Attachment: {announcement.attachment_filename}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <button
-                          onClick={() => handlePublishAnnouncement(announcement.id)}
-                          className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
-                        >
-                          Publish Now
-                        </button>
-                        <button
-                          onClick={() => handleDeleteAnnouncement(announcement.id)}
-                          className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Published Announcements */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Published Announcements ({publishedAnnouncements.length})
-            </h3>
-            {publishedAnnouncements.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No published announcements</p>
-            ) : (
-              <div className="space-y-3">
-                {publishedAnnouncements.map(announcement => (
-                  <div key={announcement.id} className="bg-white p-4 rounded-lg shadow">
-                    <h4 className="font-semibold text-gray-900">{announcement.title}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{announcement.message}</p>
-                    <div className="mt-2 flex flex-wrap gap-4 text-xs text-gray-500">
-                      <span>Published: {new Date(announcement.published_at).toLocaleString()}</span>
-                      <span>Target: {announcement.target_audience.join(', ')}</span>
-                      {announcement.attachment_filename && (
-                        <span>Attachment: {announcement.attachment_filename}</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
-// Create Announcement Form Component
-const CreateAnnouncementForm = ({ onSuccess, onCancel }) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    message: '',
-    target_audience: [],
-    scheduled_time: '',
-    attachment: null
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      // Create FormData for multipart upload
-      const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('message', formData.message);
-      submitData.append('target_audience', JSON.stringify(formData.target_audience));
-      submitData.append('scheduled_time', formData.scheduled_time);
-
-      if (formData.attachment) {
-        submitData.append('attachment', formData.attachment);
-      }
-
-      await deanAPI.createAnnouncement(submitData);
-      alert('Announcement created successfully');
-      onSuccess();
-    } catch (err) {
-      setError(err.response?.data?.error || 'Failed to create announcement');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleTargetAudienceChange = (role) => {
-    setFormData(prev => {
-      const newAudience = prev.target_audience.includes(role)
-        ? prev.target_audience.filter(r => r !== role)
-        : [...prev.target_audience, role];
-      return { ...prev, target_audience: newAudience };
-    });
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, attachment: e.target.files[0] }));
-    }
-  };
-
-  return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Create Announcement</h2>
-        <button
-          onClick={onCancel}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800"
-        >
-          Cancel
-        </button>
-      </div>
-
-      {error && (
-        <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6 bg-gray-50 p-6 rounded-lg">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Title *
-          </label>
-          <input
-            type="text"
-            required
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-            className="input-field"
-            placeholder="Announcement title"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Message *
-          </label>
-          <textarea
-            required
-            value={formData.message}
-            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-            className="input-field"
-            rows="5"
-            placeholder="Announcement message"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Target Audience *
-          </label>
-          <div className="space-y-2">
-            {['all', 'scholar', 'supervisor', 'school_chair', 'ad_research'].map(role => (
-              <label key={role} className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.target_audience.includes(role)}
-                  onChange={() => handleTargetAudienceChange(role)}
-                  className="mr-2"
-                />
-                <span className="text-sm capitalize">
-                  {role === 'all' ? 'All Users' :
-                   role === 'ad_research' ? 'Research Office' :
-                   role.replace('_', ' ')}
-                </span>
-              </label>
-            ))}
-          </div>
-          {formData.target_audience.length === 0 && (
-            <p className="text-sm text-red-600 mt-1">Please select at least one target audience</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Scheduled Time *
-          </label>
-          <input
-            type="datetime-local"
-            required
-            value={formData.scheduled_time}
-            onChange={(e) => setFormData(prev => ({ ...prev, scheduled_time: e.target.value }))}
-            className="input-field"
-          />
-          <p className="mt-1 text-sm text-gray-500">
-            When should this announcement be published?
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Attachment (Optional)
-          </label>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="input-field"
-            accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-          />
-          {formData.attachment && (
-            <p className="mt-2 text-sm text-gray-600">
-              Selected: {formData.attachment.name}
-            </p>
-          )}
-          <p className="mt-1 text-sm text-gray-500">
-            Allowed: PDF, DOC, DOCX, TXT, JPG, PNG (Max 10MB)
-          </p>
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={loading || formData.target_audience.length === 0}
-            className="btn-primary"
-          >
-            {loading ? 'Creating...' : 'Create Announcement'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="btn-secondary"
-          >
-            Cancel
           </button>
         </div>
       </form>
