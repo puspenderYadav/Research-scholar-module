@@ -78,40 +78,51 @@ const Dashboard = () => {
 
     if (user.role === 'scholar') {
       stats.push(
-        { icon: '🎓', label: 'Program', value: dashboardData.scholar.program, color: 'blue' },
-        { icon: '📝', label: 'Exams', value: dashboardData.stats.exams_count, color: 'green' },
-        { icon: '🎤', label: 'Seminars', value: dashboardData.stats.seminars_count, color: 'purple' },
-        { icon: '✈️', label: 'Travel Grants', value: dashboardData.stats.travel_grants_count, color: 'yellow' }
+        { label: 'Program', value: dashboardData.scholar.program },
+        { label: 'Exams', value: dashboardData.stats.exams_count },
+        { label: 'Seminars', value: dashboardData.stats.seminars_count },
+        { label: 'Travel Grants', value: dashboardData.stats.travel_grants_count }
       );
     } else if (user.role === 'supervisor') {
       stats.push(
-        { icon: '👥', label: 'Scholars', value: dashboardData.stats.total_scholars, color: 'blue' },
-        { icon: '📄', label: 'Pending Synopsis', value: dashboardData.stats.pending_synopsis_reviews, color: 'yellow' },
-        { icon: '📊', label: 'Pending Progress', value: dashboardData.stats.pending_progress_reviews, color: 'red' },
-        { icon: '✅', label: 'Status', value: 'Active', color: 'green' }
+        { label: 'Scholars', value: dashboardData.stats.total_scholars },
+        { label: 'Pending Synopsis', value: dashboardData.stats.pending_synopsis_reviews },
+        { label: 'Pending Progress', value: dashboardData.stats.pending_progress_reviews },
+        { label: 'Status', value: 'Active' }
       );
     } else {
       stats.push(
-        { icon: '🎓', label: 'Total Scholars', value: dashboardData.stats.total_scholars, color: 'blue' },
-        { icon: '👨‍🏫', label: 'Supervisors', value: dashboardData.stats.total_supervisors, color: 'green' },
-        { icon: '📈', label: 'PhD Students', value: dashboardData.stats.scholars_by_program?.PhD || 0, color: 'purple' },
-        { icon: '🎓', label: 'MSc Students', value: dashboardData.stats.scholars_by_program?.MSc || 0, color: 'yellow' }
+        { label: 'Total Scholars', value: dashboardData.stats.total_scholars },
+        { label: 'Supervisors', value: dashboardData.stats.total_supervisors },
+        { label: 'PhD Students', value: dashboardData.stats.scholars_by_program?.PhD || 0 },
+        { label: 'MSc Students', value: dashboardData.stats.scholars_by_program?.MSc || 0 }
       );
     }
 
-    return stats.map((stat, index) => (
-      <div key={index} className="card">
-        <div className="flex items-center">
-          <div className={`flex-shrink-0 bg-${stat.color}-100 rounded-md p-3`}>
-            <span className="text-2xl">{stat.icon}</span>
-          </div>
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-            <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
-          </div>
-        </div>
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-purple-100">
+              {stats.map((stat, index) => (
+                <th key={index} className={`px-6 py-3 text-left text-sm font-semibold text-purple-900 ${index !== stats.length - 1 ? 'border-r border-purple-200' : ''}`}>
+                  {stat.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {stats.map((stat, index) => (
+                <td key={index} className={`px-6 py-4 text-lg font-bold text-gray-900 border-t border-gray-200 ${index !== stats.length - 1 ? 'border-r border-gray-200' : ''}`}>
+                  {stat.value}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
       </div>
-    ));
+    );
   };
 
   if (loading) {
@@ -126,115 +137,109 @@ const Dashboard = () => {
 
   return (
     <Layout>
+      {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-iit-darkblue">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome back, <span className="font-semibold text-iit-blue">{user.name}</span>! Here's an overview of your activities.</p>
+        <h1 className="text-2xl font-bold text-purple-900">Dashboard</h1>
+        <p className="text-gray-600 mt-1">
+          Welcome back, <span className="font-semibold">{user.name}</span>! Here's an overview of your activities.
+        </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Table */}
+      <div className="mb-8">
         {renderStats()}
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Quick Actions */}
-        <div className="card">
-          <h2 className="text-xl font-semibold text-iit-darkblue mb-4 flex items-center border-b pb-3">
-            <span className="mr-2">⚡</span>
-            Quick Actions
-          </h2>
-          <div className="space-y-3">
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="px-6 py-3 bg-purple-100">
+            <h2 className="text-sm font-semibold text-purple-900">Quick Actions</h2>
+          </div>
+          <div className="p-4">
             {user.role === 'scholar' && (
-              <>
-                <a href="/meetings" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">🤝</span>
-                  <span className="text-gray-700 font-medium">View Meetings</span>
+              <div className="space-y-1">
+                <a href="/meetings" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  View Meetings
                 </a>
-                <a href="/synopsis" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📄</span>
-                  <span className="text-gray-700 font-medium">Submit Synopsis</span>
+                <a href="/synopsis" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Submit Synopsis
                 </a>
-                <a href="/progress-reports" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📊</span>
-                  <span className="text-gray-700 font-medium">Submit Progress Report</span>
+                <a href="/progress-reports" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Submit Progress Report
                 </a>
-                <a href="/travel-grants" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">✈️</span>
-                  <span className="text-gray-700 font-medium">Apply for Travel Grant</span>
+                <a href="/travel-grants" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Apply for Travel Grant
                 </a>
-              </>
+              </div>
             )}
             {user.role === 'supervisor' && (
-              <>
-                <a href="/meetings" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">🤝</span>
-                  <span className="text-gray-700 font-medium">Organize Meeting</span>
+              <div className="space-y-1">
+                <a href="/meetings" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Organize Meeting
                 </a>
-                <a href="/synopsis" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">✅</span>
-                  <span className="text-gray-700 font-medium">Review Submissions</span>
+                <a href="/synopsis" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Review Submissions
                 </a>
-                <a href="/exams" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📝</span>
-                  <span className="text-gray-700 font-medium">Schedule Exam</span>
+                <a href="/exams" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Schedule Exam
                 </a>
-                <a href="/seminars" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">🎤</span>
-                  <span className="text-gray-700 font-medium">Schedule Seminar</span>
+                <a href="/seminars" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Schedule Seminar
                 </a>
-              </>
+              </div>
             )}
             {user.role === 'dean_academics' && (
-              <>
-                <a href="/bulk-scholar-upload" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📤</span>
-                  <span className="text-gray-700 font-medium">Bulk Upload Scholars</span>
+              <div className="space-y-1">
+                <a href="/bulk-scholar-upload" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Bulk Upload Scholars
                 </a>
-                <a href="/dean-academics-profile" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📊</span>
-                  <span className="text-gray-700 font-medium">Dean Dashboard</span>
+                <a href="/dean-academics-profile" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Dean Dashboard
                 </a>
-                <a href="/calendar" className="block w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-iit-lightblue hover:border-iit-blue transition">
-                  <span className="text-iit-blue mr-3">📅</span>
-                  <span className="text-gray-700 font-medium">View Calendar</span>
+                <a href="/calendar" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  View Calendar
                 </a>
-              </>
+              </div>
             )}
           </div>
         </div>
 
         {/* Upcoming Events */}
-        <div className="lg:col-span-2 card">
-          <h2 className="text-xl font-semibold text-iit-darkblue mb-4 flex items-center border-b pb-3">
-            <span className="mr-2">📅</span>
-            Upcoming Events
-          </h2>
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <div className="px-6 py-3 bg-purple-100">
+            <h2 className="text-sm font-semibold text-purple-900">Upcoming Events</h2>
+          </div>
           {upcomingEvents.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-iit-lightblue">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase tracking-wider">Event</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase tracking-wider">Status</th>
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-purple-900">
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Event</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Type</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="divide-y divide-gray-200">
                   {upcomingEvents.map((event, index) => (
-                    <tr key={index} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{event.title}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm text-gray-900">{event.title}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
                         {event.showTime
                           ? format(new Date(event.start), 'MMM dd, yyyy hh:mm a')
                           : format(new Date(event.start), 'MMM dd, yyyy')}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-iit-lightblue text-iit-blue">{event.type}</span>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 text-xs font-medium text-purple-900 bg-purple-100 rounded">
+                          {event.type}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{event.status}</span>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded">
+                          {event.status}
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -242,7 +247,9 @@ const Dashboard = () => {
               </table>
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">No upcoming events</p>
+            <div className="p-8 text-center text-gray-500">
+              No upcoming events
+            </div>
           )}
         </div>
       </div>

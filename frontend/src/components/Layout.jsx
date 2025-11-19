@@ -33,27 +33,27 @@ const Layout = ({ children }) => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: '🏠', roles: ['all'] },
-    { name: 'Profile', path: '/profile', icon: '👤', roles: ['scholar'] },
-    { name: 'Faculty Profile', path: '/faculty-profile', icon: '👨‍🏫', roles: ['supervisor', 'faculty'] },
-    { name: 'School Chair Profile', path: '/school-chair-profile', icon: '🏫', roles: ['school_chair'] },
-    { name: 'AD Research', path: '/research-office-profile', icon: '📋', roles: ['ad_research'] },
-    { name: 'Analytics', path: '/dean-academics-profile', icon: '👔', roles: ['dean_academics'] },
-    { name: 'Recruit Faculty', path: '/recruit-faculty', icon: '➕', roles: ['dean_academics'] },
-    { name: 'Add School', path: '/add-school', icon: '🏛️', roles: ['dean_academics'] },
-    { name: 'Announcements', path: '/announcements', icon: '📢', roles: ['dean_academics', 'ad_research'] },
-    { name: 'My Committee Scholars', path: '/my-committee-scholars', icon: '👥', roles: ['supervisor'] },
-    { name: 'Comprehensive Exams', path: '/comprehensive-exams', icon: '📋', roles: ['scholar'] },
-    { name: 'Seminars', path: '/seminars', icon: '🎤', roles: ['scholar', 'supervisor'] },
-    { name: 'Synopsis', path: '/synopsis', icon: '📄', roles: ['scholar', 'supervisor'] },
-    { name: 'Progress Reports', path: '/progress-reports', icon: '📊', roles: ['scholar', 'supervisor'] },
-    { name: 'Thesis', path: '/thesis', icon: '📚', roles: ['scholar', 'supervisor'] },
-    { name: 'Leave Applications', path: '/leave-applications', icon: '🏖️', roles: ['scholar'] },
-    { name: 'Leave Approvals', path: '/leave-approvals', icon: '✅', roles: ['supervisor', 'school_chair'] },
-    { name: 'Meetings', path: '/meetings', icon: '🤝', roles: ['supervisor', 'scholar'] },
-    { name: 'Travel Grants', path: '/travel-grants', icon: '✈️', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research', 'dean_academics'] },
-    { name: 'Approvals', path: '/approvals', icon: '✓', roles: ['supervisor', 'school_chair', 'ad_research', 'dean_academics'] },
-    { name: 'Calendar', path: '/calendar', icon: '📅', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
+    { name: 'Dashboard', path: '/dashboard', icon: '👤', roles: ['all'] },
+    { name: 'Profile', path: '/profile', icon: '●', roles: ['scholar'] },
+    { name: 'Faculty Profile', path: '/faculty-profile', icon: '●', roles: ['supervisor', 'faculty'] },
+    { name: 'School Chair Profile', path: '/school-chair-profile', icon: '●', roles: ['school_chair'] },
+    { name: 'AD Research', path: '/research-office-profile', icon: '●', roles: ['ad_research'] },
+    { name: 'Analytics', path: '/dean-academics-profile', icon: '▥', roles: ['dean_academics'] },
+    { name: 'Recruit Faculty', path: '/recruit-faculty', icon: '✚', roles: ['dean_academics'] },
+    { name: 'Add School', path: '/add-school', icon: '✚', roles: ['dean_academics'] },
+    { name: 'Announcements', path: '/announcements', icon: '⚑', roles: ['dean_academics', 'ad_research'] },
+    { name: 'My Committee Scholars', path: '/my-committee-scholars', icon: '●', roles: ['supervisor'] },
+    { name: 'Comprehensive Exams', path: '/comprehensive-exams', icon: '■', roles: ['scholar'] },
+    { name: 'Seminars', path: '/seminars', icon: '●', roles: ['scholar', 'supervisor'] },
+    { name: 'Synopsis', path: '/synopsis', icon: '■', roles: ['scholar', 'supervisor'] },
+    { name: 'Progress Reports', path: '/progress-reports', icon: '■', roles: ['scholar', 'supervisor'] },
+    { name: 'Thesis', path: '/thesis', icon: '■', roles: ['scholar', 'supervisor'] },
+    { name: 'Leave Applications', path: '/leave-applications', icon: '■', roles: ['scholar'] },
+    { name: 'Leave Approvals', path: '/leave-approvals', icon: '✔', roles: ['supervisor', 'school_chair'] },
+    { name: 'Meetings', path: '/meetings', icon: '●', roles: ['supervisor', 'scholar'] },
+    { name: 'Travel Grants', path: '/travel-grants', icon: '✈', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research', 'dean_academics'] },
+    { name: 'Approvals', path: '/approvals', icon: '✔', roles: ['supervisor', 'school_chair', 'ad_research', 'dean_academics'] },
+    { name: 'Calendar', path: '/calendar', icon: '■', roles: ['scholar', 'supervisor', 'school_chair', 'ad_research'] },
   ];
 
   const filteredNavItems = navItems.filter(item =>
@@ -63,16 +63,16 @@ const Layout = ({ children }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
-      <nav className="bg-gradient-to-r from-iit-blue to-iit-darkblue text-white shadow-lg">
+      <nav className="bg-purple-900 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/dashboard" className="flex items-center space-x-3">
                 <div className="font-bold">
                   <div className="text-xl">IIT Mandi</div>
-                  <div className="text-xs text-iit-lightblue">Research Scholars Portal</div>
+                  <div className="text-sm text-purple-200">Research Scholars Portal</div>
                 </div>
               </Link>
             </div>
@@ -107,7 +107,7 @@ const Layout = ({ children }) => {
                     {!['dean_academics', 'ad_research'].includes(user?.role) && (
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-purple-900 hover:bg-purple-50"
                         onClick={() => setShowUserMenu(false)}
                       >
                         My Profile
@@ -118,13 +118,13 @@ const Layout = ({ children }) => {
                         setShowChangePassword(true);
                         setShowUserMenu(false);
                       }}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-purple-900 hover:bg-purple-50"
                     >
                       Change Password
                     </button>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-purple-900 hover:bg-purple-50"
                     >
                       Logout
                     </button>
@@ -138,18 +138,20 @@ const Layout = ({ children }) => {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-md min-h-screen border-r border-gray-200">
+        <aside className="w-64 bg-white min-h-screen">
           <nav className="mt-5">
             {filteredNavItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center px-6 py-3 text-gray-700 hover:bg-iit-lightblue hover:text-iit-blue transition ${
-                  isActive(item.path) ? 'bg-iit-lightblue text-iit-blue border-r-4 border-iit-blue font-semibold' : ''
+                className={`flex items-center px-6 py-3 text-purple-900 hover:bg-purple-50 transition ${
+                  isActive(item.path) ? 'bg-purple-100 font-semibold' : ''
                 }`}
               >
-                <span className="mr-3 text-xl">{item.icon}</span>
-                <span>{item.name}</span>
+                <span className="w-6 mr-3 text-purple-900 text-xl text-center">
+                  {item.icon}
+                </span>
+                {item.name}
               </Link>
             ))}
           </nav>
@@ -162,9 +164,9 @@ const Layout = ({ children }) => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white mt-12">
+      <footer className="bg-purple-900 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <p>&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
+          <p className="text-white">&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
         </div>
       </footer>
 

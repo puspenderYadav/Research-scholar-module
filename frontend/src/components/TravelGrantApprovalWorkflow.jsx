@@ -90,9 +90,9 @@ const TravelGrantApprovalWorkflow = () => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold">Pending Travel Grant Approvals</h2>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="px-6 py-3 bg-purple-100">
+          <h2 className="text-sm font-semibold text-purple-900">Pending Travel Grant Approvals</h2>
         </div>
 
         {pendingGrants.length === 0 ? (

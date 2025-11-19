@@ -90,17 +90,20 @@ const Announcements = () => {
               </div>
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="btn-primary"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition"
               >
                 Create New Announcement
               </button>
             </div>
 
             {/* Scheduled Announcements */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                Scheduled Announcements ({scheduledAnnouncements.length})
-              </h3>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <div className="px-6 py-3 bg-purple-100">
+                <h3 className="text-sm font-semibold text-purple-900">
+                  Scheduled Announcements ({scheduledAnnouncements.length})
+                </h3>
+              </div>
+              <div className="p-4">
               {scheduledAnnouncements.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">No scheduled announcements</p>
               ) : (
@@ -151,13 +154,17 @@ const Announcements = () => {
                   ))}
                 </div>
               )}
+              </div>
             </div>
 
             {/* Published Announcements */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                Published Announcements ({publishedAnnouncements.length})
-              </h3>
+            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+              <div className="px-6 py-3 bg-purple-100">
+                <h3 className="text-sm font-semibold text-purple-900">
+                  Published Announcements ({publishedAnnouncements.length})
+                </h3>
+              </div>
+              <div className="p-4">
               {publishedAnnouncements.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">No published announcements</p>
               ) : (
@@ -190,6 +197,7 @@ const Announcements = () => {
                   ))}
                 </div>
               )}
+              </div>
             </div>
           </>
         )}

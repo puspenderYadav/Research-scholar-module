@@ -74,7 +74,7 @@ const TravelGrants = () => {
               <div className="mb-6">
                 <button
                   onClick={() => setShowApplicationForm(true)}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+                  className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 flex items-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -88,9 +88,9 @@ const TravelGrants = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : (
-                <div className="bg-white rounded-lg shadow">
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <h2 className="text-xl font-semibold">My Applications</h2>
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="px-6 py-3 bg-purple-100">
+                    <h2 className="text-sm font-semibold text-purple-900">My Applications</h2>
                   </div>
 
                   {myGrants.length === 0 ? (
@@ -184,7 +184,7 @@ const TravelGrants = () => {
                 onClick={() => setActiveTab('my-applications')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'my-applications'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-purple-900 text-purple-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -194,7 +194,7 @@ const TravelGrants = () => {
                 onClick={() => setActiveTab('pending-approvals')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'pending-approvals'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-purple-900 text-purple-900'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -210,7 +210,7 @@ const TravelGrants = () => {
                   <div className="mb-6">
                     <button
                       onClick={() => setShowApplicationForm(true)}
-                      className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center space-x-2"
+                      className="bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 flex items-center space-x-2"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -219,9 +219,9 @@ const TravelGrants = () => {
                     </button>
                   </div>
 
-                  <div className="bg-white rounded-lg shadow">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                      <h2 className="text-xl font-semibold">My Applications</h2>
+                  <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="px-6 py-3 bg-purple-100">
+                      <h2 className="text-sm font-semibold text-purple-900">My Applications</h2>
                     </div>
                     <div className="px-6 py-8 text-center text-gray-500">
                       <p>Your travel grant applications will appear here</p>
