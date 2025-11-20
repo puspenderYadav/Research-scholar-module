@@ -63,7 +63,7 @@ const Layout = ({ children }) => {
     { name: 'Add School', path: '/add-school', icon: 'add', roles: ['dean_academics'] },
     { name: 'Announcements', path: '/announcements', icon: 'announcement', roles: ['dean_academics', 'ad_research'] },
     { name: 'My Committee Scholars', path: '/my-committee-scholars', icon: 'committee', roles: ['supervisor'] },
-    { name: 'Comprehensive Exams', path: '/comprehensive-exams', icon: 'exam', roles: ['scholar'] },
+    { name: 'Comprehensive Exams', path: '/comprehensive-exams', icon: 'exam', roles: ['scholar', 'school_chair'] },
     { name: 'Seminars', path: '/seminars', icon: 'seminar', roles: ['scholar', 'supervisor'] },
     { name: 'Synopsis', path: '/synopsis', icon: 'document', roles: ['scholar', 'supervisor'] },
     { name: 'Progress Reports', path: '/progress-reports', icon: 'document', roles: ['scholar', 'supervisor'] },

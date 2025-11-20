@@ -3,6 +3,8 @@ import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { schoolAPI } from '../services/api';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const SchoolChairProfile = () => {
   const { user } = useAuth();
   const [schoolData, setSchoolData] = useState(null);
@@ -23,6 +25,25 @@ const SchoolChairProfile = () => {
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsTimeRange, setAnalyticsTimeRange] = useState('month');
 
+  // Comprehensive exams state
+  const [comprehensiveExams, setComprehensiveExams] = useState([]);
+  const [examLoading, setExamLoading] = useState(false);
+  const [examSuccess, setExamSuccess] = useState('');
+  const [examError, setExamError] = useState('');
+  const [showExamForm, setShowExamForm] = useState(false);
+  const [examFormData, setExamFormData] = useState({
+    title: '',
+    description: '',
+    exam_date: '',
+    exam_time: '',
+    duration_minutes: 180,
+    venue: '',
+    program: '',
+    admission_year: '',
+    instructions: '',
+    syllabus: ''
+  });
+
   useEffect(() => {
     loadSchoolData();
   }, []);
@@ -32,6 +53,8 @@ const SchoolChairProfile = () => {
       loadPendingApprovals();
     } else if (activeTab === 'analytics') {
       loadAnalytics();
+      } else if (activeTab === 'comprehensive') {
+        loadComprehensiveExams();
     }
   }, [activeTab, analyticsTimeRange]);
 
@@ -52,7 +75,7 @@ const SchoolChairProfile = () => {
     try {
       setApprovalsLoading(true);
       const token = localStorage.getItem('access_token');
-      const response = await fetch('http://localhost:5000/api/school-chair/pending-approvals', {
+      const response = await fetch(`${API_BASE_URL}/school-chair/pending-approvals`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -70,7 +93,7 @@ const SchoolChairProfile = () => {
     try {
       setAnalyticsLoading(true);
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`http://localhost:5000/api/school-chair/analytics?range=${analyticsTimeRange}`, {
+      const response = await fetch(`${API_BASE_URL}/school-chair/analytics?range=${analyticsTimeRange}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -81,6 +104,88 @@ const SchoolChairProfile = () => {
       console.error('Error loading analytics:', error);
     } finally {
       setAnalyticsLoading(false);
+    }
+  };
+
+  const loadComprehensiveExams = async () => {
+    try {
+      setExamLoading(true);
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`${API_BASE_URL}/comprehensive-exams`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to load exams');
+      }
+
+      const data = await response.json();
+      setComprehensiveExams(data);
+    } catch (err) {
+      console.error('Error loading comprehensive exams:', err);
+      setExamError(err.message || 'Failed to load comprehensive exams');
+    } finally {
+      setExamLoading(false);
+    }
+  };
+
+  const handleExamFieldChange = (e) => {
+    const { name, value } = e.target;
+    setExamFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const resetExamForm = () => {
+    setExamFormData({
+      title: '',
+      description: '',
+      exam_date: '',
+      exam_time: '',
+      duration_minutes: 180,
+      venue: '',
+      program: '',
+      admission_year: '',
+      instructions: '',
+      syllabus: ''
+    });
+  };
+
+  const handleExamSubmit = async (e) => {
+    e.preventDefault();
+    setExamError('');
+    setExamSuccess('');
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const payload = { ...examFormData };
+
+      if (!payload.program) delete payload.program;
+      if (!payload.admission_year) delete payload.admission_year;
+
+      const response = await fetch(`${API_BASE_URL}/comprehensive-exams`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Failed to schedule exam');
+      }
+
+      const data = await response.json();
+      setExamSuccess(data.message || 'Exam scheduled successfully');
+      setShowExamForm(false);
+      resetExamForm();
+      loadComprehensiveExams();
+    } catch (err) {
+      console.error('Error scheduling exam:', err);
+      setExamError(err.message || 'Failed to schedule exam');
     }
   };
 
@@ -218,6 +323,16 @@ const SchoolChairProfile = () => {
               }`}
             >
               Approvals
+            </button>
+            <button
+              onClick={() => setActiveTab('comprehensive')}
+              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
+                activeTab === 'comprehensive'
+                  ? 'border-purple-600'
+                  : 'border-transparent hover:text-purple-900'
+              }`}
+            >
+              Comprehensive Exams
             </button>
             <button
               onClick={() => setActiveTab('faculty')}
@@ -432,6 +547,234 @@ const SchoolChairProfile = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Comprehensive Exams Tab */}
+          {activeTab === 'comprehensive' && (
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-purple-900">Comprehensive Exams</h3>
+                  <p className="text-sm text-gray-600">Schedule exams and notify every scholar in your school instantly.</p>
+                </div>
+                {!showExamForm && (
+                  <button
+                    onClick={() => { setShowExamForm(true); setExamSuccess(''); setExamError(''); }}
+                    className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 font-medium"
+                  >
+                    + Schedule Exam
+                  </button>
+                )}
+              </div>
+
+              {examSuccess && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                  {examSuccess}
+                </div>
+              )}
+
+              {examError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  {examError}
+                </div>
+              )}
+
+              {showExamForm && (
+                <div className="bg-white border border-purple-200 rounded-lg p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-md font-semibold text-purple-900">Schedule Comprehensive Exam</h4>
+                    <button
+                      onClick={() => { setShowExamForm(false); resetExamForm(); }}
+                      className="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  <form onSubmit={handleExamSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                        <input
+                          type="text"
+                          name="title"
+                          value={examFormData.title}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                          required
+                          placeholder="e.g., Comprehensive Exam - Spring 2026"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          name="description"
+                          value={examFormData.description}
+                          onChange={handleExamFieldChange}
+                          rows="2"
+                          className="input-field"
+                          placeholder="Brief summary for scholars"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Exam Date *</label>
+                        <input
+                          type="date"
+                          name="exam_date"
+                          value={examFormData.exam_date}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Exam Time *</label>
+                        <input
+                          type="time"
+                          name="exam_time"
+                          value={examFormData.exam_time}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Duration (minutes) *</label>
+                        <input
+                          type="number"
+                          name="duration_minutes"
+                          value={examFormData.duration_minutes}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                          required
+                          min="30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Venue *</label>
+                        <input
+                          type="text"
+                          name="venue"
+                          value={examFormData.venue}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                          required
+                          placeholder="Main Auditorium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Program Filter</label>
+                        <select
+                          name="program"
+                          value={examFormData.program}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                        >
+                          <option value="">All Programs</option>
+                          <option value="PhD">PhD</option>
+                          <option value="MSc">MSc</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Admission Year Filter</label>
+                        <input
+                          type="number"
+                          name="admission_year"
+                          value={examFormData.admission_year}
+                          onChange={handleExamFieldChange}
+                          className="input-field"
+                          placeholder="e.g., 2024"
+                          min="2000"
+                          max={new Date().getFullYear()}
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Instructions</label>
+                        <textarea
+                          name="instructions"
+                          value={examFormData.instructions}
+                          onChange={handleExamFieldChange}
+                          rows="3"
+                          className="input-field"
+                          placeholder="Important notes for scholars"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Syllabus</label>
+                        <textarea
+                          name="syllabus"
+                          value={examFormData.syllabus}
+                          onChange={handleExamFieldChange}
+                          rows="3"
+                          className="input-field"
+                          placeholder="Outline of topics"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <button type="submit" className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                        Schedule & Notify
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setShowExamForm(false); resetExamForm(); }}
+                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <div className="px-6 py-3 bg-purple-100">
+                  <h4 className="text-sm font-semibold text-purple-900">Scheduled Exams</h4>
+                </div>
+                {examLoading ? (
+                  <div className="p-8 text-center text-gray-500">Loading exams...</div>
+                ) : comprehensiveExams.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">No exams scheduled yet</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                      <thead className="bg-purple-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Venue</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Students</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {comprehensiveExams.map(exam => (
+                          <tr key={exam.id}>
+                            <td className="px-6 py-4">
+                              <div className="text-sm font-medium text-gray-900">{exam.title}</div>
+                              <div className="text-xs text-gray-500">{exam.program || 'All Programs'}</div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {exam.exam_date ? new Date(exam.exam_date).toLocaleDateString() : '—'}<br />
+                              <span className="text-xs text-gray-500">{exam.exam_time?.slice(0,5)}</span>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{exam.venue}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{exam.registered_count}</td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                exam.status === 'scheduled' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-700'
+                              }`}>
+                                {exam.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { scholarAPI } from '../services/api';
-import SynopsisUploadTracker from '../components/SynopsisUploadTracker';
 
 const ScholarProfile = () => {
   const { user } = useAuth();
@@ -509,10 +508,6 @@ const ScholarProfile = () => {
         </div>
       </div>
 
-      {/* Synopsis Upload and Tracking Section */}
-      <div className="mt-6">
-        <SynopsisUploadTracker scholarId={profile.id} />
-      </div>
     </Layout>
   );
 };

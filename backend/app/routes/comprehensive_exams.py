@@ -27,9 +27,15 @@ def create_exam():
             return jsonify({'error': f'{field} is required'}), 400
 
     try:
+        chair_school = School.query.filter_by(chair_id=current_user.id, is_deleted=False).first()
+        if not chair_school:
+            return jsonify({'error': 'School chair is not assigned to any school'}), 400
+
         # Parse date and time
         exam_date = datetime.strptime(data['exam_date'], '%Y-%m-%d').date()
         exam_time = datetime.strptime(data['exam_time'], '%H:%M').time()
+
+        targeted_school_id = chair_school.id
 
         # Create exam
         exam = ComprehensiveExam(
@@ -40,7 +46,7 @@ def create_exam():
             duration_minutes=int(data['duration_minutes']),
             venue=data['venue'],
             program=data.get('program'),  # PhD, MSc, or None for all
-            school_id=data.get('school_id'),  # Specific school or None for all
+            school_id=targeted_school_id,
             admission_year=data.get('admission_year'),  # Specific year or None for all
             instructions=data.get('instructions'),
             syllabus=data.get('syllabus'),
@@ -57,8 +63,7 @@ def create_exam():
         if exam.program:
             query = query.filter_by(program=exam.program)
 
-        if exam.school_id:
-            query = query.filter_by(school_id=exam.school_id)
+        query = query.filter_by(school_id=targeted_school_id)
 
         if exam.admission_year:
             query = query.filter(
@@ -101,7 +106,10 @@ def create_exam():
         ad_research_users = User.query.filter_by(role='ad_research').all()
         dean_users = User.query.filter_by(role='dean_academics').all()
 
-        notification_message = f"New comprehensive exam '{exam.title}' has been scheduled by {current_user.name} on {exam.exam_date.strftime('%B %d, %Y')} at {exam.exam_time.strftime('%I:%M %p')}. Venue: {exam.venue}. {notification_count} students have been notified."
+        notification_message = (
+            f"New comprehensive exam '{exam.title}' for {chair_school.name} has been scheduled by {current_user.name} on "
+            f"{exam.exam_date.strftime('%B %d, %Y')} at {exam.exam_time.strftime('%I:%M %p')}. Venue: {exam.venue}. {notification_count} students have been notified."
+        )
 
         for ad_user in ad_research_users:
             NotificationService.create_notification(
@@ -168,12 +176,18 @@ def get_exams():
 
         return jsonify(exams), 200
     else:
-        # Admin users see all exams
+        # Admin users see all exams; school chairs only see their school
         status = request.args.get('status')
         query = ComprehensiveExam.query
 
         if status:
             query = query.filter_by(status=status)
+
+        if current_user.role == 'school_chair':
+            chair_school = School.query.filter_by(chair_id=current_user.id, is_deleted=False).first()
+            if not chair_school:
+                return jsonify({'error': 'School chair is not assigned to any school'}), 400
+            query = query.filter(ComprehensiveExam.school_id == chair_school.id)
 
         exams = query.order_by(ComprehensiveExam.exam_date.desc()).all()
         return jsonify([exam.to_dict() for exam in exams]), 200
