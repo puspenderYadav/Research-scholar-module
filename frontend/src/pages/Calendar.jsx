@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Layout from '../components/Layout';
 
 const Calendar = () => {
@@ -9,6 +9,7 @@ const Calendar = () => {
   const [viewMode, setViewMode] = useState('month'); // month, week, list
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [typeFilter, setTypeFilter] = useState('all');
 
   useEffect(() => {
     fetchEvents();
@@ -34,16 +35,24 @@ const Calendar = () => {
       if (response.ok) {
         const data = await response.json();
         setEvents(data);
+        setError(null);
       } else {
         throw new Error('Failed to fetch calendar events');
       }
 
-      setLoading(false);
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
+
+  const visibleEvents = useMemo(() => {
+    if (typeFilter === 'all') {
+      return events;
+    }
+    return events.filter(event => event.type === typeFilter);
+  }, [events, typeFilter]);
 
   const getAuthToken = () => {
     return localStorage.getItem('access_token');
@@ -103,7 +112,7 @@ const Calendar = () => {
   const getEventsForDate = (date) => {
     if (!date) return [];
 
-    return events.filter(event => {
+    return visibleEvents.filter(event => {
       const eventDate = new Date(event.start);
       return eventDate.toDateString() === date.toDateString();
     });
@@ -267,7 +276,7 @@ const Calendar = () => {
   const renderListView = () => {
     // Group events by date
     const eventsByDate = {};
-    events.forEach(event => {
+    visibleEvents.forEach(event => {
       const date = new Date(event.start).toDateString();
       if (!eventsByDate[date]) {
         eventsByDate[date] = [];
@@ -312,6 +321,11 @@ const Calendar = () => {
                             <div className="text-sm mt-1 opacity-75">
                               Type: {getEventTypeLabel(event.type)}
                             </div>
+                            {event.scholar?.name && (
+                              <div className="text-sm mt-1 opacity-75">
+                                Scholar: {event.scholar.name}
+                              </div>
+                            )}
                             {event.venue && (
                               <div className="text-sm mt-1 opacity-75">
                                 Venue: {event.venue}
@@ -436,21 +450,49 @@ const Calendar = () => {
 
         {/* Event Type Legend */}
         <div className="mt-4 pt-4 border-t flex flex-wrap gap-3">
+          <button
+            onClick={() => setTypeFilter('all')}
+            className={`px-3 py-1 rounded text-sm border ${
+              typeFilter === 'all' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-700'
+            }`}
+          >
+            All
+          </button>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-red-100 border border-red-300"></div>
-            <span className="text-sm text-gray-700">Exam</span>
+            <button
+              onClick={() => setTypeFilter(typeFilter === 'exam' ? 'all' : 'exam')}
+              className={`text-sm ${typeFilter === 'exam' ? 'text-red-700 font-semibold' : 'text-gray-700'}`}
+            >
+              Exam
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-blue-100 border border-blue-300"></div>
-            <span className="text-sm text-gray-700">Seminar</span>
+            <button
+              onClick={() => setTypeFilter(typeFilter === 'seminar' ? 'all' : 'seminar')}
+              className={`text-sm ${typeFilter === 'seminar' ? 'text-blue-700 font-semibold' : 'text-gray-700'}`}
+            >
+              Seminar
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-purple-100 border border-purple-300"></div>
-            <span className="text-sm text-gray-700">Thesis Defense</span>
+            <button
+              onClick={() => setTypeFilter(typeFilter === 'thesis_defense' ? 'all' : 'thesis_defense')}
+              className={`text-sm ${typeFilter === 'thesis_defense' ? 'text-purple-700 font-semibold' : 'text-gray-700'}`}
+            >
+              Thesis Defense
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-green-100 border border-green-300"></div>
-            <span className="text-sm text-gray-700">Meeting</span>
+            <button
+              onClick={() => setTypeFilter(typeFilter === 'meeting' ? 'all' : 'meeting')}
+              className={`text-sm ${typeFilter === 'meeting' ? 'text-green-700 font-semibold' : 'text-gray-700'}`}
+            >
+              Meeting
+            </button>
           </div>
         </div>
       </div>
@@ -527,6 +569,41 @@ const Calendar = () => {
                   }`}>
                     {selectedEvent.status?.toUpperCase()}
                   </span>
+                </div>
+              )}
+
+              {selectedEvent.scholar && (
+                <div>
+                  <p className="text-sm text-gray-600">Scholar</p>
+                  <div className="font-semibold">
+                    {selectedEvent.scholar.name || 'Scholar'}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {selectedEvent.scholar.enrollment_number}
+                  </div>
+                  {selectedEvent.scholar.school_code && (
+                    <div className="text-sm text-gray-600">
+                      School: {selectedEvent.scholar.school_code}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {selectedEvent.details && Object.entries(selectedEvent.details)
+                .filter(([, value]) => value !== null && value !== undefined && value !== '')
+                .length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-600">Details</p>
+                  <div className="mt-1 space-y-1">
+                    {Object.entries(selectedEvent.details)
+                      .filter(([, value]) => value !== null && value !== undefined && value !== '')
+                      .map(([key, value]) => (
+                        <div key={key} className="text-sm">
+                          <span className="font-semibold capitalize">{key.replace(/_/g, ' ')}:</span>{' '}
+                          <span className="text-gray-700">{value}</span>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               )}
             </div>

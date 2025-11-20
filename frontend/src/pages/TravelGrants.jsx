@@ -14,9 +14,14 @@ const TravelGrants = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('my-applications'); // 'my-applications' or 'pending-approvals'
 
+  const restrictedApproverRoles = ['school_chair', 'ad_research', 'dean_academics'];
+
   useEffect(() => {
     if (user?.role === 'scholar') {
       fetchMyGrants();
+    }
+    if (restrictedApproverRoles.includes(user?.role)) {
+      setActiveTab('pending-approvals');
     }
   }, [user]);
 
@@ -57,6 +62,10 @@ const TravelGrants = () => {
 
   const isApprover = () => {
     return ['supervisor', 'committee_member', 'school_chair', 'ad_research', 'dean_academics'].includes(user?.role);
+  };
+
+  const canApproverApply = () => {
+    return isApprover() && !restrictedApproverRoles.includes(user?.role);
   };
 
   return (
@@ -180,16 +189,18 @@ const TravelGrants = () => {
         <div>
           <div className="mb-6 border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('my-applications')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'my-applications'
-                    ? 'border-purple-900 text-purple-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                My Applications
-              </button>
+              {canApproverApply() && (
+                <button
+                  onClick={() => setActiveTab('my-applications')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'my-applications'
+                      ? 'border-purple-900 text-purple-900'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  My Applications
+                </button>
+              )}
               <button
                 onClick={() => setActiveTab('pending-approvals')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
@@ -203,7 +214,7 @@ const TravelGrants = () => {
             </nav>
           </div>
 
-          {activeTab === 'my-applications' && user?.role !== 'dean_academics' && user?.role !== 'ad_research' && user?.role !== 'school_chair' && (
+          {activeTab === 'my-applications' && canApproverApply() && (
             <>
               {!showApplicationForm && !selectedGrantId ? (
                 <>
