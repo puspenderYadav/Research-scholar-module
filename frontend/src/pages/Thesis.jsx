@@ -740,7 +740,7 @@ const Thesis = () => {
                           {/* Regular Approval Buttons */}
                           <button
                             onClick={() => handleApprove(thesis.id, 'approved', 'Approved')}
-                            className="btn-primary text-sm"
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold"
                           >
                             Approve
                           </button>
@@ -749,7 +749,7 @@ const Thesis = () => {
                               const comments = prompt('Enter comments for changes:');
                               if (comments) handleApprove(thesis.id, 'changes_requested', comments);
                             }}
-                            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm"
+                            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 text-sm"
                           >
                             Request Changes
                           </button>

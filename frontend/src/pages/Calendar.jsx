@@ -137,7 +137,7 @@ const Calendar = () => {
   const getEventTypeColor = (type) => {
     const colors = {
       'exam': 'bg-red-100 text-red-800 border-red-300',
-      'seminar': 'bg-blue-100 text-blue-800 border-blue-300',
+      'seminar': 'bg-violet-100 text-violet-800 border-violet-300',
       'thesis_defense': 'bg-purple-100 text-purple-800 border-purple-300',
       'meeting': 'bg-green-100 text-green-800 border-green-300'
     };
@@ -190,12 +190,12 @@ const Calendar = () => {
                 key={index}
                 className={`min-h-[120px] p-2 border-r border-b ${
                   !day ? 'bg-gray-50' : ''
-                } ${isToday ? 'bg-blue-50' : ''}`}
+                } ${isToday ? 'bg-violet-50' : ''}`}
               >
                 {day && (
                   <>
                     <div className={`text-sm font-semibold mb-1 ${
-                      isToday ? 'text-blue-600' : 'text-gray-700'
+                      isToday ? 'text-violet-600' : 'text-gray-700'
                     }`}>
                       {day.getDate()}
                     </div>
@@ -243,8 +243,8 @@ const Calendar = () => {
             const isToday = day.toDateString() === new Date().toDateString();
 
             return (
-              <div key={index} className={`border rounded p-3 ${isToday ? 'bg-blue-50 border-blue-300' : ''}`}>
-                <div className={`text-center mb-3 ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+              <div key={index} className={`border rounded p-3 ${isToday ? 'bg-violet-50 border-violet-300' : ''}`}>
+                <div className={`text-center mb-3 ${isToday ? 'text-violet-600' : 'text-gray-700'}`}>
                   <div className="text-xs font-semibold">
                     {day.toLocaleDateString('en-US', { weekday: 'short' })}
                   </div>
@@ -390,7 +390,7 @@ const Calendar = () => {
               onClick={() => setViewMode('month')}
               className={`px-4 py-2 rounded ${
                 viewMode === 'month'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -400,7 +400,7 @@ const Calendar = () => {
               onClick={() => setViewMode('week')}
               className={`px-4 py-2 rounded ${
                 viewMode === 'week'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -410,7 +410,7 @@ const Calendar = () => {
               onClick={() => setViewMode('list')}
               className={`px-4 py-2 rounded ${
                 viewMode === 'list'
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-violet-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
@@ -429,7 +429,7 @@ const Calendar = () => {
 
             <button
               onClick={goToToday}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700"
             >
               Today
             </button>
@@ -450,14 +450,6 @@ const Calendar = () => {
 
         {/* Event Type Legend */}
         <div className="mt-4 pt-4 border-t flex flex-wrap gap-3">
-          <button
-            onClick={() => setTypeFilter('all')}
-            className={`px-3 py-1 rounded text-sm border ${
-              typeFilter === 'all' ? 'bg-gray-800 text-white border-gray-800' : 'bg-white text-gray-700'
-            }`}
-          >
-            All
-          </button>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-red-100 border border-red-300"></div>
             <button
@@ -468,10 +460,10 @@ const Calendar = () => {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-blue-100 border border-blue-300"></div>
+            <div className="w-4 h-4 rounded bg-violet-100 border border-violet-300"></div>
             <button
               onClick={() => setTypeFilter(typeFilter === 'seminar' ? 'all' : 'seminar')}
-              className={`text-sm ${typeFilter === 'seminar' ? 'text-blue-700 font-semibold' : 'text-gray-700'}`}
+              className={`text-sm ${typeFilter === 'seminar' ? 'text-violet-700 font-semibold' : 'text-gray-700'}`}
             >
               Seminar
             </button>
@@ -552,7 +544,7 @@ const Calendar = () => {
                     href={selectedEvent.online_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline break-all"
+                    className="text-violet-600 hover:underline break-all"
                   >
                     {selectedEvent.online_link}
                   </a>
@@ -611,7 +603,7 @@ const Calendar = () => {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={closeEventModal}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700"
               >
                 Close
               </button>
