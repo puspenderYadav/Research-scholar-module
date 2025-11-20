@@ -131,7 +131,7 @@ const ComprehensiveExams = () => {
     return (
       <Layout>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">Comprehensive Exams</h1>
+          <h1 className="text-3xl font-bold text-purple-900">Comprehensive Exams</h1>
           <p className="text-gray-600 mt-2">View your upcoming comprehensive examinations</p>
         </div>
 
@@ -197,7 +197,7 @@ const ComprehensiveExams = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Comprehensive Exams</h1>
+        <h1 className="text-3xl font-bold text-purple-900">Comprehensive Exams</h1>
         <p className="text-gray-600 mt-2">
           {user.role === 'school_chair'
             ? 'Schedule and manage comprehensive examinations'
@@ -219,13 +219,15 @@ const ComprehensiveExams = () => {
 
       {user.role === 'school_chair' && !showForm ? (
         <div className="card mb-6">
-          <button onClick={() => setShowForm(true)} className="btn-primary">
+          <button onClick={() => setShowForm(true)} className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium">
             + Schedule New Comprehensive Exam
           </button>
         </div>
       ) : user.role === 'school_chair' && showForm ? (
         <div className="card mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Schedule Comprehensive Exam</h2>
+          <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+            <h2 className="text-lg font-semibold text-purple-900">Schedule Comprehensive Exam</h2>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
@@ -394,7 +396,7 @@ const ComprehensiveExams = () => {
             </div>
 
             <div className="flex space-x-3">
-              <button type="submit" className="btn-success">
+              <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium">
                 Schedule Exam & Notify Students
               </button>
               <button
@@ -411,20 +413,22 @@ const ComprehensiveExams = () => {
 
       {/* Exams List */}
       <div className="card">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Scheduled Exams</h2>
+        <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+          <h2 className="text-lg font-semibold text-purple-900">Scheduled Exams</h2>
+        </div>
         {exams.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No exams scheduled yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-purple-600">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Venue</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Students</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Date & Time</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Venue</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Students</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">

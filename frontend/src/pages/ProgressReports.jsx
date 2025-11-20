@@ -23,7 +23,7 @@ const ProgressReports = () => {
     <Layout>
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Progress Reports</h1>
+          <h1 className="text-3xl font-bold text-purple-900">Progress Reports</h1>
           <p className="text-gray-600 mt-2">
             {isScholar 
               ? 'Submit and track your progress reports' 
@@ -38,7 +38,7 @@ const ProgressReports = () => {
             <div className="mb-6">
               <button
                 onClick={() => setShowSubmitForm(!showSubmitForm)}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
+                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium"
               >
                 {showSubmitForm ? 'Hide Form' : '+ Submit New Progress Report'}
               </button>

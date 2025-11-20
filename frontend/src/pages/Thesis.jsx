@@ -271,15 +271,15 @@ const Thesis = () => {
 
   const getStageColor = (stage) => {
     const colors = {
-      'supervisor': 'bg-blue-100 text-blue-800',
+      'supervisor': 'bg-violet-100 text-violet-800',
       'dc_apc': 'bg-purple-100 text-purple-800',
       'external_review': 'bg-yellow-100 text-yellow-800',
       'defense_scheduled': 'bg-orange-100 text-orange-800',
       'post_defense_revision': 'bg-pink-100 text-pink-800',
-      'supervisor_final_review': 'bg-blue-100 text-blue-800',
+      'supervisor_final_review': 'bg-violet-100 text-violet-800',
       'dean_academics': 'bg-purple-100 text-purple-800',
       'defense_completed': 'bg-green-100 text-green-800',
-      'final_approval': 'bg-indigo-100 text-indigo-800',
+      'final_approval': 'bg-violet-100 text-violet-800',
       'completed': 'bg-green-500 text-white'
     };
     return colors[stage] || 'bg-gray-100 text-gray-800';
@@ -296,7 +296,7 @@ const Thesis = () => {
     return (
       <Layout>
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
         </div>
       </Layout>
     );
@@ -304,9 +304,9 @@ const Thesis = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Thesis Submission & Defense</h1>
-        <p className="text-gray-600 mt-2">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-purple-900">Thesis Submission & Defense</h1>
+        <p className="text-gray-600 mt-1">
           {userRole === 'scholar'
             ? 'Submit your thesis and track its progress through the approval workflow'
             : 'Review and approve thesis submissions'
@@ -335,7 +335,7 @@ const Thesis = () => {
             <div className="card mb-6 border-4 border-red-500 bg-red-50">
               <div className="bg-red-600 text-white p-4 rounded-t-lg -mt-6 -mx-6 mb-4">
                 <h2 className="text-xl font-bold flex items-center">
-                  ⚠️ ACTION REQUIRED: Submit Revised Thesis
+                  ACTION REQUIRED: Submit Revised Thesis
                 </h2>
                 <p className="text-sm mt-1">Your defense was successful! Please upload your revised thesis incorporating feedback.</p>
               </div>
@@ -344,7 +344,7 @@ const Thesis = () => {
               {thesis.revised_thesis_deadline && (
                 <div className="bg-orange-100 border-l-4 border-orange-500 p-4 mb-4">
                   <p className="font-bold text-orange-800 text-lg">
-                    📅 DEADLINE: {new Date(thesis.revised_thesis_deadline).toLocaleDateString('en-US', {
+                    DEADLINE: {new Date(thesis.revised_thesis_deadline).toLocaleDateString('en-US', {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
@@ -356,9 +356,9 @@ const Thesis = () => {
                       const now = new Date();
                       const deadline = new Date(thesis.revised_thesis_deadline);
                       const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-                      if (daysLeft < 0) return '⚠️ OVERDUE! Please submit immediately.';
-                      if (daysLeft === 0) return '⚠️ Due TODAY!';
-                      if (daysLeft <= 7) return `⚠️ ${daysLeft} days remaining - URGENT!`;
+                      if (daysLeft < 0) return 'OVERDUE! Please submit immediately.';
+                      if (daysLeft === 0) return 'Due TODAY!';
+                      if (daysLeft <= 7) return `${daysLeft} days remaining - URGENT!`;
                       return `${daysLeft} days remaining`;
                     })()}
                   </p>
@@ -378,7 +378,7 @@ const Thesis = () => {
                       handleFileChange(e);
                       setSubmissionType('post_defense_revision');
                     }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     required
                   />
                   {uploadFile && (
@@ -387,18 +387,18 @@ const Thesis = () => {
                 </div>
 
                 <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">📋 Next Steps After Submission:</h4>
+                  <h4 className="font-semibold text-blue-900 mb-2">Next Steps After Submission:</h4>
                   <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1">
                     <li>Supervisor will review your revised thesis</li>
                     <li>After supervisor approval, it goes to Dean Academics</li>
-                    <li>After Dean approval, your degree will be awarded! 🎓</li>
+                    <li>After Dean approval, your degree will be awarded!</li>
                   </ol>
                 </div>
 
                 <button
                   type="submit"
                   disabled={!uploadFile || uploading}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {uploading ? 'Uploading Revised Thesis...' : 'Submit Revised Thesis'}
                 </button>
@@ -409,7 +409,9 @@ const Thesis = () => {
           {/* Regular Thesis Submission Form - Hidden if awaiting revised thesis */}
           {(!thesis || thesis.status !== 'awaiting_revised_thesis') && (
             <div className="card mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Submit Thesis</h2>
+              <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+                <h2 className="text-lg font-semibold text-purple-900">Submit Thesis</h2>
+              </div>
               <form onSubmit={handleSubmitThesis}>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -418,7 +420,7 @@ const Thesis = () => {
                   <select
                     value={submissionType}
                     onChange={(e) => setSubmissionType(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                   >
                     <option value="initial">Initial Submission</option>
                     <option value="revision_minor">Minor Revision</option>
@@ -435,7 +437,7 @@ const Thesis = () => {
                     type="file"
                     accept=".pdf"
                     onChange={handleFileChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                   />
                   {uploadFile && (
                     <p className="text-sm text-gray-600 mt-2">Selected: {uploadFile.name}</p>
@@ -445,7 +447,7 @@ const Thesis = () => {
                 <button
                   type="submit"
                   disabled={!uploadFile || uploading}
-                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   {uploading ? 'Uploading...' : 'Submit Thesis'}
                 </button>
@@ -456,7 +458,9 @@ const Thesis = () => {
           {/* Current Thesis Status */}
           {thesis && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Thesis Status</h2>
+              <div className="bg-purple-100 px-6 py-4 -mx-6 -mt-6 mb-6 rounded-t-lg">
+                <h2 className="text-xl font-semibold text-purple-900">Your Thesis Status</h2>
+              </div>
 
               <div className="space-y-4">
                 {/* Basic Info */}
@@ -506,7 +510,7 @@ const Thesis = () => {
                   <div className="col-span-2">
                     <div className="bg-orange-50 border-2 border-orange-400 p-3 rounded-lg">
                       <p className="text-sm text-orange-800 font-semibold mb-1">
-                        ⏰ Revised Thesis Submission Deadline
+                        Revised Thesis Submission Deadline
                       </p>
                       <p className="font-bold text-orange-900 text-lg">
                         {new Date(thesis.revised_thesis_deadline).toLocaleDateString('en-US', {
@@ -521,9 +525,9 @@ const Thesis = () => {
                           const now = new Date();
                           const deadline = new Date(thesis.revised_thesis_deadline);
                           const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-                          if (daysLeft < 0) return '⚠️ OVERDUE!';
-                          if (daysLeft === 0) return '⚠️ Due TODAY!';
-                          if (daysLeft <= 7) return `⚠️ ${daysLeft} days remaining - URGENT!`;
+                          if (daysLeft < 0) return 'OVERDUE!';
+                          if (daysLeft === 0) return 'Due TODAY!';
+                          if (daysLeft <= 7) return `${daysLeft} days remaining - URGENT!`;
                           return `${daysLeft} days remaining`;
                         })()}
                       </p>
@@ -558,8 +562,8 @@ const Thesis = () => {
 
                 {/* Latest Defense */}
                 {thesis.latest_defense && (
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="font-semibold text-blue-900 mb-2">Defense Scheduled</p>
+                  <div className="bg-violet-50 p-4 rounded-lg">
+                    <p className="font-semibold text-violet-900 mb-2">Defense Scheduled</p>
                     <div className="space-y-1 text-sm">
                       <p><span className="font-medium">Date:</span> {new Date(thesis.latest_defense.defense_date).toLocaleDateString()}</p>
                       {thesis.latest_defense.defense_time && (
@@ -587,7 +591,7 @@ const Thesis = () => {
                 {/* Degree Awarded */}
                 {thesis.is_approved && (
                   <div className="bg-green-50 border-2 border-green-500 p-4 rounded-lg">
-                    <p className="text-xl font-bold text-green-700">🎓 DEGREE AWARDED!</p>
+                    <p className="text-xl font-bold text-green-700">DEGREE AWARDED!</p>
                     {thesis.approved_at && (
                       <p className="text-sm text-green-600 mt-1">
                         Approved on: {new Date(thesis.approved_at).toLocaleDateString()}
@@ -607,12 +611,12 @@ const Thesis = () => {
                       return (
                         <div key={stage} className="flex items-center mb-4">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            isPast || isActive ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+                            isPast || isActive ? 'bg-violet-600 text-white' : 'bg-gray-300 text-gray-600'
                           }`}>
                             {isPast ? '✓' : idx + 1}
                           </div>
                           <div className="ml-4">
-                            <p className={`font-medium ${isActive ? 'text-blue-600' : isPast ? 'text-gray-700' : 'text-gray-400'}`}>
+                            <p className={`font-medium ${isActive ? 'text-violet-600' : isPast ? 'text-gray-700' : 'text-gray-400'}`}>
                               {stage.replace('_', ' ').toUpperCase()}
                             </p>
                           </div>
@@ -637,7 +641,7 @@ const Thesis = () => {
                 onClick={() => setViewMode('pending')}
                 className={`pb-2 px-4 font-semibold ${
                   viewMode === 'pending'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
+                    ? 'border-b-2 border-violet-600 text-violet-600'
                     : 'text-gray-600'
                 }`}
               >
@@ -647,7 +651,7 @@ const Thesis = () => {
                 onClick={() => setViewMode('all')}
                 className={`pb-2 px-4 font-semibold ${
                   viewMode === 'all'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
+                    ? 'border-b-2 border-violet-600 text-violet-600'
                     : 'text-gray-600'
                 }`}
               >
@@ -659,9 +663,11 @@ const Thesis = () => {
           {/* Pending Reviews Section */}
           {viewMode === 'pending' && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Pending Reviews ({pendingReviews.length})
-              </h2>
+              <div className="bg-purple-100 px-6 py-4 -mx-6 -mt-6 mb-6 rounded-t-lg">
+                <h2 className="text-xl font-semibold text-purple-900">
+                  Pending Reviews ({pendingReviews.length})
+                </h2>
+              </div>
 
             {pendingReviews.length === 0 ? (
               <p className="text-gray-600">No pending thesis reviews</p>
@@ -698,11 +704,11 @@ const Thesis = () => {
 
                     {/* Special Alert for Final Review */}
                     {thesis.current_stage === 'supervisor_final_review' && (
-                      <div className="mb-4 bg-blue-50 border-l-4 border-blue-500 p-3">
-                        <p className="font-semibold text-blue-900">
-                          🎓 Post-Defense Final Review
+                      <div className="mb-4 bg-violet-50 border-l-4 border-violet-500 p-3">
+                        <p className="font-semibold text-violet-900">
+                          Post-Defense Final Review
                         </p>
-                        <p className="text-sm text-blue-800 mt-1">
+                        <p className="text-sm text-violet-800 mt-1">
                           This is the revised thesis submitted after defense. Once approved, it will go to Dean Academics for final approval and degree award.
                         </p>
                       </div>
@@ -763,7 +769,7 @@ const Thesis = () => {
                       {userRole === 'supervisor' && thesis.status === 'awaiting_examiner_upload' && (
                         <button
                           onClick={() => setSelectedThesisId(thesis.id)}
-                          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm"
+                          className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 text-sm"
                         >
                           Upload Examiners CSV
                         </button>
@@ -775,7 +781,7 @@ const Thesis = () => {
                           onClick={() => setSchedulingThesisId(thesis.id)}
                           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold"
                         >
-                          📅 Schedule Defense
+                          Schedule Defense
                         </button>
                       )}
                     </div>
@@ -904,24 +910,26 @@ const Thesis = () => {
           {/* All Scholars' Theses Tracking */}
           {viewMode === 'all' && userRole === 'supervisor' && (
             <div className="card">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                All Scholars' Theses Tracking ({allScholarsTheses.length})
-              </h2>
+              <div className="bg-purple-100 px-6 py-4 -mx-6 -mt-6 mb-6 rounded-t-lg">
+                <h2 className="text-xl font-semibold text-purple-900">
+                  All Scholars' Theses Tracking ({allScholarsTheses.length})
+                </h2>
+              </div>
 
               {allScholarsTheses.length === 0 ? (
                 <p className="text-gray-600">No thesis submissions from your scholars yet</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-purple-600">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scholar</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stage</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Examiners</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Scholar</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Version</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Stage</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Examiners</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Submitted</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -967,13 +975,13 @@ const Thesis = () => {
                                 onClick={() => setSchedulingThesisId(thesis.id)}
                                 className="text-green-600 hover:text-green-900 font-semibold"
                               >
-                                📅 Schedule Defense
+                                Schedule Defense
                               </button>
                             )}
                             {thesis.status === 'awaiting_examiner_upload' && (
                               <button
                                 onClick={() => setSelectedThesisId(thesis.id)}
-                                className="text-purple-600 hover:text-purple-900"
+                                className="text-violet-600 hover:text-violet-900"
                               >
                                 Upload Examiners
                               </button>
@@ -995,7 +1003,7 @@ const Thesis = () => {
 
           {/* CSV Format Help */}
           {userRole === 'supervisor' && (
-          <div className="card bg-blue-50">
+          <div className="card bg-violet-50">
             <h3 className="font-semibold text-gray-800 mb-2">CSV Format for Examiners</h3>
             <p className="text-sm text-gray-700 mb-2">
               Required columns: name, email, institution

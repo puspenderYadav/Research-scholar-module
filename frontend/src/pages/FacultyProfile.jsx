@@ -31,7 +31,7 @@ const FacultyProfile = () => {
     const statusColors = {
       'active': 'bg-green-100 text-green-800',
       'on_leave': 'bg-yellow-100 text-yellow-800',
-      'graduated': 'bg-blue-100 text-blue-800',
+      'graduated': 'bg-violet-100 text-violet-800',
       'withdrawn': 'bg-red-100 text-red-800'
     };
     return statusColors[status] || 'bg-gray-100 text-gray-800';
@@ -70,7 +70,7 @@ const FacultyProfile = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Faculty Profile</h1>
+        <h1 className="text-3xl font-bold text-purple-900">Faculty Profile</h1>
         <p className="text-gray-600 mt-2">View your profile and supervise students</p>
       </div>
 
@@ -78,8 +78,10 @@ const FacultyProfile = () => {
       <div className="card mb-6 bg-gradient-to-r from-primary-50 to-purple-50">
         <div className="flex items-start space-x-6">
           <div className="flex-shrink-0">
-            <div className="w-24 h-24 bg-primary-200 rounded-full flex items-center justify-center text-4xl">
-              👨‍🏫
+            <div className="w-24 h-24 bg-violet-200 rounded-full flex items-center justify-center">
+              <svg className="w-16 h-16 text-violet-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
             </div>
           </div>
           <div className="flex-1">
@@ -115,29 +117,29 @@ const FacultyProfile = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div className="card bg-blue-50 border-l-4 border-blue-500">
-          <p className="text-sm text-blue-600 font-medium">Total Students</p>
-          <p className="text-3xl font-bold text-blue-900 mt-2">
+        <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+          <p className="text-sm text-violet-600 font-medium">Total Students</p>
+          <p className="text-2xl font-bold text-violet-900 mt-1">
             {profile.statistics?.total_students || 0}
           </p>
         </div>
-        <div className="card bg-green-50 border-l-4 border-green-500">
-          <p className="text-sm text-green-600 font-medium">PhD Students</p>
-          <p className="text-3xl font-bold text-green-900 mt-2">
+        <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+          <p className="text-sm text-violet-600 font-medium">PhD Students</p>
+          <p className="text-2xl font-bold text-violet-900 mt-1">
             {profile.statistics?.phd_students || 0}
           </p>
           <p className="text-xs text-gray-500 mt-1">Max: {profile.max_phd_scholars}</p>
         </div>
-        <div className="card bg-purple-50 border-l-4 border-purple-500">
-          <p className="text-sm text-purple-600 font-medium">M.Sc. Students</p>
-          <p className="text-3xl font-bold text-purple-900 mt-2">
+        <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+          <p className="text-sm text-violet-600 font-medium">M.Sc. Students</p>
+          <p className="text-2xl font-bold text-violet-900 mt-1">
             {profile.statistics?.msc_students || 0}
           </p>
           <p className="text-xs text-gray-500 mt-1">Max: {profile.max_msc_scholars}</p>
         </div>
-        <div className="card bg-orange-50 border-l-4 border-orange-500">
-          <p className="text-sm text-orange-600 font-medium">Committees</p>
-          <p className="text-3xl font-bold text-orange-900 mt-2">
+        <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+          <p className="text-sm text-violet-600 font-medium">Committees</p>
+          <p className="text-2xl font-bold text-violet-900 mt-1">
             {profile.statistics?.total_committees || 0}
           </p>
         </div>
@@ -151,7 +153,7 @@ const FacultyProfile = () => {
               onClick={() => setActiveTab('overview')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'overview'
-                  ? 'border-primary-500 text-primary-600'
+                  ? 'border-violet-500 text-violet-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -161,21 +163,21 @@ const FacultyProfile = () => {
               onClick={() => setActiveTab('students')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'students'
-                  ? 'border-primary-500 text-primary-600'
+                  ? 'border-violet-500 text-violet-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Students ({profile.students?.length || 0})
+              Students
             </button>
             <button
               onClick={() => setActiveTab('committees')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'committees'
-                  ? 'border-primary-500 text-primary-600'
+                  ? 'border-violet-500 text-violet-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Committees ({profile.committees?.length || 0})
+              Committees
             </button>
           </nav>
         </div>
@@ -188,11 +190,11 @@ const FacultyProfile = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-gray-50 rounded p-4">
+                  <div className="bg-violet-50 rounded p-4">
                     <p className="text-sm text-gray-500 mb-1">Email</p>
                     <p className="text-gray-800 font-medium">{profile.user?.email || 'Not provided'}</p>
                   </div>
-                  <div className="bg-gray-50 rounded p-4">
+                  <div className="bg-violet-50 rounded p-4">
                     <p className="text-sm text-gray-500 mb-1">Phone</p>
                     <p className="text-gray-800 font-medium">{profile.user?.phone || 'Not provided'}</p>
                   </div>
@@ -202,13 +204,13 @@ const FacultyProfile = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Capacity</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-gray-50 rounded p-4">
+                  <div className="flex items-center justify-between bg-violet-50 rounded p-4">
                     <span className="text-gray-700">PhD Scholars Capacity</span>
                     <span className="font-semibold text-gray-800">
                       {profile.statistics?.phd_students || 0} / {profile.max_phd_scholars}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between bg-gray-50 rounded p-4">
+                  <div className="flex items-center justify-between bg-violet-50 rounded p-4">
                     <span className="text-gray-700">M.Sc. Scholars Capacity</span>
                     <span className="font-semibold text-gray-800">
                       {profile.statistics?.msc_students || 0} / {profile.max_msc_scholars}
@@ -232,7 +234,7 @@ const FacultyProfile = () => {
               ) : (
                 <div className="space-y-4">
                   {profile.students.map((student) => (
-                    <div key={student.id} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                    <div key={student.id} className="bg-violet-50 border border-violet-200 rounded-lg p-5 hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h4 className="text-lg font-semibold text-gray-800">{student.user?.name}</h4>
@@ -293,7 +295,7 @@ const FacultyProfile = () => {
               ) : (
                 <div className="space-y-4">
                   {profile.committees.map((committee) => (
-                    <div key={committee.id} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow">
+                    <div key={committee.id} className="bg-violet-50 border border-violet-200 rounded-lg p-5 hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start mb-3">
                         <div>
                           <h4 className="text-lg font-semibold text-gray-800">{committee.name}</h4>
@@ -301,7 +303,7 @@ const FacultyProfile = () => {
                         </div>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           committee.type === 'DC'
-                            ? 'bg-blue-100 text-blue-800'
+                            ? 'bg-violet-100 text-violet-800'
                             : 'bg-purple-100 text-purple-800'
                         }`}>
                           {committee.type}

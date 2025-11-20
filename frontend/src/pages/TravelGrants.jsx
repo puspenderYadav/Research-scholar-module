@@ -131,7 +131,7 @@ const TravelGrants = () => {
                               </div>
                               {grant.presenting_paper && (
                                 <div className="mt-2 text-sm text-blue-600">
-                                  📄 Presenting {grant.number_of_papers} paper(s)
+                                  Presenting {grant.number_of_papers} paper(s)
                                 </div>
                               )}
                             </div>

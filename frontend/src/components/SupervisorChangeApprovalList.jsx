@@ -159,12 +159,12 @@ export default function SupervisorChangeApprovalList() {
                 </ul>
                 {request.current_supervisor_status === 'pending' && request.new_supervisor_status === 'pending' && (
                   <p className="mt-2 text-xs text-blue-700">
-                    ⚠️ Both supervisors must approve before Dean review
+                    Both supervisors must approve before Dean review
                   </p>
                 )}
                 {request.current_supervisor_status === 'rejected' || request.new_supervisor_status === 'rejected' && (
                   <p className="mt-2 text-xs text-red-700">
-                    ❌ Request cancelled - one supervisor rejected
+                    Request cancelled - one supervisor rejected
                   </p>
                 )}
               </div>

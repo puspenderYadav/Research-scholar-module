@@ -174,7 +174,7 @@ const TravelGrantApprovalWorkflow = () => {
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:text-blue-800"
                         >
-                          📄 View Invitation Letter
+                          View Invitation Letter
                         </a>
                       )}
                       {grant.waiver_document && (
@@ -184,7 +184,7 @@ const TravelGrantApprovalWorkflow = () => {
                           rel="noopener noreferrer"
                           className="text-sm text-blue-600 hover:text-blue-800"
                         >
-                          📄 View Waiver Document
+                          View Waiver Document
                         </a>
                       )}
                     </div>

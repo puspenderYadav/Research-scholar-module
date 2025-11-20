@@ -134,106 +134,110 @@ const SchoolChairProfile = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">School Chair Dashboard</h1>
+        <h1 className="text-3xl font-bold text-purple-900">School Chair Dashboard</h1>
         <p className="text-gray-600 mt-2">Manage and oversee your school</p>
       </div>
 
       {/* School Header */}
-      <div className="card mb-6 bg-gradient-to-r from-indigo-50 to-blue-50">
-        <div className="flex items-start space-x-6">
-          <div className="flex-shrink-0">
-            <div className="w-24 h-24 bg-indigo-200 rounded-full flex items-center justify-center text-4xl">
-              🏫
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+        <div className="px-6 py-3 bg-purple-100">
+          <div className="flex items-start space-x-6">
+            <div className="flex-shrink-0">
+              <div className="w-24 h-24 bg-purple-600 rounded-full flex items-center justify-center text-4xl text-white">
+                <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-purple-900">{schoolData.name}</h2>
+              <p className="text-lg text-gray-700 mt-1">School Code: {schoolData.code}</p>
+              <p className="text-sm text-gray-600 mt-1">Chair: {user?.name}</p>
             </div>
           </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-800">{schoolData.name}</h2>
-            <p className="text-lg text-gray-600 mt-1">School Code: {schoolData.code}</p>
-            <p className="text-sm text-gray-500 mt-1">Chair: {user?.name}</p>
+        </div>
 
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <p className="text-sm text-gray-500">Total Students</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {schoolData.statistics?.total_students || 0}
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <p className="text-sm text-gray-500">PhD Students</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {schoolData.statistics?.phd_students || 0}
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <p className="text-sm text-gray-500">MSc Students</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {schoolData.statistics?.msc_students || 0}
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-3 shadow-sm">
-                <p className="text-sm text-yellow-600 font-medium">Pending Approvals</p>
-                <p className="text-2xl font-bold text-yellow-700">
-                  {pendingApprovals.length}
-                </p>
-              </div>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100">
+              <p className="text-sm text-purple-700">Total Students</p>
+              <p className="text-2xl font-bold text-purple-900">
+                {schoolData.statistics?.total_students || 0}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100">
+              <p className="text-sm text-purple-700">PhD Students</p>
+              <p className="text-2xl font-bold text-purple-900">
+                {schoolData.statistics?.phd_students || 0}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-purple-100">
+              <p className="text-sm text-purple-700">MSc Students</p>
+              <p className="text-2xl font-bold text-purple-900">
+                {schoolData.statistics?.msc_students || 0}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm border border-yellow-200">
+              <p className="text-sm text-yellow-600 font-medium">Pending Approvals</p>
+              <p className="text-2xl font-bold text-yellow-700">
+                {pendingApprovals.length}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="card mb-6">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 overflow-x-auto">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+        <div className="bg-purple-100 border-b border-purple-200">
+          <nav className="flex space-x-6 overflow-x-auto px-6">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
                 activeTab === 'overview'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-purple-600'
+                  : 'border-transparent hover:text-purple-900'
               }`}
             >
-              📊 Overview
+              Overview
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
                 activeTab === 'analytics'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-purple-600'
+                  : 'border-transparent hover:text-purple-900'
               }`}
             >
-              📈 Analytics
+              Analytics
             </button>
             <button
               onClick={() => setActiveTab('approvals')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
                 activeTab === 'approvals'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-purple-600'
+                  : 'border-transparent hover:text-purple-900'
               }`}
             >
-              ✅ Approvals ({pendingApprovals.length})
+              Approvals
             </button>
             <button
               onClick={() => setActiveTab('faculty')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
                 activeTab === 'faculty'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-purple-600'
+                  : 'border-transparent hover:text-purple-900'
               }`}
             >
-              👨‍🏫 Faculty ({schoolData.faculty?.length || 0})
+              Faculty
             </button>
             <button
               onClick={() => setActiveTab('students')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
                 activeTab === 'students'
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? 'border-purple-600'
+                  : 'border-transparent hover:text-purple-900'
               }`}
             >
-              🎓 Students ({schoolData.students?.length || 0})
+              Students
             </button>
           </nav>
         </div>
@@ -242,7 +246,7 @@ const SchoolChairProfile = () => {
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div>
-              <h3 className="text-xl font-semibold mb-4">School Overview</h3>
+              <h3 className="text-xl font-semibold text-purple-900 mb-4">School Overview</h3>
               <p className="text-gray-600">Welcome to {schoolData.name}!</p>
               <p className="text-gray-600 mt-2">Total Faculty: {schoolData.statistics?.total_faculty || 0}</p>
               <p className="text-gray-600 mt-2">Total Students: {schoolData.statistics?.total_students || 0}</p>
@@ -253,11 +257,11 @@ const SchoolChairProfile = () => {
           {activeTab === 'analytics' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-800">School Analytics</h3>
+                <h3 className="text-lg font-semibold text-purple-900">School Analytics</h3>
                 <select
                   value={analyticsTimeRange}
                   onChange={(e) => setAnalyticsTimeRange(e.target.value)}
-                  className="input-field w-48"
+                  className="px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:border-purple-300 w-48"
                 >
                   <option value="week">Last Week</option>
                   <option value="month">Last Month</option>
@@ -275,51 +279,51 @@ const SchoolChairProfile = () => {
               ) : analyticsData ? (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-5">
-                      <p className="text-sm text-blue-700 font-medium mb-2">Total Submissions</p>
-                      <p className="text-3xl font-bold text-blue-900">{analyticsData.total_submissions || 0}</p>
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5 border border-purple-200">
+                      <p className="text-sm text-purple-700 font-medium mb-2">Total Submissions</p>
+                      <p className="text-3xl font-bold text-purple-900">{analyticsData.total_submissions || 0}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-5">
-                      <p className="text-sm text-green-700 font-medium mb-2">Approvals Given</p>
-                      <p className="text-3xl font-bold text-green-900">{analyticsData.total_approvals || 0}</p>
-                      <p className="text-xs text-green-600 mt-1">{analyticsData.approval_rate || 0}% approval rate</p>
+                    <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-lg p-5 border border-violet-200">
+                      <p className="text-sm text-violet-700 font-medium mb-2">Approvals Given</p>
+                      <p className="text-3xl font-bold text-violet-900">{analyticsData.total_approvals || 0}</p>
+                      <p className="text-xs text-violet-600 mt-1">{analyticsData.approval_rate || 0}% approval rate</p>
                     </div>
-                    <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-5">
-                      <p className="text-sm text-yellow-700 font-medium mb-2">Pending Reviews</p>
-                      <p className="text-3xl font-bold text-yellow-900">{analyticsData.pending_count || 0}</p>
-                      <p className="text-xs text-yellow-600 mt-1">Avg. {analyticsData.avg_review_time || 0} days review time</p>
+                    <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg p-5 border border-purple-300">
+                      <p className="text-sm text-purple-800 font-medium mb-2">Pending Reviews</p>
+                      <p className="text-3xl font-bold text-purple-900">{analyticsData.pending_count || 0}</p>
+                      <p className="text-xs text-purple-700 mt-1">Avg. {analyticsData.avg_review_time || 0} days review time</p>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-5">
-                      <p className="text-sm text-purple-700 font-medium mb-2">Active Projects</p>
-                      <p className="text-3xl font-bold text-purple-900">{analyticsData.active_projects || 0}</p>
+                    <div className="bg-gradient-to-br from-violet-100 to-violet-200 rounded-lg p-5 border border-violet-300">
+                      <p className="text-sm text-violet-800 font-medium mb-2">Active Projects</p>
+                      <p className="text-3xl font-bold text-violet-900">{analyticsData.active_projects || 0}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white border border-gray-200 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-800 mb-4">Submission Breakdown</h4>
+                    <div className="bg-white border border-purple-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-purple-900 mb-4">Submission Breakdown</h4>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Synopsis</span>
-                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.synopsis || 0}</span>
+                          <span className="font-semibold text-purple-900">{analyticsData.breakdown?.synopsis || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Progress Reports</span>
-                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.progress_reports || 0}</span>
+                          <span className="font-semibold text-purple-900">{analyticsData.breakdown?.progress_reports || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Thesis</span>
-                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.thesis || 0}</span>
+                          <span className="font-semibold text-purple-900">{analyticsData.breakdown?.thesis || 0}</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-600">Leave Applications</span>
-                          <span className="font-semibold text-gray-800">{analyticsData.breakdown?.leave || 0}</span>
+                          <span className="font-semibold text-purple-900">{analyticsData.breakdown?.leave || 0}</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-white border border-gray-200 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-800 mb-4">Faculty Load</h4>
+                    <div className="bg-white border border-purple-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-purple-900 mb-4">Faculty Load</h4>
                       <div className="space-y-3">
                         {analyticsData.faculty_load && analyticsData.faculty_load.length > 0 ? (
                           analyticsData.faculty_load.map((faculty, idx) => (
@@ -336,8 +340,8 @@ const SchoolChairProfile = () => {
                   </div>
 
                   {analyticsData.recent_activities && analyticsData.recent_activities.length > 0 && (
-                    <div className="bg-white border border-gray-200 rounded-lg p-6">
-                      <h4 className="font-semibold text-gray-800 mb-4">Recent Activities</h4>
+                    <div className="bg-white border border-purple-200 rounded-lg p-6">
+                      <h4 className="font-semibold text-purple-900 mb-4">Recent Activities</h4>
                       <div className="space-y-2">
                         {analyticsData.recent_activities.map((activity, idx) => (
                           <div key={idx} className="flex items-center space-x-3 text-sm">
@@ -367,11 +371,11 @@ const SchoolChairProfile = () => {
           {activeTab === 'approvals' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-800">Pending Approvals</h3>
+                <h3 className="text-lg font-semibold text-purple-900">Pending Approvals</h3>
                 <select
                   value={approvalTypeFilter}
                   onChange={(e) => setApprovalTypeFilter(e.target.value)}
-                  className="input-field w-64"
+                  className="px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:border-purple-300 w-64"
                 >
                   <option value="all">All Types</option>
                   <option value="synopsis">Synopsis</option>
@@ -390,7 +394,6 @@ const SchoolChairProfile = () => {
                 </div>
               ) : filteredApprovals.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">✅</div>
                   <p className="text-xl text-gray-500">No pending approvals</p>
                   <p className="text-gray-400 mt-2">All caught up!</p>
                 </div>
@@ -401,7 +404,12 @@ const SchoolChairProfile = () => {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3 mb-2">
-                            <span className="text-2xl">{approval.type === 'synopsis' ? '📄' : approval.type === 'progress-reports' ? '📊' : approval.type === 'thesis' ? '📚' : approval.type === 'leave-applications' ? '🏖️' : '📝'}</span>
+                            <span className="text-2xl">
+                              {approval.type === 'synopsis' ? 'Synopsis' : 
+                               approval.type === 'progress-reports' ? 'Progress' : 
+                               approval.type === 'thesis' ? 'Thesis' : 
+                               approval.type === 'leave-applications' ? 'Leave' : 'Document'}
+                            </span>
                             <div>
                               <h4 className="font-semibold text-gray-800 capitalize">{approval.type.replace('-', ' ')}</h4>
                               <p className="text-sm text-gray-500">Scholar: {approval.scholar.name} ({approval.scholar.enrollment_number})</p>
@@ -431,21 +439,21 @@ const SchoolChairProfile = () => {
           {activeTab === 'faculty' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-800">Faculty Members</h3>
+                <h3 className="text-lg font-semibold text-purple-900">Faculty Members</h3>
                 <input
                   type="text"
                   placeholder="Search faculty..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field w-64"
+                  className="px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:border-purple-300 w-64"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredFaculty.map((faculty) => (
-                  <div key={faculty.id} className="card p-4">
-                    <h4 className="font-semibold text-gray-800">{faculty.user?.name || 'N/A'}</h4>
-                    <p className="text-sm text-gray-600">{faculty.designation || 'Faculty Member'}</p>
-                    <p className="text-sm text-gray-500 mt-2">{faculty.user?.email}</p>
+                  <div key={faculty.id} className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-lg p-4 hover:shadow-md transition">
+                    <h4 className="font-semibold text-purple-900">{faculty.user?.name || 'N/A'}</h4>
+                    <p className="text-sm text-purple-700">{faculty.designation || 'Faculty Member'}</p>
+                    <p className="text-sm text-gray-600 mt-2">{faculty.user?.email}</p>
                   </div>
                 ))}
               </div>
@@ -456,21 +464,21 @@ const SchoolChairProfile = () => {
           {activeTab === 'students' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center flex-wrap gap-4">
-                <h3 className="text-lg font-semibold text-gray-800">Students</h3>
+                <h3 className="text-lg font-semibold text-purple-900">Students</h3>
                 <div className="flex space-x-4">
                   <input
                     type="text"
                     placeholder="Search students..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="input-field w-64"
+                    className="px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:border-purple-300 w-64"
                   />
-                  <select value={filterProgram} onChange={(e) => setFilterProgram(e.target.value)} className="input-field">
+                  <select value={filterProgram} onChange={(e) => setFilterProgram(e.target.value)} className="px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:border-purple-300">
                     <option value="all">All Programs</option>
                     <option value="PhD">PhD</option>
                     <option value="MSc">MSc</option>
                   </select>
-                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="input-field">
+                  <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:border-purple-300">
                     <option value="all">All Status</option>
                     <option value="active">Active</option>
                     <option value="on_leave">On Leave</option>
@@ -480,11 +488,11 @@ const SchoolChairProfile = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredStudents.map((student) => (
-                  <div key={student.id} className="card p-4">
-                    <h4 className="font-semibold text-gray-800">{student.user?.name || 'N/A'}</h4>
-                    <p className="text-sm text-gray-600">{student.enrollment_number}</p>
-                    <p className="text-sm text-gray-500">{student.program}</p>
-                    <p className="text-xs text-gray-400 mt-2">Status: {student.status}</p>
+                  <div key={student.id} className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-lg p-4 hover:shadow-md transition">
+                    <h4 className="font-semibold text-purple-900">{student.user?.name || 'N/A'}</h4>
+                    <p className="text-sm text-purple-700">{student.enrollment_number}</p>
+                    <p className="text-sm text-gray-600">{student.program}</p>
+                    <p className="text-xs text-gray-500 mt-2">Status: {student.status}</p>
                   </div>
                 ))}
               </div>

@@ -75,7 +75,7 @@ export default function ProgressReportSubmissionForm({ onReportSubmitted }) {
               type="date"
               value={formData.report_period_start}
               onChange={(e) => setFormData({ ...formData, report_period_start: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
               required
             />
           </div>
@@ -88,7 +88,7 @@ export default function ProgressReportSubmissionForm({ onReportSubmitted }) {
               type="date"
               value={formData.report_period_end}
               onChange={(e) => setFormData({ ...formData, report_period_end: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
               required
             />
           </div>
@@ -103,7 +103,7 @@ export default function ProgressReportSubmissionForm({ onReportSubmitted }) {
             type="file"
             accept=".pdf"
             onChange={handleFileChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
             required
           />
           <p className="text-sm text-gray-500 mt-1">
@@ -112,9 +112,9 @@ export default function ProgressReportSubmissionForm({ onReportSubmitted }) {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-semibold text-blue-900 mb-2">Approval Process:</h4>
-          <ul className="list-disc list-inside space-y-1 text-sm text-blue-800">
+        <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+          <h4 className="font-semibold text-violet-900 mb-2">Approval Process:</h4>
+          <ul className="list-disc list-inside space-y-1 text-sm text-violet-800">
             <li>Your report will be sent to your supervisor and all doctoral committee members</li>
             <li>Each reviewer can approve, request changes, or reject the report</li>
             <li>If any reviewer requests changes, you'll need to revise and resubmit</li>
@@ -129,7 +129,7 @@ export default function ProgressReportSubmissionForm({ onReportSubmitted }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+            className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
           >
             {loading ? 'Submitting...' : 'Submit Progress Report'}
           </button>

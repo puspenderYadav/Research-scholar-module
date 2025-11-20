@@ -121,7 +121,7 @@ const LeaveApplications = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      submitted: 'bg-blue-100 text-blue-800',
+      submitted: 'bg-violet-100 text-violet-800',
       under_review: 'bg-yellow-100 text-yellow-800',
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800'
@@ -155,12 +155,12 @@ const LeaveApplications = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-iit-darkblue">Leave Applications</h1>
+            <h1 className="text-3xl font-bold text-purple-900">Leave Applications</h1>
             <p className="text-gray-600 mt-2">Manage your leave applications and track balances</p>
           </div>
           <button
             onClick={() => setShowForm(true)}
-            className="px-6 py-3 bg-iit-blue text-white rounded-lg hover:bg-iit-darkblue transition font-semibold"
+            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
           >
             Apply for Leave
           </button>
@@ -170,82 +170,63 @@ const LeaveApplications = () => {
       {/* Leave Balance Cards */}
       {balance && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="card bg-gradient-to-br from-blue-50 to-blue-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Personal Leave</p>
-                <p className="text-3xl font-bold text-blue-600 mt-1">
-                  {balance.personal_leave_remaining}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  of {balance.personal_leave_total} days
-                </p>
-              </div>
-              <div className="text-4xl">📅</div>
-            </div>
+          <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+            <p className="text-sm font-medium text-violet-600">Personal Leave</p>
+            <p className="text-2xl font-bold text-violet-900 mt-1">
+              {balance.personal_leave_remaining}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              of {balance.personal_leave_total} days
+            </p>
           </div>
 
-          <div className="card bg-gradient-to-br from-green-50 to-green-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Medical Leave</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">
-                  {balance.medical_leave_remaining}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  of {balance.medical_leave_total} days
-                </p>
-              </div>
-              <div className="text-4xl">🏥</div>
-            </div>
+          <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+            <p className="text-sm font-medium text-violet-600">Medical Leave</p>
+            <p className="text-2xl font-bold text-violet-900 mt-1">
+              {balance.medical_leave_remaining}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              of {balance.medical_leave_total} days
+            </p>
           </div>
 
-          <div className="card bg-gradient-to-br from-pink-50 to-pink-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Maternity Leave</p>
-                <p className="text-2xl font-bold text-pink-600 mt-1">
-                  {balance.maternity_leave_taken ? 'Taken' : 'Not Taken'}
-                </p>
-              </div>
-              <div className="text-4xl">👶</div>
-            </div>
+          <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+            <p className="text-sm font-medium text-violet-600">Maternity Leave</p>
+            <p className="text-xl font-bold text-violet-900 mt-1">
+              {balance.maternity_leave_taken ? 'Taken' : 'Not Taken'}
+            </p>
           </div>
 
-          <div className="card bg-gradient-to-br from-purple-50 to-purple-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Paternity Leave</p>
-                <p className="text-2xl font-bold text-purple-600 mt-1">
-                  {balance.paternity_leave_taken ? 'Taken' : 'Not Taken'}
-                </p>
-              </div>
-              <div className="text-4xl">👨‍👧</div>
-            </div>
+          <div className="bg-violet-50 rounded-lg p-4 border-l-4 border-violet-500">
+            <p className="text-sm font-medium text-violet-600">Paternity Leave</p>
+            <p className="text-xl font-bold text-violet-900 mt-1">
+              {balance.paternity_leave_taken ? 'Taken' : 'Not Taken'}
+            </p>
           </div>
         </div>
       )}
 
       {/* Leave History */}
       <div className="card">
-        <h2 className="text-xl font-semibold text-iit-darkblue mb-4 flex items-center border-b pb-3">
-          <span className="mr-2">📋</span>
-          Leave History
-        </h2>
+        <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+          <h2 className="text-lg font-semibold text-purple-900">
+            Leave History
+          </h2>
+        </div>
 
         {leaves.length === 0 ? (
           <p className="text-center text-gray-500 py-8">No leave applications yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-iit-lightblue">
+              <thead className="bg-purple-600">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Duration</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Days</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Current Stage</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Submitted</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase">Days</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase">Current Stage</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-white uppercase">Submitted</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -285,7 +266,7 @@ const LeaveApplications = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-iit-darkblue">Apply for Leave</h2>
+                <h2 className="text-2xl font-bold text-purple-900">Apply for Leave</h2>
                 <button
                   onClick={() => setShowForm(false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -304,7 +285,7 @@ const LeaveApplications = () => {
                     name="leave_type"
                     value={formData.leave_type}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-iit-blue"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     required
                   >
                     <option value="personal">1 - Personal Leave (30 days)</option>
@@ -325,7 +306,7 @@ const LeaveApplications = () => {
                     name="start_date"
                     value={formData.start_date}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-iit-blue"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     required
                   />
                 </div>
@@ -341,7 +322,7 @@ const LeaveApplications = () => {
                     value={formData.end_date}
                     onChange={handleInputChange}
                     min={formData.start_date}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-iit-blue"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     required
                   />
                 </div>
@@ -369,7 +350,7 @@ const LeaveApplications = () => {
                     value={formData.reason}
                     onChange={handleInputChange}
                     rows="4"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-iit-blue"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     required
                   />
                 </div>
@@ -385,7 +366,7 @@ const LeaveApplications = () => {
                     name="supporting_document"
                     onChange={handleInputChange}
                     accept=".pdf,.jpg,.jpeg,.png"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-iit-blue"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     required={formData.leave_type !== 'personal'}
                   />
                   {formData.leave_type === 'personal' && (
@@ -455,7 +436,7 @@ const LeaveApplications = () => {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-6 py-2 bg-iit-blue text-white rounded-lg hover:bg-iit-darkblue transition font-semibold disabled:bg-gray-400"
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold disabled:bg-gray-400"
                   >
                     {submitting ? 'Submitting...' : 'Submit Application'}
                   </button>

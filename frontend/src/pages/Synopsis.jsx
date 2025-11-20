@@ -180,7 +180,7 @@ const Synopsis = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'submitted': 'bg-blue-100 text-blue-800',
+      'submitted': 'bg-violet-100 text-violet-800',
       'with_supervisor': 'bg-yellow-100 text-yellow-800',
       'with_dc_apc': 'bg-yellow-100 text-yellow-800',
       'with_school_chair': 'bg-yellow-100 text-yellow-800',
@@ -214,7 +214,7 @@ const Synopsis = () => {
                 <div className="flex flex-col items-center mr-4">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     isCompleted || isPast ? 'bg-green-500 text-white' :
-                    isCurrent ? 'bg-blue-500 text-white' :
+                    isCurrent ? 'bg-violet-500 text-white' :
                     'bg-gray-300 text-gray-600'
                   }`}>
                     {isCompleted || isPast ? '✓' : index + 1}
@@ -226,7 +226,7 @@ const Synopsis = () => {
                   )}
                 </div>
                 <div className="flex-1 pb-8">
-                  <h4 className={`font-semibold ${isCurrent ? 'text-blue-600' : ''}`}>
+                  <h4 className={`font-semibold ${isCurrent ? 'text-violet-600' : ''}`}>
                     {getStageLabel(stage)}
                   </h4>
                   {approval && approval.decision !== 'pending' && (
@@ -252,7 +252,7 @@ const Synopsis = () => {
                     </div>
                   )}
                   {isCurrent && (
-                    <p className="mt-2 text-sm text-blue-600">Currently under review</p>
+                    <p className="mt-2 text-sm text-violet-600">Currently under review</p>
                   )}
                 </div>
               </div>
@@ -268,7 +268,9 @@ const Synopsis = () => {
       <div>
         {/* Synopsis Submission Form */}
         <div className="card mb-6">
-          <h2 className="text-xl font-semibold mb-4">Submit Synopsis</h2>
+          <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+            <h2 className="text-lg font-semibold text-purple-900">Submit Synopsis</h2>
+          </div>
           <form onSubmit={handleSubmitSynopsis}>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -282,8 +284,8 @@ const Synopsis = () => {
                   file:mr-4 file:py-2 file:px-4
                   file:rounded file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-blue-50 file:text-blue-700
-                  hover:file:bg-blue-100"
+                  file:bg-violet-50 file:text-violet-700
+                  hover:file:bg-violet-100"
               />
               {uploadFile && (
                 <p className="mt-2 text-sm text-gray-600">
@@ -294,7 +296,7 @@ const Synopsis = () => {
             <button
               type="submit"
               disabled={submitting || !uploadFile}
-              className="btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
             >
               {submitting ? 'Submitting...' : 'Submit Synopsis'}
             </button>
@@ -304,7 +306,9 @@ const Synopsis = () => {
         {/* Current Synopsis Status */}
         {synopsis && (
           <div className="card mb-6">
-            <h2 className="text-xl font-semibold mb-4">Current Synopsis Status</h2>
+            <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+              <h2 className="text-lg font-semibold text-purple-900">Current Synopsis Status</h2>
+            </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <p className="text-sm text-gray-600">Version</p>
@@ -341,7 +345,7 @@ const Synopsis = () => {
               <h3 className="font-semibold mb-2">Download Synopsis</h3>
               <a
                 href={`http://localhost:5000/api/synopsis/${synopsis.id}/download`}
-                className="text-blue-600 hover:underline"
+                className="text-violet-600 hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -356,7 +360,9 @@ const Synopsis = () => {
         {/* Previous Submissions */}
         {synopsisList.length > 1 && (
           <div className="card">
-            <h2 className="text-xl font-semibold mb-4">Previous Submissions</h2>
+            <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+              <h2 className="text-lg font-semibold text-purple-900">Previous Submissions</h2>
+            </div>
             <div className="space-y-3">
               {synopsisList.slice(1).map((syn) => (
                 <div key={syn.id} className="border rounded p-3">
@@ -373,7 +379,7 @@ const Synopsis = () => {
                   </div>
                   <a
                     href={`http://localhost:5000/api/synopsis/${syn.id}/download`}
-                    className="text-blue-600 hover:underline text-sm mt-2 inline-block"
+                    className="text-violet-600 hover:underline text-sm mt-2 inline-block"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -392,7 +398,9 @@ const Synopsis = () => {
     return (
       <div>
         <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Pending Synopsis Reviews</h2>
+          <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+            <h2 className="text-lg font-semibold text-purple-900">Pending Synopsis Reviews</h2>
+          </div>
           {pendingReviews.length === 0 ? (
             <p className="text-gray-600">No pending synopsis reviews at this time.</p>
           ) : (
@@ -421,7 +429,7 @@ const Synopsis = () => {
                   <div className="mb-4">
                     <a
                       href={`http://localhost:5000/api/synopsis/${syn.id}/download`}
-                      className="text-blue-600 hover:underline"
+                      className="text-violet-600 hover:underline"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -481,7 +489,7 @@ const Synopsis = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Synopsis</h1>
+        <h1 className="text-3xl font-bold text-purple-900">Synopsis</h1>
         <p className="text-gray-600 mt-2">
           {userRole === 'scholar'
             ? 'Submit and track your synopsis through the approval process'
@@ -518,7 +526,7 @@ const Synopsis = () => {
                 value={reviewComments}
                 onChange={(e) => setReviewComments(e.target.value)}
                 rows="4"
-                className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded px-3 py-2 focus:outline-none focus:border-violet-500"
                 placeholder={
                   reviewAction === 'approved' ? 'Optional feedback...' :
                   reviewAction === 'rejected' ? 'Explain why the synopsis is being rejected...' :

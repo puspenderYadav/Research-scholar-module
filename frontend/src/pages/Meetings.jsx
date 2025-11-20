@@ -198,8 +198,8 @@ const Meetings = () => {
     <Layout>
       <div className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-iit-darkblue">Meetings</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl font-bold text-purple-900">Meetings</h1>
+          <p className="text-gray-600 mt-1">
             {user?.role === 'supervisor'
               ? 'Manage meetings with your supervised scholars'
               : 'View your scheduled meetings'}
@@ -208,7 +208,7 @@ const Meetings = () => {
         {user?.role === 'supervisor' && (
           <button
             onClick={handleOpenModal}
-            className="btn btn-primary"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition font-medium"
           >
             Organize Meeting
           </button>
@@ -216,16 +216,15 @@ const Meetings = () => {
       </div>
 
       {/* Future Meetings */}
-      <div className="card mb-6">
-        <h2 className="text-xl font-semibold text-iit-darkblue mb-4 flex items-center border-b pb-3">
-          <span className="mr-2">📅</span>
-          Upcoming Meetings
-        </h2>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+        <div className="px-6 py-3 bg-purple-100">
+          <h2 className="text-sm font-semibold text-purple-900">Upcoming Meetings</h2>
+        </div>
 
         {futureMeetings.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No upcoming meetings</p>
         ) : (
-          <div className="space-y-4">
+          <div className="p-4 space-y-4">
             {futureMeetings.map((meeting) => (
               <div key={meeting.id} className="border rounded-lg p-4 hover:shadow-md transition">
                 <div className="flex justify-between items-start">
@@ -248,7 +247,7 @@ const Meetings = () => {
                     )}
 
                     <p className="text-sm text-gray-600 mb-1">
-                      📅 {format(new Date(meeting.meeting_date), 'PPpp')}
+                      {format(new Date(meeting.meeting_date), 'PPpp')}
                     </p>
 
                     {meeting.description && (
@@ -260,7 +259,6 @@ const Meetings = () => {
                     {/* Time Remaining */}
                     {meeting.time_remaining && (
                       <div className="mt-3 inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                        <span>⏱️</span>
                         <span>Time remaining: {getTimeRemaining(meeting.meeting_date)}</span>
                       </div>
                     )}
@@ -322,7 +320,6 @@ const Meetings = () => {
                                 onClick={() => handleStartCommenting(meeting)}
                                 className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
                               >
-                                <span>💬</span>
                                 <span>Add Comment</span>
                               </button>
                             )}
@@ -366,11 +363,10 @@ const Meetings = () => {
       </div>
 
       {/* Past Meetings */}
-      <div className="card">
-        <h2 className="text-xl font-semibold text-iit-darkblue mb-4 flex items-center border-b pb-3">
-          <span className="mr-2">📋</span>
-          Past Meetings
-        </h2>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="px-6 py-3 bg-purple-100">
+          <h2 className="text-sm font-semibold text-purple-900">Past Meetings</h2>
+        </div>
 
         {pastMeetings.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No past meetings</p>
@@ -398,7 +394,7 @@ const Meetings = () => {
                     )}
 
                     <p className="text-sm text-gray-600 mb-1">
-                      📅 {format(new Date(meeting.meeting_date), 'PPpp')}
+                      {format(new Date(meeting.meeting_date), 'PPpp')}
                     </p>
 
                     {meeting.description && (
@@ -425,7 +421,7 @@ const Meetings = () => {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-iit-darkblue mb-4">Organize Meeting</h2>
+            <h2 className="text-xl font-bold text-purple-900 mb-4">Organize Meeting</h2>
 
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
@@ -435,7 +431,7 @@ const Meetings = () => {
                 <select
                   value={formData.scholar_id}
                   onChange={(e) => setFormData({ ...formData, scholar_id: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-iit-lightblue"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-violet-300"
                   required
                 >
                   <option value="">Select a scholar</option>
@@ -455,7 +451,7 @@ const Meetings = () => {
                   type="date"
                   value={formData.meeting_date}
                   onChange={(e) => setFormData({ ...formData, meeting_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-iit-lightblue"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-violet-300"
                   required
                 />
               </div>
@@ -468,7 +464,7 @@ const Meetings = () => {
                   type="time"
                   value={formData.time}
                   onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-iit-lightblue"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-violet-300"
                   required
                 />
               </div>
@@ -480,7 +476,7 @@ const Meetings = () => {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-iit-lightblue"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-violet-300"
                   rows="3"
                   placeholder="Meeting agenda or notes..."
                 />
@@ -497,7 +493,7 @@ const Meetings = () => {
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                   disabled={submitting}
                 >
                   {submitting ? 'Scheduling...' : 'Schedule Meeting'}
