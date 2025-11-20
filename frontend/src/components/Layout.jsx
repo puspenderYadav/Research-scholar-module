@@ -100,9 +100,11 @@ const Layout = ({ children }) => {
             <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               <Link
                 to="/notifications"
-                className="relative hover:bg-white hover:bg-opacity-10 px-2 sm:px-3 py-2 rounded-md transition"
+                className="relative hover:bg-white hover:bg-opacity-10 p-2 rounded-full transition"
               >
-                <span className="text-lg sm:text-xl">🔔</span>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
                 {unreadCount > 0 && (
                   <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
                     {unreadCount}

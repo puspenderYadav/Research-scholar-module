@@ -37,25 +37,25 @@ const Login = () => {
       </div>
 
       {/* Header */}
-      <div className="relative z-10 py-6 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-24 h-24 flex items-center justify-center">
+      <div className="relative z-10 py-4 sm:py-6 px-4 sm:px-6">
+        <div className="w-full max-w-full mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
               <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 drop-shadow-lg">IIT Mandi</h1>
-              <p className="text-sm text-gray-800 drop-shadow">Research Scholars Portal</p>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 drop-shadow-lg whitespace-nowrap">IIT Mandi</h1>
+              <p className="text-xs sm:text-sm text-gray-800 drop-shadow whitespace-nowrap">Research Scholars Portal</p>
             </div>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="px-4 py-2 bg-transparent border border-gray-700 text-gray-800 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 font-medium flex items-center gap-2"
+            className="px-3 py-2 sm:px-4 sm:py-2 bg-transparent border border-gray-700 text-gray-800 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 font-medium flex items-center gap-1 sm:gap-2 flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            Home
+            <span className="text-sm sm:text-base">Home</span>
           </button>
         </div>
       </div>
