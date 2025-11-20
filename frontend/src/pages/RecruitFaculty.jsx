@@ -115,8 +115,7 @@ const RecruitFaculty = () => {
                   required
                   value={formData.name}
                   onChange={handleChange}
-                  className="input-field"
-                  placeholder="Dr. John Doe"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
               </div>
 
@@ -130,8 +129,7 @@ const RecruitFaculty = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="input-field"
-                  placeholder="john.doe@university.edu"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
                 <p className="mt-1 text-xs text-gray-500">This will be their username for login</p>
               </div>
@@ -146,8 +144,7 @@ const RecruitFaculty = () => {
                   required
                   value={formData.personal_email}
                   onChange={handleChange}
-                  className="input-field"
-                  placeholder="john.personal@gmail.com"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
                 <p className="mt-1 text-xs text-gray-500">Credentials will be sent to this email</p>
               </div>
@@ -161,8 +158,7 @@ const RecruitFaculty = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="input-field"
-                  placeholder="1234567890"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
               </div>
 
@@ -176,8 +172,7 @@ const RecruitFaculty = () => {
                   required
                   value={formData.employee_id}
                   onChange={handleChange}
-                  className="input-field"
-                  placeholder="FAC001"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
               </div>
 
@@ -190,7 +185,7 @@ const RecruitFaculty = () => {
                   required
                   value={formData.designation}
                   onChange={handleChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition bg-white"
                 >
                   <option value="">-- Select Designation --</option>
                   <option value="Professor">Professor</option>
@@ -210,7 +205,7 @@ const RecruitFaculty = () => {
                   required
                   value={formData.school_id}
                   onChange={handleChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition bg-white"
                 >
                   <option value="">-- Select School --</option>
                   {schools.map(school => (
@@ -229,9 +224,8 @@ const RecruitFaculty = () => {
                   name="specialization"
                   value={formData.specialization}
                   onChange={handleChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                   rows="3"
-                  placeholder="Research areas and specialization"
                 />
               </div>
 
@@ -246,7 +240,7 @@ const RecruitFaculty = () => {
                   max="20"
                   value={formData.max_phd_scholars}
                   onChange={handleChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
               </div>
 
@@ -261,7 +255,7 @@ const RecruitFaculty = () => {
                   max="20"
                   value={formData.max_msc_scholars}
                   onChange={handleChange}
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
               </div>
 
@@ -272,7 +266,7 @@ const RecruitFaculty = () => {
                     name="is_accepting_students"
                     checked={formData.is_accepting_students}
                     onChange={handleChange}
-                    className="mr-2 h-4 w-4 text-blue-600"
+                    className="mr-2 h-4 w-4 accent-purple-600 focus:ring-2 focus:ring-purple-500"
                   />
                   <span className="text-sm font-medium text-gray-700">
                     Currently accepting students
@@ -285,14 +279,14 @@ const RecruitFaculty = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition disabled:opacity-50 font-medium"
               >
                 {loading ? 'Recruiting...' : 'Recruit Faculty'}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/dean-academics-profile')}
-                className="btn-secondary"
+                className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition font-medium"
               >
                 Cancel
               </button>

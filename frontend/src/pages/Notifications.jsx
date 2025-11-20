@@ -216,7 +216,7 @@ const Notifications = () => {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               Mark All as Read
             </button>
@@ -225,40 +225,37 @@ const Notifications = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white rounded-lg shadow mb-6">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-4 px-6" aria-label="Tabs">
-            {[
-              { id: 'all', label: 'All', count: notifications.length },
-              { id: 'unread', label: 'Unread', count: unreadCount },
-              { id: 'approval', label: 'Approvals', icon: '✓' },
-              { id: 'announcement', label: 'Announcements', icon: '📢' },
-              { id: 'deadline', label: 'Deadlines', icon: '⏰' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setFilter(tab.id)}
-                className={`
-                  py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap
-                  ${filter === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }
-                `}
-              >
-                {tab.icon && <span className="mr-2">{tab.icon}</span>}
-                {tab.label}
-                {tab.count !== undefined && (
-                  <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
-                    filter === tab.id ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'
-                  }`}>
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </nav>
-        </div>
+      <div className="bg-purple-100 border-b border-purple-200 rounded-lg mb-6">
+        <nav className="flex justify-evenly" aria-label="Tabs">
+          {[
+            { id: 'all', label: 'All', count: notifications.length },
+            { id: 'unread', label: 'Unread', count: unreadCount },
+            { id: 'approval', label: 'Approvals' },
+            { id: 'announcement', label: 'Announcements' },
+            { id: 'deadline', label: 'Deadlines' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setFilter(tab.id)}
+              className={`
+                py-3 px-6 font-medium text-sm whitespace-nowrap
+                ${filter === tab.id
+                  ? 'border-b-2 border-purple-900 text-purple-900'
+                  : 'text-gray-500 hover:text-purple-900 hover:border-gray-300'
+                }
+              `}
+            >
+              {tab.label}
+              {tab.count !== undefined && (
+                <span className={`ml-2 py-0.5 px-2 rounded-full text-xs ${
+                  filter === tab.id ? 'bg-purple-200 text-purple-900' : 'bg-white text-gray-600'
+                }`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
       {/* Notifications List */}
@@ -309,13 +306,8 @@ const Notifications = () => {
             >
               <div className="p-6">
                 <div className="flex items-start">
-                  {/* Icon */}
-                  <div className={`flex-shrink-0 ${getIconColor(notification.notification_type, notification.priority)}`}>
-                    {getNotificationIcon(notification.notification_type)}
-                  </div>
-
                   {/* Content */}
-                  <div className="ml-4 flex-1">
+                  <div className="flex-1">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
@@ -393,12 +385,8 @@ const Notifications = () => {
             <div className="p-6">
               {/* Header */}
               <div className="flex items-start justify-between mb-6">
-                <div className="flex items-start space-x-3">
-                  <div className={`flex-shrink-0 ${getIconColor(selectedNotification.notification_type, selectedNotification.priority)}`}>
-                    {getNotificationIcon(selectedNotification.notification_type)}
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-2 mb-2">
+                <div>
+                  <div className="flex items-center space-x-2 mb-2">
                       <span className={`
                         px-3 py-1 rounded-full text-xs font-medium
                         ${selectedNotification.notification_type === 'approval' ? 'bg-blue-100 text-blue-800' :
@@ -423,7 +411,6 @@ const Notifications = () => {
                     <h2 className="text-2xl font-bold text-gray-800">
                       {selectedNotification.title}
                     </h2>
-                  </div>
                 </div>
                 <button
                   onClick={() => setShowDetailModal(false)}

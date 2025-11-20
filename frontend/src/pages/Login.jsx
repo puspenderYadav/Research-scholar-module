@@ -38,14 +38,25 @@ const Login = () => {
 
       {/* Header */}
       <div className="relative z-10 py-6 px-6">
-        <div className="max-w-6xl mx-auto flex items-center space-x-3">
-          <div className="w-16 h-16 flex items-center justify-center">
-            <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-16 h-16 flex items-center justify-center">
+              <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 drop-shadow-lg">IIT Mandi</h1>
+              <p className="text-sm text-gray-800 drop-shadow">Research Scholars Portal</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 drop-shadow-lg">IIT Mandi</h1>
-            <p className="text-sm text-gray-800 drop-shadow">Research Scholars Portal</p>
-          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="px-4 py-2 bg-transparent border border-gray-700 text-gray-800 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 font-medium flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Home
+          </button>
         </div>
       </div>
 
@@ -53,16 +64,16 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
 
         <div className="w-full max-w-md relative z-10">
-          {/* Login form - no card boundary */}
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-10">
+          {/* Login form - transparent style */}
+          <div className="backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/30 border border-gray-400/40 p-10">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-              <p className="text-gray-600 text-sm">Sign in to access your research portal</p>
+              <h2 className="text-3xl font-bold text-black mb-2">Welcome Back</h2>
+              <p className="text-black font-semibold text-sm">Sign in to access your research portal</p>
             </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="role" className="block text-sm font-bold text-black mb-2">
               Sign in as
             </label>
             <div className="relative">
@@ -76,7 +87,7 @@ const Login = () => {
                 required
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent outline-none transition-all bg-white text-gray-900"
               >
                 <option value="">Select your role</option>
                 <option value="scholar">Scholar</option>
@@ -89,7 +100,7 @@ const Login = () => {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-bold text-black mb-2">
               Email Address
             </label>
             <div className="relative">
@@ -104,14 +115,14 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                placeholder="your.email@iitmandi.ac.in"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent outline-none transition-all bg-white text-gray-900 placeholder:text-black"
+                placeholder="Institute ID"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block text-sm font-bold text-black mb-2">
               Password
             </label>
             <div className="relative">
@@ -126,8 +137,8 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                placeholder="Enter your password"
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent outline-none transition-all bg-white text-gray-900 placeholder:text-black"
+                placeholder="Password"
               />
             </div>
           </div>
@@ -146,7 +157,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-iit-blue hover:bg-iit-darkblue text-white font-semibold py-3.5 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg"
+            className="w-full bg-purple-800 hover:bg-purple-900 text-white font-semibold py-3.5 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg"
           >
             {loading ? (
               <>
@@ -164,17 +175,17 @@ const Login = () => {
           </button>
 
           <div className="text-center">
-            <Link to="/forgot-password" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium transition-colors">
+            <Link to="/forgot-password" className="text-sm text-purple-900 hover:text-purple-800 font-medium transition-colors">
               Forgot your password?
             </Link>
           </div>
         </form>
 
             {/* Footer in same card */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="mt-8 pt-6 border-t border-gray-400">
               <div className="text-center">
-                <p className="text-xs text-gray-500 mb-1">For support, contact</p>
-                <a href="mailto:research@iitmandi.ac.in" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium">
+                <p className="text-xs text-black font-semibold mb-1">For support, contact</p>
+                <a href="mailto:research@iitmandi.ac.in" className="text-sm text-purple-900 hover:text-purple-800 font-bold">
                   research@iitmandi.ac.in
                 </a>
               </div>

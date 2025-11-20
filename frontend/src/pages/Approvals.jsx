@@ -146,11 +146,7 @@ const Approvals = () => {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-            <div className="text-3xl font-bold text-blue-600">{summary.total}</div>
-            <div className="text-sm text-gray-600">Total Pending</div>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
           {summary.travel_grants > 0 && (
             <div className="bg-white rounded-lg shadow p-4">
               <div className="text-2xl font-bold text-blue-600">{summary.travel_grants}</div>
@@ -203,7 +199,7 @@ const Approvals = () => {
             onClick={() => setFilterType('all')}
             className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               filterType === 'all'
-                ? 'border-blue-500 text-blue-600'
+                ? 'border-purple-900 text-purple-900'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
@@ -215,7 +211,7 @@ const Approvals = () => {
               onClick={() => setFilterType(key)}
               className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 filterType === key
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-purple-900 text-purple-900'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >

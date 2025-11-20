@@ -74,8 +74,7 @@ const AddSchool = () => {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="input-field"
-                placeholder="e.g., School of Computer Science"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
               />
               <p className="mt-1 text-sm text-gray-500">
                 Full name of the school or department
@@ -92,8 +91,7 @@ const AddSchool = () => {
                 required
                 value={formData.code}
                 onChange={handleChange}
-                className="input-field"
-                placeholder="e.g., CS"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 maxLength="20"
               />
               <p className="mt-1 text-sm text-gray-500">
@@ -120,8 +118,7 @@ const AddSchool = () => {
                     required
                     value={formData.chair_email}
                     onChange={handleChange}
-                    className="input-field"
-                    placeholder="e.g., chair@university.edu"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                   />
                   <p className="mt-1 text-sm text-gray-500">
                     Personal email address for the school chair (used for login)
@@ -137,8 +134,7 @@ const AddSchool = () => {
                     name="chair_name"
                     value={formData.chair_name}
                     onChange={handleChange}
-                    className="input-field"
-                    placeholder="e.g., Dr. John Smith"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                   />
                   <p className="mt-1 text-sm text-gray-500">
                     Full name of the school chair (auto-generated from email if not provided)
@@ -151,14 +147,14 @@ const AddSchool = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition disabled:opacity-50 font-medium"
               >
                 {loading ? 'Creating...' : 'Create School'}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/dean-academics-profile')}
-                className="btn-secondary"
+                className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition font-medium"
               >
                 Cancel
               </button>
