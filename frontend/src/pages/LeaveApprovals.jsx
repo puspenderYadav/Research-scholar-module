@@ -87,30 +87,31 @@ const LeaveApprovals = () => {
   return (
     <Layout>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-iit-darkblue">Leave Approvals</h1>
+        <h1 className="text-3xl font-bold text-purple-900">Leave Approvals</h1>
         <p className="text-gray-600 mt-2">Review and approve leave applications from scholars</p>
       </div>
 
       {/* Pending Leaves */}
-      <div className="card">
-        <h2 className="text-xl font-semibold text-iit-darkblue mb-4 flex items-center border-b pb-3">
-          <span className="mr-2">⏳</span>
-          Pending Approvals
-        </h2>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="px-6 py-3 bg-purple-100">
+          <h2 className="text-sm font-semibold text-purple-900">
+            Pending Approvals
+          </h2>
+        </div>
 
         {leaves.length === 0 ? (
           <p className="text-center text-gray-500 py-8">No pending leave approvals</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full">
-              <thead className="bg-iit-lightblue">
+              <thead className="bg-purple-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Scholar</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Leave Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Duration</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Days</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Submitted</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-iit-darkblue uppercase">Action</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-purple-900 uppercase">Scholar</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-purple-900 uppercase">Leave Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-purple-900 uppercase">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-purple-900 uppercase">Days</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-purple-900 uppercase">Submitted</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-purple-900 uppercase">Action</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -137,7 +138,7 @@ const LeaveApprovals = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleReview(leave)}
-                        className="px-4 py-2 bg-iit-blue text-white rounded-lg hover:bg-iit-darkblue transition text-sm font-semibold"
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-900 transition text-sm font-semibold"
                       >
                         Review
                       </button>
@@ -156,7 +157,7 @@ const LeaveApprovals = () => {
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-iit-darkblue">Review Leave Application</h2>
+                <h2 className="text-2xl font-bold text-purple-900">Review Leave Application</h2>
                 <button
                   onClick={() => setShowModal(false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -206,7 +207,7 @@ const LeaveApprovals = () => {
                       href={`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/uploads/leaves/${selectedLeave.supporting_document}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-iit-blue hover:underline"
+                      className="text-purple-600 hover:underline"
                     >
                       View Document
                     </a>
@@ -290,7 +291,7 @@ const LeaveApprovals = () => {
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
                       rows="4"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-iit-blue"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
                       placeholder="Provide feedback for rejection..."
                       required={decision === 'rejected'}
                     />
@@ -308,7 +309,7 @@ const LeaveApprovals = () => {
                   <button
                     type="submit"
                     disabled={!decision || submitting}
-                    className="px-6 py-2 bg-iit-blue text-white rounded-lg hover:bg-iit-darkblue transition font-semibold disabled:bg-gray-400"
+                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-900 transition font-semibold disabled:bg-gray-400"
                   >
                     {submitting ? 'Submitting...' : 'Submit Decision'}
                   </button>

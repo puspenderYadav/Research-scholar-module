@@ -219,7 +219,7 @@ export default function SupervisorChange() {
                 {request.status === 'approved' && (
                   <div className="bg-green-50 border border-green-200 rounded p-3">
                     <p className="text-sm text-green-800 font-medium">
-                      ✅ Your supervisor has been successfully changed to {request.new_supervisor?.name}
+                      Your supervisor has been successfully changed to {request.new_supervisor?.name}
                     </p>
                   </div>
                 )}
@@ -227,7 +227,7 @@ export default function SupervisorChange() {
                 {request.status === 'rejected' && (
                   <div className="bg-red-50 border border-red-200 rounded p-3">
                     <p className="text-sm text-red-800 font-medium">
-                      ❌ Your request was rejected
+                      Your request was rejected
                     </p>
                   </div>
                 )}

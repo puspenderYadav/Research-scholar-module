@@ -135,8 +135,8 @@ export default function ProgressReportReviewList() {
             </div>
 
             {/* Scholar Info */}
-            <div className="mb-4 bg-blue-50 rounded p-4">
-              <h4 className="font-semibold text-blue-900 mb-2">Scholar Information</h4>
+            <div className="mb-4 bg-violet-50 rounded p-4">
+              <h4 className="font-semibold text-violet-900 mb-2">Scholar Information</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                 <p><span className="font-medium">Name:</span> {report.scholar?.name}</p>
                 <p><span className="font-medium">Enrollment:</span> {report.scholar?.enrollment_number}</p>
@@ -167,7 +167,7 @@ export default function ProgressReportReviewList() {
                 </div>
                 <button
                   onClick={() => downloadReport(report.id, report.file_name)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium"
+                  className="bg-violet-600 text-white px-4 py-2 rounded-lg hover:bg-violet-700 font-medium"
                 >
                   Download Report
                 </button>

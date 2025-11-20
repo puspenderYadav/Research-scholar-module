@@ -39,8 +39,8 @@ const Login = () => {
       {/* Header */}
       <div className="relative z-10 py-6 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-16 h-16 flex items-center justify-center">
+          <div className="flex items-center space-x-4">
+            <div className="w-24 h-24 flex items-center justify-center">
               <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
             </div>
             <div>
@@ -87,7 +87,7 @@ const Login = () => {
                 required
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent outline-none transition-all bg-white text-gray-900"
+                className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-lg focus:ring-0 focus:border-purple-800 outline-none transition-all bg-white text-gray-900"
               >
                 <option value="">Select your role</option>
                 <option value="scholar">Scholar</option>
@@ -115,7 +115,7 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent outline-none transition-all bg-white text-gray-900 placeholder:text-black"
+                className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-lg focus:ring-0 focus:border-purple-800 outline-none transition-all bg-white text-gray-900 placeholder:text-black"
                 placeholder="Institute ID"
               />
             </div>
@@ -137,7 +137,7 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-900 focus:border-transparent outline-none transition-all bg-white text-gray-900 placeholder:text-black"
+                className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-lg focus:ring-0 focus:border-purple-800 outline-none transition-all bg-white text-gray-900 placeholder:text-black"
                 placeholder="Password"
               />
             </div>
@@ -175,7 +175,7 @@ const Login = () => {
           </button>
 
           <div className="text-center">
-            <Link to="/forgot-password" className="text-sm text-purple-900 hover:text-purple-800 font-medium transition-colors">
+            <Link to="/forgot-password" className="text-sm text-violet-900 hover:text-violet-950 font-medium transition-colors">
               Forgot your password?
             </Link>
           </div>
@@ -185,7 +185,7 @@ const Login = () => {
             <div className="mt-8 pt-6 border-t border-gray-400">
               <div className="text-center">
                 <p className="text-xs text-black font-semibold mb-1">For support, contact</p>
-                <a href="mailto:research@iitmandi.ac.in" className="text-sm text-purple-900 hover:text-purple-800 font-bold">
+                <a href="mailto:research@iitmandi.ac.in" className="text-sm text-purple-800 hover:text-purple-900 font-bold">
                   research@iitmandi.ac.in
                 </a>
               </div>

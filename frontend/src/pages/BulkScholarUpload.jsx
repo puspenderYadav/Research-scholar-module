@@ -95,7 +95,7 @@ const BulkScholarUpload = () => {
 
       {/* Instructions Card */}
       <div className="card mb-6 bg-blue-50 border border-blue-200">
-        <h2 className="text-xl font-semibold text-blue-800 mb-4">📋 Instructions</h2>
+        <h2 className="text-xl font-semibold text-blue-800 mb-4">Instructions</h2>
         <ol className="list-decimal list-inside space-y-2 text-gray-700">
           <li>Download the CSV template using the button below</li>
           <li>Fill in the scholar details in the CSV file with their personal emails</li>
@@ -138,7 +138,7 @@ const BulkScholarUpload = () => {
           onClick={handleDownloadTemplate}
           className="btn-primary"
         >
-          📥 Download CSV Template
+          Download CSV Template
         </button>
         <p className="text-sm text-gray-500 mt-2">
           Download a sample CSV file with example data and correct formatting
@@ -193,7 +193,7 @@ const BulkScholarUpload = () => {
                   Uploading...
                 </>
               ) : (
-                <>📤 Upload and Process</>
+                <>Upload and Process</>
               )}
             </button>
 
@@ -202,7 +202,7 @@ const BulkScholarUpload = () => {
                 onClick={handleReset}
                 className="btn-secondary"
               >
-                ❌ Clear
+                Clear
               </button>
             )}
           </div>
@@ -214,7 +214,7 @@ const BulkScholarUpload = () => {
         <div className="space-y-6">
           {/* Summary Card */}
           <div className="card">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">📊 Upload Results</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Upload Results</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -242,7 +242,7 @@ const BulkScholarUpload = () => {
           {result.successful_uploads && result.successful_uploads.length > 0 && (
             <div className="card">
               <h3 className="text-lg font-semibold text-green-700 mb-4">
-                ✅ Successfully Created ({result.successful_uploads.length})
+                Successfully Created ({result.successful_uploads.length})
               </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -281,7 +281,7 @@ const BulkScholarUpload = () => {
           {result.errors && result.errors.length > 0 && (
             <div className="card bg-red-50 border border-red-200">
               <h3 className="text-lg font-semibold text-red-700 mb-4">
-                ❌ Errors ({result.errors.length})
+                Errors ({result.errors.length})
               </h3>
               <div className="space-y-2">
                 {result.errors.map((error, index) => (

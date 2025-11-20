@@ -104,7 +104,7 @@ const Seminars = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      scheduled: 'bg-blue-100 text-blue-800',
+      scheduled: 'bg-violet-100 text-violet-800',
       completed: 'bg-green-100 text-green-800',
       cancelled: 'bg-red-100 text-red-800',
       pending: 'bg-yellow-100 text-yellow-800'
@@ -137,7 +137,7 @@ const Seminars = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Seminars</h1>
+        <h1 className="text-3xl font-bold text-purple-900">Seminars</h1>
         <p className="text-gray-600 mt-2">
           {user.role === 'scholar' 
             ? 'Track your seminar requirements and scheduled presentations'
@@ -156,9 +156,9 @@ const Seminars = () => {
         <>
           {/* Requirements Card */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="text-sm text-blue-600 font-medium">Required Seminars</div>
-              <div className="text-2xl font-bold text-blue-900 mt-1">{seminarStats.required}</div>
+            <div className="bg-violet-50 border border-violet-200 rounded-lg p-4">
+              <div className="text-sm text-violet-600 font-medium">Required Seminars</div>
+              <div className="text-2xl font-bold text-violet-900 mt-1">{seminarStats.required}</div>
             </div>
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="text-sm text-green-600 font-medium">Completed</div>
@@ -172,13 +172,15 @@ const Seminars = () => {
 
           {/* Seminars List */}
           <div className="card">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">My Seminars</h2>
+            <div className="bg-purple-100 px-6 py-2 -mx-6 -mt-6 mb-6 rounded-t-lg">
+              <h2 className="text-lg font-semibold text-purple-900">My Seminars</h2>
+            </div>
             {seminars.length === 0 ? (
               <p className="text-gray-500 text-center py-8">No seminars scheduled yet. Your supervisor will schedule your seminars.</p>
             ) : (
               <div className="space-y-4">
                 {seminars.map((seminar) => (
-                  <div key={seminar.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                  <div key={seminar.id} className="border border-gray-200 rounded-lg p-4 hover:border-violet-300 transition-colors">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -214,7 +216,7 @@ const Seminars = () => {
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                               </svg>
-                              <a href={seminar.online_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                              <a href={seminar.online_link} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline">
                                 Join Online
                               </a>
                             </div>
@@ -247,7 +249,7 @@ const Seminars = () => {
         <>
           <button
             onClick={() => setShowScheduleModal(true)}
-            className="btn-primary mb-6"
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium mb-6 inline-flex items-center whitespace-nowrap"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -262,7 +264,7 @@ const Seminars = () => {
               </div>
             ) : (
               supervisorScholars.map((scholarData) => (
-                <div key={scholarData.scholar.id} className="card">
+                <div key={scholarData.scholar.id} className="card bg-violet-50">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h2 className="text-xl font-semibold text-gray-800">{scholarData.scholar.name}</h2>
@@ -305,7 +307,7 @@ const Seminars = () => {
                                 setSelectedScholar(scholarData.scholar);
                                 // Could open edit modal here
                               }}
-                              className="text-blue-600 hover:text-blue-800 text-sm"
+                              className="text-violet-600 hover:text-violet-800 text-sm"
                             >
                               View Details
                             </button>
@@ -321,7 +323,7 @@ const Seminars = () => {
                         setSelectedScholar(scholarData.scholar);
                         setShowScheduleModal(true);
                       }}
-                      className="mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="mt-3 text-violet-600 hover:text-violet-800 text-sm font-medium"
                     >
                       + Schedule Seminar
                     </button>
@@ -360,7 +362,7 @@ const Seminars = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Select Scholar</label>
                     <select
-                      className="input-field"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                       onChange={(e) => {
                         const scholar = supervisorScholars.find(s => s.scholar.id === parseInt(e.target.value))?.scholar;
                         setSelectedScholar(scholar);
@@ -378,9 +380,9 @@ const Seminars = () => {
                 )}
 
                 {selectedScholar && (
-                  <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                    <div className="text-sm font-medium text-blue-900">{selectedScholar.name}</div>
-                    <div className="text-xs text-blue-700">{selectedScholar.enrollment_number}</div>
+                  <div className="bg-violet-50 border border-violet-200 rounded p-3">
+                    <div className="text-sm font-medium text-violet-900">{selectedScholar.name}</div>
+                    <div className="text-xs text-violet-700">{selectedScholar.enrollment_number}</div>
                   </div>
                 )}
 
@@ -388,10 +390,9 @@ const Seminars = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Seminar Title *</label>
                   <input
                     type="text"
-                    className="input-field"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g., Research Progress Presentation"
                     required
                   />
                 </div>
@@ -399,7 +400,7 @@ const Seminars = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Seminar Type *</label>
                   <select
-                    className="input-field"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     value={formData.seminar_type}
                     onChange={(e) => setFormData({ ...formData, seminar_type: e.target.value })}
                     required
@@ -414,7 +415,7 @@ const Seminars = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
                     <input
                       type="date"
-                      className="input-field"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                       value={formData.scheduled_date}
                       onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
                       required
@@ -424,7 +425,7 @@ const Seminars = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Time *</label>
                     <input
                       type="time"
-                      className="input-field"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                       value={formData.scheduled_time}
                       onChange={(e) => setFormData({ ...formData, scheduled_time: e.target.value })}
                       required
@@ -436,10 +437,9 @@ const Seminars = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Venue *</label>
                   <input
                     type="text"
-                    className="input-field"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     value={formData.venue}
                     onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
-                    placeholder="e.g., Seminar Hall A, Building 3"
                     required
                   />
                 </div>
@@ -448,7 +448,7 @@ const Seminars = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
                   <input
                     type="number"
-                    className="input-field"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     value={formData.duration_minutes}
                     onChange={(e) => setFormData({ ...formData, duration_minutes: e.target.value })}
                     min="30"
@@ -460,21 +460,19 @@ const Seminars = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Online Meeting Link (optional)</label>
                   <input
                     type="url"
-                    className="input-field"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     value={formData.online_link}
                     onChange={(e) => setFormData({ ...formData, online_link: e.target.value })}
-                    placeholder="https://meet.google.com/..."
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Abstract (optional)</label>
                   <textarea
-                    className="input-field"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                     rows="4"
                     value={formData.abstract}
                     onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
-                    placeholder="Brief description of the seminar topic..."
                   />
                 </div>
 
@@ -482,7 +480,7 @@ const Seminars = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary flex-1"
+                    className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium flex-1"
                   >
                     {loading ? 'Scheduling...' : 'Schedule Seminar'}
                   </button>
@@ -493,7 +491,7 @@ const Seminars = () => {
                       setSelectedScholar(null);
                       setError(null);
                     }}
-                    className="btn-secondary flex-1"
+                    className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 font-medium flex-1"
                   >
                     Cancel
                   </button>

@@ -162,7 +162,7 @@ const ScholarProfile = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
+        <h1 className="text-3xl font-bold text-purple-900">My Profile</h1>
         <p className="text-gray-600 mt-2">View and manage your academic profile</p>
       </div>
 
@@ -183,10 +183,10 @@ const ScholarProfile = () => {
       {profile.status === 'completed' && profile.degree_awarded_date && (
         <div className="mb-6 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-400 rounded-lg p-6 shadow-lg">
           <div className="flex items-center">
-            <div className="text-6xl mr-6">🎓</div>
+            <div className="text-6xl mr-6"></div>
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-green-800 mb-2">
-                🎉 Congratulations! Program Completed 🎉
+                Congratulations! Program Completed
               </h2>
               <p className="text-lg text-gray-700 mb-2">
                 Your {profile.program === 'PhD' ? 'Ph.D.' : 'M.Sc. (Research)'} degree has been officially awarded!
@@ -218,8 +218,10 @@ const ScholarProfile = () => {
       <div className="card mb-6">
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center">
-            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center text-3xl mr-4">
-              {profile.status === 'completed' ? '🎓' : '👤'}
+            <div className="w-20 h-20 bg-violet-200 rounded-full flex items-center justify-center mr-4">
+              <svg className="w-12 h-12 text-violet-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-800">
@@ -235,9 +237,9 @@ const ScholarProfile = () => {
           {!editing && (
             <button
               onClick={handleEdit}
-              className="btn-primary"
+              className="bg-violet-100 text-violet-700 px-6 py-3 rounded-lg hover:bg-violet-200 font-medium"
             >
-              ✏️ Edit Profile
+              Edit Profile
             </button>
           )}
         </div>
@@ -290,15 +292,15 @@ const ScholarProfile = () => {
         {/* Supervisor Information */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold text-gray-800">👨‍🏫 Supervision</h3>
+            <h3 className="text-xl font-semibold text-gray-800">Supervision</h3>
             <button
               onClick={() => navigate('/supervisor-change-request')}
-              className="btn-secondary text-sm"
+              className="bg-violet-100 text-violet-700 px-4 py-2 rounded-lg hover:bg-violet-200 font-medium text-sm"
             >
-              🔄 Request Supervisor Change
+              Request Supervisor Change
             </button>
           </div>
-          <div className="p-4 bg-blue-50 rounded-lg max-w-md">
+          <div className="p-4 bg-violet-50 rounded-lg max-w-md">
             <label className="block text-sm font-medium text-gray-600 mb-2">Current Supervisor</label>
             <p className="text-lg font-semibold text-gray-800">
               {profile.supervisor?.user?.name || 'Not Assigned'}
@@ -310,7 +312,7 @@ const ScholarProfile = () => {
               <p className="text-xs text-gray-500 mt-1">{profile.supervisor.specialization}</p>
             )}
             {profile.supervisor?.user?.email && (
-              <p className="text-sm text-gray-600 mt-2">📧 {profile.supervisor.user.email}</p>
+              <p className="text-sm text-gray-600 mt-2">{profile.supervisor.user.email}</p>
             )}
           </div>
         </div>
@@ -319,7 +321,7 @@ const ScholarProfile = () => {
 
         {/* Doctoral Committee Information */}
         <div className="mb-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">👥 Doctoral Committee</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Doctoral Committee</h3>
           
           {committeeLoading ? (
             <div className="text-center py-4">
@@ -328,28 +330,28 @@ const ScholarProfile = () => {
           ) : committee && committee.dc_members && committee.dc_members.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {committee.dc_members.map((member, index) => (
-                <div key={member.id} className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                <div key={member.id} className="p-4 bg-violet-50 rounded-lg border border-violet-200">
                   <div className="flex items-start">
-                    <div className="flex-shrink-0 h-10 w-10 bg-purple-200 rounded-full flex items-center justify-center">
-                      <span className="text-purple-700 font-semibold">{index + 1}</span>
+                    <div className="flex-shrink-0 h-10 w-10 bg-violet-200 rounded-full flex items-center justify-center">
+                      <span className="text-violet-700 font-semibold">{index + 1}</span>
                     </div>
                     <div className="ml-3 flex-1">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-violet-900">
                         {member.supervisor?.user?.name || 'N/A'}
                       </p>
                       {member.supervisor?.designation && (
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="text-xs text-violet-700 mt-1">
                           {member.supervisor.designation}
                         </p>
                       )}
                       {member.supervisor?.specialization && (
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-violet-600 mt-1">
                           {member.supervisor.specialization}
                         </p>
                       )}
                       {member.supervisor?.user?.email && (
-                        <p className="text-xs text-blue-600 mt-2">
-                          📧 {member.supervisor.user.email}
+                        <p className="text-xs text-violet-600 mt-2">
+                          {member.supervisor.user.email}
                         </p>
                       )}
                     </div>
@@ -358,9 +360,9 @@ const ScholarProfile = () => {
               ))}
             </div>
           ) : (
-            <div className="p-4 bg-gray-50 rounded-lg text-center">
-              <p className="text-gray-500">No doctoral committee assigned yet</p>
-              <p className="text-sm text-gray-400 mt-1">Your committee will be assigned during the admission process</p>
+            <div className="p-4 bg-violet-50 rounded-lg text-center border border-violet-200">
+              <p className="text-violet-700">No doctoral committee assigned yet</p>
+              <p className="text-sm text-violet-500 mt-1">Your committee will be assigned during the admission process</p>
             </div>
           )}
         </div>
@@ -369,7 +371,7 @@ const ScholarProfile = () => {
 
         {/* Research Information - Editable */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">🔬 Research Information</h3>
+          <h3 className="text-xl font-semibold text-gray-800 mb-4">Research Information</h3>
 
           {editing ? (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -382,7 +384,7 @@ const ScholarProfile = () => {
                   value={formData.research_area}
                   onChange={handleChange}
                   rows="3"
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                   placeholder="Enter your research area (e.g., Machine Learning, Quantum Computing)"
                   required
                 />
@@ -397,37 +399,37 @@ const ScholarProfile = () => {
                   value={formData.thesis_title}
                   onChange={handleChange}
                   rows="2"
-                  className="input-field"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-violet-500"
                   placeholder="Enter your thesis title (if finalized)"
                 />
               </div>
 
               <div className="flex space-x-3">
-                <button type="submit" className="btn-success">
-                  💾 Save Changes
+                <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium">
+                  Save Changes
                 </button>
-                <button type="button" onClick={handleCancel} className="btn-secondary">
-                  ❌ Cancel
+                <button type="button" onClick={handleCancel} className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 font-medium">
+                  Cancel
                 </button>
               </div>
             </form>
           ) : (
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+              <div className="px-4 py-3 rounded bg-violet-50">
+                <label className="block text-sm font-medium text-violet-700 mb-1">
                   Specialization / Research Area
                 </label>
-                <p className="text-lg text-gray-800">
-                  {profile.research_area || <span className="text-gray-400 italic">Not specified</span>}
+                <p className="text-lg text-violet-900">
+                  {profile.research_area || <span className="text-violet-400 italic">Not specified</span>}
                 </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+              <div className="px-4 py-3 rounded bg-violet-50">
+                <label className="block text-sm font-medium text-violet-700 mb-1">
                   Thesis Title
                 </label>
-                <p className="text-lg text-gray-800">
-                  {profile.thesis_title || <span className="text-gray-400 italic">Not specified</span>}
+                <p className="text-lg text-violet-900">
+                  {profile.thesis_title || <span className="text-violet-400 italic">Not specified</span>}
                 </p>
               </div>
             </div>
@@ -440,20 +442,20 @@ const ScholarProfile = () => {
         {/* Academic Progress */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            📊 Academic Progress
+            Academic Progress
           </h3>
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Exams Completed</span>
-              <span className="font-semibold text-gray-800">-</span>
+            <div className="flex justify-between items-center px-3 py-2 rounded bg-violet-50">
+              <span className="text-violet-700">Exams Completed</span>
+              <span className="text-violet-900">-</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Seminars Presented</span>
-              <span className="font-semibold text-gray-800">-</span>
+            <div className="flex justify-between items-center px-3 py-2 rounded bg-violet-50">
+              <span className="text-violet-700">Seminars Presented</span>
+              <span className="text-violet-900">-</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Progress Reports</span>
-              <span className="font-semibold text-gray-800">-</span>
+            <div className="flex justify-between items-center px-3 py-2 rounded bg-violet-50">
+              <span className="text-violet-700">Progress Reports</span>
+              <span className="text-violet-900">-</span>
             </div>
           </div>
         </div>
@@ -461,7 +463,7 @@ const ScholarProfile = () => {
         {/* Courses Taken */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            📚 Courses Taken
+            Courses Taken
           </h3>
           <div className="text-gray-500 text-center py-4">
             <p className="mb-2">No courses recorded</p>
@@ -472,20 +474,20 @@ const ScholarProfile = () => {
         {/* Quick Actions */}
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            ⚡ Quick Actions
+            Quick Actions
           </h3>
           <div className="space-y-2">
-            <a href="/synopsis" className="block w-full text-left px-3 py-2 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm">
-              📄 Submit Synopsis
+            <a href="/synopsis" className="block w-full text-left px-3 py-2 rounded bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm">
+              Submit Synopsis
             </a>
-            <a href="/progress-reports" className="block w-full text-left px-3 py-2 rounded bg-green-50 hover:bg-green-100 text-green-700 text-sm">
-              📊 Submit Progress Report
+            <a href="/progress-reports" className="block w-full text-left px-3 py-2 rounded bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm">
+              Submit Progress Report
             </a>
-            <a href="/travel-grants" className="block w-full text-left px-3 py-2 rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 text-sm">
-              ✈️ Apply for Travel Grant
+            <a href="/travel-grants" className="block w-full text-left px-3 py-2 rounded bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm">
+              Apply for Travel Grant
             </a>
-            <a href="/calendar" className="block w-full text-left px-3 py-2 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 text-sm">
-              📅 View Calendar
+            <a href="/calendar" className="block w-full text-left px-3 py-2 rounded bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm">
+              View Calendar
             </a>
           </div>
         </div>
@@ -493,16 +495,16 @@ const ScholarProfile = () => {
 
       {/* Contact Information */}
       <div className="card mt-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">📞 Contact Information</h3>
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Contact Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Email</label>
-            <p className="text-lg text-gray-800">{profile.user?.email}</p>
+          <div className="px-4 py-3 rounded bg-violet-50">
+            <label className="block text-sm font-medium text-violet-700 mb-1">Email</label>
+            <p className="text-lg text-violet-900">{profile.user?.email}</p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-500 mb-1">Phone</label>
-            <p className="text-lg text-gray-800">{profile.user?.phone || 'Not provided'}</p>
+          <div className="px-4 py-3 rounded bg-violet-50">
+            <label className="block text-sm font-medium text-violet-700 mb-1">Phone</label>
+            <p className="text-lg text-violet-900">{profile.user?.phone || 'Not provided'}</p>
           </div>
         </div>
       </div>

@@ -36,24 +36,35 @@ const ForgotPassword = () => {
 
       {/* Header */}
       <div className="relative z-10 py-6 px-6">
-        <div className="max-w-6xl mx-auto flex items-center space-x-3">
-          <div className="w-16 h-16 flex items-center justify-center">
-            <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-24 h-24 flex items-center justify-center">
+              <img src={logo} alt="IIT Mandi Logo" className="w-full h-full object-contain drop-shadow-lg" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 drop-shadow-lg">IIT Mandi</h1>
+              <p className="text-sm text-gray-800 drop-shadow">Research Scholars Portal</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 drop-shadow-lg">IIT Mandi</h1>
-            <p className="text-sm text-gray-800 drop-shadow">Research Scholars Portal</p>
-          </div>
+          <Link
+            to="/login"
+            className="px-4 py-2 bg-transparent border border-gray-700 text-gray-800 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 font-medium flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Login
+          </Link>
         </div>
       </div>
 
       {/* Main content */}
       <div className="flex-1 flex items-center justify-center p-4 relative z-10">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-10">
+        <div className="w-full max-w-md relative z-10">
+          <div className="backdrop-blur-sm rounded-2xl shadow-2xl shadow-black/30 border border-gray-400/40 p-10">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Forgot Password?</h2>
-              <p className="text-gray-600 text-sm">
+              <h2 className="text-3xl font-bold text-black mb-2">Forgot Password?</h2>
+              <p className="text-black font-semibold text-sm">
                 Enter your email address and we'll send you a link to reset your password
               </p>
             </div>
@@ -87,7 +98,7 @@ const ForgotPassword = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-sm font-bold text-black mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -102,8 +113,8 @@ const ForgotPassword = () => {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-iit-blue focus:border-transparent outline-none transition-all bg-white text-gray-900"
-                      placeholder="your.email@iitmandi.ac.in"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-100 rounded-lg focus:ring-0 focus:border-purple-800 outline-none transition-all bg-white text-gray-900 placeholder:text-black"
+                      placeholder="Institute ID"
                     />
                   </div>
                 </div>
@@ -122,7 +133,7 @@ const ForgotPassword = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-iit-blue hover:bg-iit-darkblue text-white font-semibold py-3.5 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg"
+                  className="w-full bg-purple-800 hover:bg-purple-900 text-white font-semibold py-3.5 px-6 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg"
                 >
                   {loading ? (
                     <>
@@ -142,16 +153,10 @@ const ForgotPassword = () => {
             )}
 
             {/* Footer */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="text-center space-y-3">
-                <Link to="/login" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium transition-colors flex items-center justify-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Back to Login
-                </Link>
-                <p className="text-xs text-gray-500">For support, contact</p>
-                <a href="mailto:research@iitmandi.ac.in" className="text-sm text-iit-blue hover:text-iit-darkblue font-medium">
+            <div className="mt-8 pt-6 border-t border-gray-400">
+              <div className="text-center">
+                <p className="text-xs text-black font-semibold mb-1">For support, contact</p>
+                <a href="mailto:research@iitmandi.ac.in" className="text-sm text-purple-800 hover:text-purple-900 font-bold">
                   research@iitmandi.ac.in
                 </a>
               </div>

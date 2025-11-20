@@ -84,15 +84,15 @@ const SynopsisUploadTracker = ({ scholarId }) => {
 
   const getStageInfo = (stage) => {
     const stages = {
-      supervisor: { label: 'Supervisor Review', icon: '👨‍🏫', color: 'blue' },
-      dc_apc: { label: 'DC/APC Review', icon: '👥', color: 'purple' },
-      school_chair: { label: 'School Chair Review', icon: '🏛️', color: 'indigo' },
-      ad_research: { label: 'Assoc. Dean Research', icon: '🎓', color: 'violet' },
-      dean_academics: { label: 'Dean Academics', icon: '🏆', color: 'pink' },
-      completed: { label: 'Approved', icon: '✅', color: 'green' },
-      rejected: { label: 'Rejected', icon: '❌', color: 'red' }
+      supervisor: { label: 'Supervisor Review', icon: '1', color: 'blue' },
+      dc_apc: { label: 'DC/APC Review', icon: '2', color: 'purple' },
+      school_chair: { label: 'School Chair Review', icon: '3', color: 'indigo' },
+      ad_research: { label: 'Assoc. Dean Research', icon: '4', color: 'violet' },
+      dean_academics: { label: 'Dean Academics', icon: '5', color: 'pink' },
+      completed: { label: 'Approved', icon: '✓', color: 'green' },
+      rejected: { label: 'Rejected', icon: '✗', color: 'red' }
     };
-    return stages[stage] || { label: stage, icon: '📋', color: 'gray' };
+    return stages[stage] || { label: stage, icon: '•', color: 'gray' };
   };
 
   const getStatusBadge = (status) => {
@@ -123,7 +123,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
       return (
         <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
           <div className="flex items-center text-red-700">
-            <span className="text-2xl mr-2">❌</span>
+            <svg className="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
             <div>
               <p className="font-semibold">Synopsis Rejected</p>
               {synopsis.approvals && synopsis.approvals.find(a => a.decision === 'rejected') && (
@@ -141,7 +141,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
       return (
         <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
           <div className="flex items-center text-green-700">
-            <span className="text-2xl mr-2">🎉</span>
+            <svg className="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
             <div>
               <p className="font-semibold">Synopsis Approved!</p>
               <p className="text-sm mt-1">All reviewers have approved your synopsis</p>
@@ -214,7 +214,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
       {/* Upload Section */}
       <div className="card">
         <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-          📄 Submit Synopsis
+          Submit Synopsis
         </h3>
 
         {success && (
@@ -267,7 +267,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
             disabled={!selectedFile || uploading}
             className={`btn-primary ${(!selectedFile || uploading) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            {uploading ? '📤 Uploading...' : '📤 Submit Synopsis'}
+            {uploading ? 'Uploading...' : 'Submit Synopsis'}
           </button>
         </form>
 
@@ -281,7 +281,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
 
       {/* Submissions History and Tracking */}
       <div className="card">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">📊 Submission History & Tracking</h3>
+        <h3 className="text-xl font-semibold text-gray-800 mb-4">Submission History & Tracking</h3>
 
         {loading ? (
           <div className="text-center py-8">
@@ -289,7 +289,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
           </div>
         ) : synopses.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <p className="text-lg mb-2">📭 No synopsis submissions yet</p>
+            <p className="text-lg mb-2">No synopsis submissions yet</p>
             <p className="text-sm">Upload your first synopsis using the form above</p>
           </div>
         ) : (
@@ -320,7 +320,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
                     onClick={() => window.open(`/api/synopsis/${synopsis.id}/download`, '_blank')}
                     className="btn-secondary text-sm"
                   >
-                    📥 Download Submitted File
+                    Download Submitted File
                   </button>
                 </div>
               </div>
