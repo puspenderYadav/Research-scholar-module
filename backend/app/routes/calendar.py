@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, time
 
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+from sqlalchemy import false
 from sqlalchemy.orm import joinedload
 
 from app.models.exam import Exam
@@ -229,11 +230,13 @@ def get_calendar_events():
         meeting_query = meeting_query.filter(Meeting.scholar_id == current_user.scholar_profile.id)
     elif current_user.role == 'supervisor':
         meeting_query = meeting_query.filter(Meeting.faculty_id == current_user.id)
-    elif accessible_scholar_ids is not None:
-        meeting_query = meeting_query.filter(Meeting.scholar_id.in_(accessible_scholar_ids))
+    else:
+        meeting_query = meeting_query.filter(false())
 
     for meeting in meeting_query.all():
-        if not _should_include_scholar(meeting.scholar_id, accessible_scholar_ids):
+        if current_user.role == 'supervisor' and meeting.faculty_id != current_user.id:
+            continue
+        if current_user.role == 'scholar' and (not current_user.scholar_profile or meeting.scholar_id != current_user.scholar_profile.id):
             continue
         scholar_payload = _build_scholar_payload(meeting.scholar)
         events.append({
