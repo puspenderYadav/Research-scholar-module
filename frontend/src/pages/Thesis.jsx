@@ -289,7 +289,7 @@ const Thesis = () => {
     if (status === 'approved') return 'text-green-600';
     if (status === 'rejected') return 'text-red-600';
     if (status === 'changes_requested') return 'text-orange-600';
-    return 'text-blue-600';
+    return 'text-violet-600';
   };
 
   if (loading) {
@@ -386,9 +386,9 @@ const Thesis = () => {
                   )}
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">Next Steps After Submission:</h4>
-                  <ol className="list-decimal list-inside text-sm text-blue-800 space-y-1">
+                <div className="bg-violet-50 border border-violet-200 p-4 rounded-lg mb-4">
+                  <h4 className="font-semibold text-violet-900 mb-2">Next Steps After Submission:</h4>
+                  <ol className="list-decimal list-inside text-sm text-violet-800 space-y-1">
                     <li>Supervisor will review your revised thesis</li>
                     <li>After supervisor approval, it goes to Dean Academics</li>
                     <li>After Dean approval, your degree will be awarded!</li>
@@ -447,7 +447,7 @@ const Thesis = () => {
                 <button
                   type="submit"
                   disabled={!uploadFile || uploading}
-                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                 >
                   {uploading ? 'Uploading...' : 'Submit Thesis'}
                 </button>
@@ -549,7 +549,7 @@ const Thesis = () => {
                               {assignment.report_submitted ? '✓ Report Submitted' : 'Pending Report'}
                             </span>
                             {assignment.recommendation && (
-                              <span className="text-sm font-semibold text-blue-600">
+                              <span className="text-sm font-semibold text-violet-600">
                                 {assignment.recommendation.replace('_', ' ').toUpperCase()}
                               </span>
                             )}
@@ -740,7 +740,7 @@ const Thesis = () => {
                           {/* Regular Approval Buttons */}
                           <button
                             onClick={() => handleApprove(thesis.id, 'approved', 'Approved')}
-                            className="btn-primary text-sm"
+                            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold"
                           >
                             Approve
                           </button>
@@ -749,7 +749,7 @@ const Thesis = () => {
                               const comments = prompt('Enter comments for changes:');
                               if (comments) handleApprove(thesis.id, 'changes_requested', comments);
                             }}
-                            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 text-sm"
+                            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 text-sm"
                           >
                             Request Changes
                           </button>

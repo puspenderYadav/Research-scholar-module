@@ -203,6 +203,19 @@ const Dashboard = () => {
                 </a>
               </div>
             )}
+            {user.role === 'school_chair' && (
+              <div className="space-y-1">
+                <a href="/comprehensive-exams" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Schedule Comprehensive Exams
+                </a>
+                <a href="/approvals" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  Review Approvals
+                </a>
+                <a href="/calendar" className="block px-4 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-900 rounded transition">
+                  View Calendar
+                </a>
+              </div>
+            )}
           </div>
         </div>
 

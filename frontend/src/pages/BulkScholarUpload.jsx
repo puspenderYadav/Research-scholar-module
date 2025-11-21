@@ -94,8 +94,8 @@ const BulkScholarUpload = () => {
       </div>
 
       {/* Instructions Card */}
-      <div className="card mb-6 bg-blue-50 border border-blue-200">
-        <h2 className="text-xl font-semibold text-blue-800 mb-4">Instructions</h2>
+      <div className="card mb-6 bg-violet-50 border border-violet-200">
+        <h2 className="text-xl font-semibold text-violet-800 mb-4">Instructions</h2>
         <ol className="list-decimal list-inside space-y-2 text-gray-700">
           <li>Download the CSV template using the button below</li>
           <li>Fill in the scholar details in the CSV file with their personal emails</li>
@@ -112,7 +112,7 @@ const BulkScholarUpload = () => {
           </li>
         </ol>
 
-        <div className="mt-4 p-3 bg-white border border-blue-300 rounded">
+        <div className="mt-4 p-3 bg-white border border-violet-300 rounded">
           <p className="text-sm font-semibold text-gray-700 mb-2">Required CSV Columns:</p>
           <div className="text-xs text-gray-600 font-mono bg-gray-50 p-2 rounded overflow-x-auto">
             name, personal_email, program, admission_year, school_code, admission_date, supervisor_email,
@@ -136,7 +136,7 @@ const BulkScholarUpload = () => {
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Step 1: Download Template</h3>
         <button
           onClick={handleDownloadTemplate}
-          className="btn-primary"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors text-sm"
         >
           Download CSV Template
         </button>
@@ -169,8 +169,8 @@ const BulkScholarUpload = () => {
                 file:mr-4 file:py-2 file:px-4
                 file:rounded file:border-0
                 file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100
+                file:bg-violet-50 file:text-violet-700
+                hover:file:bg-violet-100
                 cursor-pointer"
               disabled={uploading}
             />
@@ -185,7 +185,7 @@ const BulkScholarUpload = () => {
             <button
               onClick={handleUpload}
               disabled={!file || uploading}
-              className={`btn-primary ${(!file || uploading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors text-sm ${(!file || uploading) ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {uploading ? (
                 <>
@@ -217,9 +217,9 @@ const BulkScholarUpload = () => {
             <h3 className="text-xl font-semibold text-gray-800 mb-4">Upload Results</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-600 font-medium">Total Processed</p>
-                <p className="text-3xl font-bold text-blue-800">
+              <div className="bg-violet-50 p-4 rounded-lg border border-violet-200">
+                <p className="text-sm text-violet-600 font-medium">Total Processed</p>
+                <p className="text-3xl font-bold text-violet-800">
                   {result.successful_count + result.failed_count}
                 </p>
               </div>

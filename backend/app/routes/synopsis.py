@@ -70,6 +70,7 @@ def submit_synopsis():
         )
 
         db.session.add(synopsis)
+        db.session.flush()  # Get synopsis.id before creating approval
 
         # Create initial approval record for supervisor
         if scholar.supervisor:
@@ -83,13 +84,17 @@ def submit_synopsis():
             db.session.add(approval)
 
             # Send notification to supervisor
-            NotificationService.create_notification(
-                user_id=scholar.supervisor.user_id,
-                title='New Synopsis Submission',
-                message=f'{scholar.user.name} ({scholar.enrollment_number}) has submitted their synopsis for review.',
-                type='synopsis_submitted',
-                related_id=synopsis.id
-            )
+            try:
+                NotificationService.create_notification(
+                    user_id=scholar.supervisor.user_id,
+                    title='New Synopsis Submission',
+                    message=f'{scholar.user.name} ({scholar.enrollment_number}) has submitted their synopsis for review.',
+                    type='synopsis_submitted',
+                    related_id=synopsis.id
+                )
+            except Exception as notif_error:
+                print(f"Warning: Failed to send notification: {notif_error}")
+                # Continue even if notification fails
 
         db.session.commit()
 
@@ -100,6 +105,9 @@ def submit_synopsis():
 
     except Exception as e:
         db.session.rollback()
+        print(f"Error in submit_synopsis: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 

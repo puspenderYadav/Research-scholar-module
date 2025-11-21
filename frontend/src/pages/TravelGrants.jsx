@@ -47,7 +47,7 @@ const TravelGrants = () => {
       'pending': 'bg-yellow-100 text-yellow-800',
       'approved': 'bg-green-100 text-green-800',
       'rejected': 'bg-red-100 text-red-800',
-      'submitted': 'bg-blue-100 text-blue-800'
+      'submitted': 'bg-violet-100 text-violet-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
@@ -94,7 +94,7 @@ const TravelGrants = () => {
 
               {loading ? (
                 <div className="flex justify-center items-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600"></div>
                 </div>
               ) : (
                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -139,7 +139,7 @@ const TravelGrants = () => {
                                 )}
                               </div>
                               {grant.presenting_paper && (
-                                <div className="mt-2 text-sm text-blue-600">
+                                <div className="mt-2 text-sm text-violet-600">
                                   Presenting {grant.number_of_papers} paper(s)
                                 </div>
                               )}

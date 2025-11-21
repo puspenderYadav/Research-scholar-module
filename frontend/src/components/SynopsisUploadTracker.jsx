@@ -84,11 +84,11 @@ const SynopsisUploadTracker = ({ scholarId }) => {
 
   const getStageInfo = (stage) => {
     const stages = {
-      supervisor: { label: 'Supervisor Review', icon: '1', color: 'blue' },
+      supervisor: { label: 'Supervisor Review', icon: '1', color: 'violet' },
       dc_apc: { label: 'DC/APC Review', icon: '2', color: 'purple' },
       school_chair: { label: 'School Chair Review', icon: '3', color: 'indigo' },
       ad_research: { label: 'Assoc. Dean Research', icon: '4', color: 'violet' },
-      dean_academics: { label: 'Dean Academics', icon: '5', color: 'pink' },
+      dean_academics: { label: 'Dean Academics', icon: '5', color: 'violet' },
       completed: { label: 'Approved', icon: '✓', color: 'green' },
       rejected: { label: 'Rejected', icon: '✗', color: 'red' }
     };
@@ -97,7 +97,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      with_supervisor: { label: 'With Supervisor', class: 'bg-blue-100 text-blue-800' },
+      with_supervisor: { label: 'With Supervisor', class: 'bg-violet-100 text-violet-800' },
       with_dc_apc: { label: 'With DC/APC', class: 'bg-purple-100 text-purple-800' },
       with_school_chair: { label: 'With School Chair', class: 'bg-indigo-100 text-indigo-800' },
       with_ad_research: { label: 'With AD Research', class: 'bg-violet-100 text-violet-800' },
@@ -198,7 +198,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
                 {/* Status Indicator */}
                 {isCurrent && (
                   <div className="ml-2">
-                    <span className="inline-flex h-3 w-3 rounded-full bg-blue-500 animate-pulse"></span>
+                    <span className="inline-flex h-3 w-3 rounded-full bg-violet-500 animate-pulse"></span>
                   </div>
                 )}
               </div>
@@ -243,8 +243,8 @@ const SynopsisUploadTracker = ({ scholarId }) => {
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-full file:border-0
                 file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
+                file:bg-violet-50 file:text-violet-700
+                hover:file:bg-violet-100"
             />
             <p className="mt-1 text-sm text-gray-500">
               Accepted formats: PDF, DOC, DOCX (Max size: 10MB)
@@ -252,7 +252,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
           </div>
 
           {selectedFile && (
-            <div className="p-3 bg-blue-50 rounded border border-blue-200">
+            <div className="p-3 bg-violet-50 rounded border border-violet-200">
               <p className="text-sm text-gray-700">
                 <span className="font-medium">Selected:</span> {selectedFile.name}
                 <span className="text-gray-500 ml-2">
@@ -265,7 +265,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
           <button
             type="submit"
             disabled={!selectedFile || uploading}
-            className={`btn-primary ${(!selectedFile || uploading) ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition-colors ${(!selectedFile || uploading) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {uploading ? 'Uploading...' : 'Submit Synopsis'}
           </button>
@@ -318,7 +318,7 @@ const SynopsisUploadTracker = ({ scholarId }) => {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <button
                     onClick={() => window.open(`/api/synopsis/${synopsis.id}/download`, '_blank')}
-                    className="btn-secondary text-sm"
+                    className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm font-medium"
                   >
                     Download Submitted File
                   </button>

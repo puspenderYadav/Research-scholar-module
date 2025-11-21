@@ -376,7 +376,7 @@ const CreateAnnouncementForm = ({ onSuccess, onCancel, api }) => {
             <button
               type="submit"
               disabled={loading || formData.target_audience.length === 0}
-              className="btn-primary"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating...' : 'Create Announcement'}
             </button>

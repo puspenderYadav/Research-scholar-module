@@ -1617,6 +1617,10 @@ def publish_announcement_route(id):
         publish_announcement(id)
         return jsonify({'message': 'Announcement published successfully'}), 200
     except Exception as e:
+        print(f"Error publishing announcement: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        db.session.rollback()
         return jsonify({'error': f'Error publishing announcement: {str(e)}'}), 500
 
 
@@ -1662,7 +1666,7 @@ def publish_announcement(announcement_id):
             user_id=user.id,
             title=announcement.title,
             message=announcement.message,
-            type='announcement',
+            notification_type='announcement',
             is_read=False
         )
         db.session.add(notification)

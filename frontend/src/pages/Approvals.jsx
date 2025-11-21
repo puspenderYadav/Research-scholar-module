@@ -102,7 +102,7 @@ const Approvals = () => {
 
   const getTypeBadgeColor = (type) => {
     const colors = {
-      'travel_grant': 'bg-blue-100 text-blue-800',
+      'travel_grant': 'bg-violet-100 text-violet-800',
       'progress_report': 'bg-purple-100 text-purple-800',
       'synopsis': 'bg-green-100 text-green-800',
       'thesis': 'bg-red-100 text-red-800',
@@ -115,7 +115,7 @@ const Approvals = () => {
 
   const getStatusBadgeColor = (status) => {
     const colors = {
-      'submitted': 'bg-blue-100 text-blue-800',
+      'submitted': 'bg-violet-100 text-violet-800',
       'under_review': 'bg-yellow-100 text-yellow-800',
       'pending': 'bg-orange-100 text-orange-800',
       'approved': 'bg-green-100 text-green-800',

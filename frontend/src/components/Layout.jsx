@@ -86,23 +86,25 @@ const Layout = ({ children }) => {
     <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="bg-purple-900 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center flex-shrink-0">
               <Link to="/dashboard" className="flex items-center space-x-3">
                 <div className="font-bold">
-                  <div className="text-xl">IIT Mandi</div>
-                  <div className="text-sm text-purple-200">Research Scholars Portal</div>
+                  <div className="text-lg sm:text-xl whitespace-nowrap">IIT Mandi</div>
+                  <div className="text-xs sm:text-sm text-purple-200 whitespace-nowrap">Research Scholars Portal</div>
                 </div>
               </Link>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
               <Link
                 to="/notifications"
-                className="relative hover:bg-white hover:bg-opacity-10 px-3 py-2 rounded-md transition"
+                className="relative hover:bg-white hover:bg-opacity-10 p-2 rounded-full transition"
               >
-                <span className="text-xl">🔔</span>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
                 {unreadCount > 0 && (
                   <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
                     {unreadCount}
@@ -113,18 +115,18 @@ const Layout = ({ children }) => {
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center hover:bg-white hover:bg-opacity-10 px-3 py-2 rounded-md transition"
+                  className="flex items-center hover:bg-white hover:bg-opacity-10 px-2 sm:px-3 py-2 rounded-md transition"
                 >
-                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-2">
+                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center sm:mr-2">
                     <span className="text-sm font-semibold">{user?.name?.charAt(0).toUpperCase()}</span>
                   </div>
                   <span className="hidden md:inline">{user?.name}</span>
-                  <span className="ml-2">▼</span>
+                  <span className="ml-1 sm:ml-2">▼</span>
                 </button>
 
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                    {!['dean_academics', 'ad_research'].includes(user?.role) && (
+                    {!['dean_academics', 'ad_research', 'supervisor', 'school_chair'].includes(user?.role) && (
                       <Link
                         to="/profile"
                         className="block px-4 py-2 text-purple-900 hover:bg-purple-50"
@@ -185,8 +187,8 @@ const Layout = ({ children }) => {
 
       {/* Footer */}
       <footer className="bg-purple-900 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-          <p className="text-white">&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6 text-center">
+          <p className="text-white text-sm sm:text-base break-words">&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
         </div>
       </footer>
 

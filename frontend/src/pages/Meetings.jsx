@@ -151,7 +151,7 @@ const Meetings = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      scheduled: 'bg-blue-100 text-blue-800',
+      scheduled: 'bg-violet-100 text-violet-800',
       completed: 'bg-green-100 text-green-800',
       cancelled: 'bg-red-100 text-red-800',
       missed: 'bg-gray-100 text-gray-800'
@@ -258,7 +258,7 @@ const Meetings = () => {
 
                     {/* Time Remaining */}
                     {meeting.time_remaining && (
-                      <div className="mt-3 inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                      <div className="mt-3 inline-flex items-center gap-2 bg-violet-50 text-violet-700 px-3 py-1 rounded-full text-sm font-medium">
                         <span>Time remaining: {getTimeRemaining(meeting.meeting_date)}</span>
                       </div>
                     )}

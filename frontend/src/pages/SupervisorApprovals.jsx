@@ -172,8 +172,8 @@ const SupervisorApprovals = () => {
                   </div>
 
                   {/* Your Role */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                    <p className="text-sm font-medium text-blue-900">
+                  <div className="bg-violet-50 border border-violet-200 rounded-lg p-3 mb-4">
+                    <p className="text-sm font-medium text-violet-900">
                       {isCurrent && '🔵 You are the CURRENT supervisor'}
                       {isNew && '🟢 You are the REQUESTED NEW supervisor'}
                     </p>

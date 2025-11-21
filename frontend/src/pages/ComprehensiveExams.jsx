@@ -180,7 +180,7 @@ const ComprehensiveExams = () => {
                 </div>
 
                 {exam.instructions && (
-                  <div className="mt-4 p-3 bg-blue-50 rounded">
+                  <div className="mt-4 p-3 bg-violet-50 rounded">
                     <p className="text-sm font-medium text-gray-700">Instructions:</p>
                     <p className="text-sm text-gray-600 mt-1">{exam.instructions}</p>
                   </div>
@@ -219,7 +219,7 @@ const ComprehensiveExams = () => {
 
       {user.role === 'school_chair' && !showForm ? (
         <div className="card mb-6">
-          <button onClick={() => setShowForm(true)} className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium">
+          <button onClick={() => setShowForm(true)} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm">
             + Schedule New Comprehensive Exam
           </button>
         </div>
@@ -396,7 +396,7 @@ const ComprehensiveExams = () => {
             </div>
 
             <div className="flex space-x-3">
-              <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium">
+              <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm">
                 Schedule Exam & Notify Students
               </button>
               <button
