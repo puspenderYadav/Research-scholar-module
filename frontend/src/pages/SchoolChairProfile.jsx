@@ -314,26 +314,7 @@ const SchoolChairProfile = () => {
             >
               Analytics
             </button>
-            <button
-              onClick={() => setActiveTab('approvals')}
-              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
-                activeTab === 'approvals'
-                  ? 'border-purple-600'
-                  : 'border-transparent hover:text-purple-900'
-              }`}
-            >
-              Approvals
-            </button>
-            <button
-              onClick={() => setActiveTab('comprehensive')}
-              className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
-                activeTab === 'comprehensive'
-                  ? 'border-purple-600'
-                  : 'border-transparent hover:text-purple-900'
-              }`}
-            >
-              Comprehensive Exams
-            </button>
+
             <button
               onClick={() => setActiveTab('faculty')}
               className={`py-4 px-1 border-b-2 text-sm text-gray-700 transition-colors whitespace-nowrap ${
@@ -535,7 +516,7 @@ const SchoolChairProfile = () => {
                             <p>Supervisor: {approval.supervisor}</p>
                             <p>Submitted: {new Date(approval.submitted_at).toLocaleDateString()}</p>
                             {approval.file_name && (
-                              <p>File: <a href={`http://localhost:5000/api/uploads/${approval.type}/${approval.file_name}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{approval.file_name}</a></p>
+                              <p>File: <a href={`http://localhost:5000/api/uploads/${approval.type}/${approval.file_name}`} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline">{approval.file_name}</a></p>
                             )}
                           </div>
                         </div>

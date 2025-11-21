@@ -180,7 +180,7 @@ const ScholarProfile = () => {
 
       {/* Program Completion Banner */}
       {profile.status === 'completed' && profile.degree_awarded_date && (
-        <div className="mb-6 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-400 rounded-lg p-6 shadow-lg">
+        <div className="mb-6 bg-gradient-to-r from-green-50 to-violet-50 border-2 border-green-400 rounded-lg p-6 shadow-lg">
           <div className="flex items-center">
             <div className="text-6xl mr-6"></div>
             <div className="flex-1">
@@ -196,9 +196,9 @@ const ScholarProfile = () => {
                   <p className="text-lg font-bold text-green-700">{formatDate(profile.degree_awarded_date)}</p>
                 </div>
                 {profile.defense_completion_date && (
-                  <div className="bg-white rounded-lg p-3 border border-blue-200">
+                  <div className="bg-white rounded-lg p-3 border border-violet-200">
                     <p className="text-sm text-gray-600">Defense Completed On</p>
-                    <p className="text-lg font-bold text-blue-700">{formatDate(profile.defense_completion_date)}</p>
+                    <p className="text-lg font-bold text-violet-700">{formatDate(profile.defense_completion_date)}</p>
                   </div>
                 )}
                 {profile.final_result && (
@@ -404,7 +404,7 @@ const ScholarProfile = () => {
               </div>
 
               <div className="flex space-x-3">
-                <button type="submit" className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium">
+                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm">
                   Save Changes
                 </button>
                 <button type="button" onClick={handleCancel} className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 font-medium">

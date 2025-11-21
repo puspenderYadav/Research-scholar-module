@@ -104,7 +104,7 @@ const CommitteeApprovals = () => {
                   <div className="ml-6 flex space-x-2">
                     <button
                       onClick={() => navigate('/travel-grants')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                     >
                       Review
                     </button>
@@ -148,7 +148,7 @@ const CommitteeApprovals = () => {
                   <div className="ml-6 flex space-x-2">
                     <button
                       onClick={() => navigate('/progress-reports')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                     >
                       Review
                     </button>
@@ -187,7 +187,7 @@ const CommitteeApprovals = () => {
                   <div className="ml-6 flex space-x-2">
                     <button
                       onClick={() => navigate('/synopsis')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                     >
                       Review
                     </button>
@@ -226,7 +226,7 @@ const CommitteeApprovals = () => {
                   <div className="ml-6 flex space-x-2">
                     <button
                       onClick={() => navigate('/thesis')}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
                     >
                       Review
                     </button>

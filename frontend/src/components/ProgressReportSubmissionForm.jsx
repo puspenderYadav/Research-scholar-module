@@ -129,7 +129,7 @@ export default function ProgressReportSubmissionForm({ onReportSubmitted }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium"
+            className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium text-sm"
           >
             {loading ? 'Submitting...' : 'Submit Progress Report'}
           </button>

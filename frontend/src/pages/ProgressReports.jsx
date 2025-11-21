@@ -38,7 +38,7 @@ const ProgressReports = () => {
             <div className="mb-6">
               <button
                 onClick={() => setShowSubmitForm(!showSubmitForm)}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm"
               >
                 {showSubmitForm ? 'Hide Form' : '+ Submit New Progress Report'}
               </button>

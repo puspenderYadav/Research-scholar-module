@@ -140,7 +140,7 @@ const Notifications = () => {
     if (priority === 'urgent') return 'bg-red-50 border-red-200';
     
     const colors = {
-      approval: 'bg-blue-50 border-blue-200',
+      approval: 'bg-violet-50 border-violet-200',
       announcement: 'bg-purple-50 border-purple-200',
       deadline: 'bg-orange-50 border-orange-200',
       exam: 'bg-green-50 border-green-200',
@@ -157,7 +157,7 @@ const Notifications = () => {
     if (priority === 'urgent') return 'text-red-600';
     
     const colors = {
-      approval: 'text-blue-600',
+      approval: 'text-violet-600',
       announcement: 'text-purple-600',
       deadline: 'text-orange-600',
       exam: 'text-green-600',
@@ -280,7 +280,7 @@ const Notifications = () => {
         
         {loading ? (
           <div className="bg-white rounded-lg shadow p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto"></div>
             <p className="text-gray-600 mt-4">Loading notifications...</p>
           </div>
         ) : notifications.length === 0 ? (
@@ -313,7 +313,7 @@ const Notifications = () => {
                         <div className="flex items-center space-x-2 mb-1">
                           <span className={`
                             px-2 py-1 rounded-full text-xs font-medium
-                            ${notification.notification_type === 'approval' ? 'bg-blue-100 text-blue-800' :
+                            ${notification.notification_type === 'approval' ? 'bg-violet-100 text-violet-800' :
                               notification.notification_type === 'announcement' ? 'bg-purple-100 text-purple-800' :
                               notification.notification_type === 'deadline' ? 'bg-orange-100 text-orange-800' :
                               'bg-gray-100 text-gray-800'}
@@ -326,7 +326,7 @@ const Notifications = () => {
                             </span>
                           )}
                           {!notification.is_read && (
-                            <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
+                            <span className="w-2 h-2 bg-violet-600 rounded-full"></span>
                           )}
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-1">
@@ -348,7 +348,7 @@ const Notifications = () => {
                               e.stopPropagation();
                               markAsRead(notification.id);
                             }}
-                            className="text-blue-600 hover:text-blue-800"
+                            className="text-violet-600 hover:text-violet-800"
                             title="Mark as read"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +389,7 @@ const Notifications = () => {
                   <div className="flex items-center space-x-2 mb-2">
                       <span className={`
                         px-3 py-1 rounded-full text-xs font-medium
-                        ${selectedNotification.notification_type === 'approval' ? 'bg-blue-100 text-blue-800' :
+                        ${selectedNotification.notification_type === 'approval' ? 'bg-violet-100 text-violet-800' :
                           selectedNotification.notification_type === 'announcement' ? 'bg-purple-100 text-purple-800' :
                           selectedNotification.notification_type === 'deadline' ? 'bg-orange-100 text-orange-800' :
                           selectedNotification.notification_type === 'supervisor_change' ? 'bg-cyan-100 text-cyan-800' :
@@ -457,8 +457,8 @@ const Notifications = () => {
                         Read
                       </span>
                     ) : (
-                      <span className="inline-flex items-center text-blue-700 font-medium">
-                        <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                      <span className="inline-flex items-center text-violet-700 font-medium">
+                        <span className="w-2 h-2 bg-violet-600 rounded-full mr-2"></span>
                         Unread
                       </span>
                     )}
@@ -470,8 +470,8 @@ const Notifications = () => {
               {selectedNotification.related_entity_type && (
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-700 mb-1">Related To</h3>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-blue-900 font-medium">
+                  <div className="bg-violet-50 border border-violet-200 rounded-lg p-3">
+                    <p className="text-violet-900 font-medium">
                       {selectedNotification.related_entity_type.replace('_', ' ').toUpperCase()}
                       {selectedNotification.related_entity_id && ` #${selectedNotification.related_entity_id}`}
                     </p>
@@ -484,7 +484,7 @@ const Notifications = () => {
                 {selectedNotification.action_link && (
                   <button
                     onClick={handleTakeAction}
-                    className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium transition-colors flex items-center justify-center"
+                    className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-medium transition-colors flex items-center justify-center"
                   >
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />

@@ -79,7 +79,7 @@ export default function SupervisorChange() {
         {canSubmitNewRequest ? (
           <button
             onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-medium"
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 font-medium text-sm"
           >
             {showForm ? 'Hide Form' : '+ New Supervisor Change Request'}
           </button>
@@ -198,8 +198,8 @@ export default function SupervisorChange() {
 
                 {/* Info Box */}
                 {request.status === 'pending' && (
-                  <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                    <p className="text-sm text-blue-800">
+                  <div className="bg-violet-50 border border-violet-200 rounded p-3">
+                    <p className="text-sm text-violet-800">
                       {request.current_supervisor_status === 'pending' && request.new_supervisor_status === 'pending' && (
                         '⏳ Waiting for both supervisors to approve'
                       )}
