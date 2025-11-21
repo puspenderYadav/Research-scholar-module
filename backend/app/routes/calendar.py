@@ -12,6 +12,7 @@ from app.models.school import School
 from app.models.seminar import Seminar
 from app.models.thesis import Thesis
 from app.models.thesis_defense import ThesisDefense
+from app.models.comprehensive_exam import ComprehensiveExam, ComprehensiveExamRegistration
 from app.utils.decorators import get_current_user
 
 bp = Blueprint('calendar', __name__, url_prefix='/api/calendar')
@@ -250,6 +251,74 @@ def get_calendar_events():
                 'description': meeting.description,
                 'faculty': meeting.faculty.name if meeting.faculty else None,
                 'notes': meeting.notes,
+            },
+        })
+
+    # Comprehensive Exams
+    comp_exam_query = ComprehensiveExam.query.options(
+        joinedload(ComprehensiveExam.school)
+    ).filter(
+        ComprehensiveExam.exam_date.isnot(None),
+        ComprehensiveExam.exam_date.between(start_date.date(), end_date.date())
+    )
+
+    # Filter based on user role
+    if current_user.role == 'scholar' and current_user.scholar_profile:
+        # Scholars see exams they are registered for
+        registrations = ComprehensiveExamRegistration.query.filter_by(
+            scholar_id=current_user.scholar_profile.id
+        ).all()
+        registered_exam_ids = [reg.exam_id for reg in registrations]
+        if registered_exam_ids:
+            comp_exam_query = comp_exam_query.filter(ComprehensiveExam.id.in_(registered_exam_ids))
+        else:
+            comp_exam_query = comp_exam_query.filter(false())
+    elif current_user.role == 'supervisor':
+        # Supervisors see exams from schools where they have scholars
+        if current_user.supervisor_profile:
+            supervised = list(getattr(current_user.supervisor_profile, 'supervised_scholars', []) or [])
+            co_supervised = list(getattr(current_user.supervisor_profile, 'co_supervised_scholars', []) or [])
+            school_ids = set()
+            for scholar in supervised + co_supervised:
+                if scholar.school_id:
+                    school_ids.add(scholar.school_id)
+            if school_ids:
+                comp_exam_query = comp_exam_query.filter(ComprehensiveExam.school_id.in_(school_ids))
+            else:
+                comp_exam_query = comp_exam_query.filter(false())
+        else:
+            comp_exam_query = comp_exam_query.filter(false())
+    elif current_user.role == 'school_chair':
+        # School chairs see exams from their school
+        schools = School.query.filter_by(chair_id=current_user.id, is_deleted=False).all()
+        school_ids = [school.id for school in schools]
+        if school_ids:
+            comp_exam_query = comp_exam_query.filter(ComprehensiveExam.school_id.in_(school_ids))
+        else:
+            comp_exam_query = comp_exam_query.filter(false())
+    # AD Research and Dean see all exams (no filter needed)
+
+    for comp_exam in comp_exam_query.all():
+        exam_time = comp_exam.exam_time or time(hour=10, minute=0)
+        exam_dt = datetime.combine(comp_exam.exam_date, exam_time)
+        
+        # Get school name
+        school_name = comp_exam.school.name if comp_exam.school else 'Unknown School'
+        
+        events.append({
+            'id': f'comprehensive-exam-{comp_exam.id}',
+            'type': 'exam',
+            'title': comp_exam.title,
+            'start': exam_dt.isoformat(),
+            'venue': comp_exam.venue,
+            'status': comp_exam.status,
+            'details': {
+                'description': comp_exam.description,
+                'school': school_name,
+                'program': comp_exam.program or 'All Programs',
+                'duration_minutes': comp_exam.duration_minutes,
+                'instructions': comp_exam.instructions,
+                'syllabus': comp_exam.syllabus,
             },
         })
 

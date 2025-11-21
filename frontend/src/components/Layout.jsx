@@ -83,10 +83,10 @@ const Layout = ({ children }) => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Navigation */}
-      <nav className="bg-purple-900 text-white shadow-lg">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-purple-900 text-white shadow-lg w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center flex-shrink-0">
               <Link to="/dashboard" className="flex items-center space-x-3">
@@ -158,9 +158,9 @@ const Layout = ({ children }) => {
         </div>
       </nav>
 
-      <div className="flex">
+      <div className="flex flex-1 w-full overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-64 bg-white min-h-screen">
+        <aside className="w-64 bg-white flex-shrink-0 overflow-y-auto">
           <nav className="mt-5">
             {filteredNavItems.map((item) => (
               <Link
@@ -180,13 +180,13 @@ const Layout = ({ children }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
       </div>
 
       {/* Footer */}
-      <footer className="bg-purple-900 mt-12">
+      <footer className="bg-purple-900 w-full mt-auto">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-6 text-center">
           <p className="text-white text-sm sm:text-base break-words">&copy; 2025 Research Scholars Management Portal. All rights reserved.</p>
         </div>
