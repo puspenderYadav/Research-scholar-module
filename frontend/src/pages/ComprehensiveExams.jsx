@@ -116,6 +116,10 @@ const ComprehensiveExams = () => {
     setSelectedExam(exam);
   };
 
+  const closeExamDetails = () => {
+    setSelectedExam(null);
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -472,6 +476,138 @@ const ComprehensiveExams = () => {
           </div>
         )}
       </div>
+
+      {/* Exam Details Modal */}
+      {selectedExam && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-purple-600 text-white px-6 py-4 rounded-t-lg flex justify-between items-center">
+              <h3 className="text-xl font-semibold">{selectedExam.title}</h3>
+              <button
+                onClick={closeExamDetails}
+                className="text-white hover:text-gray-200 text-2xl font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h4 className="text-lg font-semibold text-gray-800 mb-3">Basic Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Date</p>
+                    <p className="font-semibold text-gray-900">
+                      {new Date(selectedExam.exam_date).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Time</p>
+                    <p className="font-semibold text-gray-900">{selectedExam.exam_time}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Duration</p>
+                    <p className="font-semibold text-gray-900">{selectedExam.duration_minutes} minutes</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Venue</p>
+                    <p className="font-semibold text-gray-900">{selectedExam.venue}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Program</p>
+                    <p className="font-semibold text-gray-900">{selectedExam.program || 'All Programs'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">School</p>
+                    <p className="font-semibold text-gray-900">{selectedExam.school?.name || 'All Schools'}</p>
+                  </div>
+                  {selectedExam.admission_year && (
+                    <div>
+                      <p className="text-sm text-gray-500">Admission Year</p>
+                      <p className="font-semibold text-gray-900">{selectedExam.admission_year}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm text-gray-500">Registered Students</p>
+                    <p className="font-semibold text-gray-900">{selectedExam.registered_count}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Status</p>
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                      selectedExam.status === 'scheduled' ? 'bg-green-100 text-green-800' :
+                      selectedExam.status === 'completed' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {selectedExam.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              {selectedExam.description && (
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Description</h4>
+                  <p className="text-gray-700 bg-gray-50 p-4 rounded">{selectedExam.description}</p>
+                </div>
+              )}
+
+              {/* Instructions */}
+              {selectedExam.instructions && (
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Instructions</h4>
+                  <div className="bg-violet-50 p-4 rounded border border-violet-200">
+                    <p className="text-gray-700 whitespace-pre-wrap">{selectedExam.instructions}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Syllabus */}
+              {selectedExam.syllabus && (
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Syllabus</h4>
+                  <div className="bg-blue-50 p-4 rounded border border-blue-200">
+                    <p className="text-gray-700 whitespace-pre-wrap">{selectedExam.syllabus}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Created By */}
+              {selectedExam.created_by && (
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Created By</h4>
+                  <div className="bg-gray-50 p-4 rounded">
+                    <p className="text-gray-700">
+                      <span className="font-semibold">{selectedExam.created_by.name}</span>
+                      <br />
+                      <span className="text-sm text-gray-600">{selectedExam.created_by.email}</span>
+                      <br />
+                      <span className="text-sm text-gray-500">
+                        Created on {new Date(selectedExam.created_at).toLocaleDateString()}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end">
+              <button
+                onClick={closeExamDetails}
+                className="bg-violet-600 text-white px-6 py-2 rounded-lg hover:bg-violet-700 font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
