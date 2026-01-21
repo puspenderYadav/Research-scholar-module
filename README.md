@@ -15,7 +15,6 @@ A comprehensive full-stack web application for managing PhD and M.Sc. research s
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
-- [Test Credentials](#test-credentials)
 - [Project Structure](#project-structure)
 - [API Overview](#api-overview)
 - [User Roles](#user-roles)
@@ -138,45 +137,6 @@ npm run dev
 **Access:**
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000/api
-
----
-
-## Test Credentials
-
-> **Note:** This is a private repository. All credentials below are for development/testing purposes.
-
-### Admin Accounts
-
-| Role | Email | Password |
-|------|-------|----------|
-| Dean Academics | dean@iitmandi.ac.in | Dean@123 |
-| AD Research | adresearch@iitmandi.ac.in | ADResearch@123 |
-
-### School Chair Accounts
-
-| School | Email | Password |
-|--------|-------|----------|
-| SMSS | smss.chair@iitmandi.ac.in | smss@123 |
-| SMME | smme.chair@iitmandi.ac.in | smme@123 |
-| SCEE | scee.chair@iitmandi.ac.in | scee@123 |
-| SBB | sbb.chair@iitmandi.ac.in | sbb@123 |
-
-### Demo Accounts (Seed Data)
-
-| Role | Email | Password |
-|------|-------|----------|
-| School Chair | chair.cs@university.edu | password123 |
-| Supervisor 1 | supervisor1@university.edu | password123 |
-| Supervisor 2 | supervisor2@university.edu | password123 |
-| Scholar (PhD) | scholar1@university.edu | password123 |
-| Scholar (M.Sc.) | scholar2@university.edu | password123 |
-
-### Bulk Registered Scholars
-
-Default password pattern: `{enrollment_number}@123`
-
-Example: Enrollment `D24001` → Password `D24001@123`
-
 ---
 
 ## Project Structure
@@ -372,3 +332,4 @@ lsof -ti:3000 | xargs kill -9
 ---
 
 **Version 1.0.0** | **November 2025** | **IIT Mandi**
+
