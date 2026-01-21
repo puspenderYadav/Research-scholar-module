@@ -195,13 +195,6 @@ Authorization: Bearer <access_token>
 | Calendar | `/api/calendar` | Events |
 | Dean | `/api/dean` | Admin portal |
 
-### Example: Login
-
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email": "dean@iitmandi.ac.in", "password": "Dean@123"}'
-```
 
 ---
 
