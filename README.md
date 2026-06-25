@@ -1,3 +1,13 @@
+## My Contributions
+
+- Developed over 30% of the project implementation.
+- Designed and implemented core backend modules.
+- Built multiple frontend components and integrated REST APIs.
+- Contributed to database design, testing, and debugging.
+
+> Note: This repository is a fork of the original team repository.
+
+
 # Research Scholars Management Portal
 
 A comprehensive full-stack web application for managing PhD and M.Sc. research scholars at IIT Mandi.
